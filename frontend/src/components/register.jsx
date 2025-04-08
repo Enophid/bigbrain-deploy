@@ -1,122 +1,185 @@
 import { useState } from 'react';
+import Box from '@mui/material/Box';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
 
 export default function Register() {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [email, setEmail] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errorMessages, setErrorMessages] = useState('');
   console.log(name, password, confirmPassword, email);
 
+  const handleClickShowPassword = () => {
+    setShowPassword((show) => !show);
+  };
+  const handleClickShowConfirmPassword = () => {
+    setShowConfirmPassword((show) => !show);
+  };
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
+  const handleMouseUpPassword = (event) => {
+    event.preventDefault();
+  };
+
   const formValidation = () => {
-    if (confirmPassword !== password) {
-      return <div>Fail</div>;
+    let errors = '';
+    if (!name.trim()) {
+      errors = 'Please enter your name.';
+    } else if (!email.trim()) {
+      errors = 'Please enter your email.';
+    } else if (!password.trim() || !confirmPassword.trim()) {
+      errors = 'Please enter your password.';
+    } else if (password !== confirmPassword) {
+      errors = 'The confirm password does not match your password.';
     }
-    return <div>Success</div>;
+    setErrorMessages(errors);
+    return errors === '';
+  };
+
+  const handleRegister = () => {
+    if (formValidation()) {
+      // Proceed with registration logic (e.g., API call)
+      alert('Successfully registered account!');
+    }
   };
 
   return (
-    <div className='bg-sky-50 rounded-md mx-20 my-5'>
-      <h1 className='text-2xl font-bold text-gray-900 px-10 pt-5'>
-        Register Here
-      </h1>
+    <>
+      <Box sx={{ width: '100%', maxWidth: 500, margin: '7px' }}>
+        <Typography variant='h3' gutterBottom>
+          Register Here
+        </Typography>
+      </Box>
+      <Box
+        component='form'
+        sx={{
+          '& > :not(style)': { m: 1 },
+        }}
+        noValidate
+        autoComplete='off'
+      >
+        <FormControl sx={{ m: 1, width: '40ch' }}>
+          <InputLabel htmlFor='registerName' required>
+            Name
+          </InputLabel>
+          <OutlinedInput
+            type='text'
+            id='registerName'
+            label='Name'
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={(k) => {
+              if (k.key === 'Enter') handleRegister();
+            }}
+          />
+        </FormControl>
+        <FormControl sx={{ m: 1, width: '40ch' }}>
+          <InputLabel htmlFor='registerEmail' required>
+            Email
+          </InputLabel>
+          <OutlinedInput
+            type='email'
+            id='registerEmail'
+            label='Email'
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(k) => {
+              if (k.key === 'Enter') handleRegister();
+            }}
+          />
+        </FormControl>
+        <FormControl sx={{ m: 1, width: '40ch' }} variant='outlined'>
+          <InputLabel htmlFor='registerPassword' required>
+            Password
+          </InputLabel>
+          <OutlinedInput
+            id='registerPassword'
+            type={showPassword ? 'text' : 'password'}
+            endAdornment={
+              <InputAdornment position='end'>
+                <IconButton
+                  aria-label={
+                    showPassword ? 'hide the password' : 'display the password'
+                  }
+                  onClick={handleClickShowPassword}
+                  onMouseDown={handleMouseDownPassword}
+                  onMouseUp={handleMouseUpPassword}
+                  edge='end'
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            }
+            label='Password'
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(k) => {
+              if (k.key === 'Enter') handleRegister();
+            }}
+          />
+        </FormControl>
+        <FormControl sx={{ m: 1, width: '40ch' }} variant='outlined'>
+          <InputLabel htmlFor='confirmPassword' required>
+            Confirm Password
+          </InputLabel>
+          <OutlinedInput
+            id='confirmPassword'
+            type={showConfirmPassword ? 'text' : 'password'}
+            endAdornment={
+              <InputAdornment position='end'>
+                <IconButton
+                  aria-label={
+                    showConfirmPassword
+                      ? 'hide the password'
+                      : 'display the password'
+                  }
+                  onClick={handleClickShowConfirmPassword}
+                  onMouseDown={handleMouseDownPassword}
+                  onMouseUp={handleMouseUpPassword}
+                  edge='end'
+                >
+                  {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            }
+            label='Confirm Password'
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            onKeyDown={(k) => {
+              if (k.key === 'Enter') handleRegister();
+            }}
+          />
+        </FormControl>
+      </Box>
 
-      <form>
-        <div className='mt-5 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 px-10'>
-          <div className='sm:col-span-3'>
-            <label
-              htmlFor='registerName'
-              className='block text-sm/6 font-medium text-gray-900'
-            >
-              Enter Name:
-            </label>
-            <div className='mt-2'>
-              <input
-                type='text'
-                id='registerName'
-                name='registerName'
-                autoComplete='off'
-                required
-                value={name}
-                className='block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6'
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-          </div>
+      {errorMessages !== '' && (
+        <Alert severity='error' sx={{ marginBottom: 1 }}>
+          {errorMessages}
+        </Alert>
+      )}
 
-          <div className='sm:col-span-3'>
-            <label
-              htmlFor='registerEmail'
-              className='block text-sm/6 font-medium text-gray-900'
-            >
-              Enter Email:
-            </label>
-            <div className='mt-2'>
-              <input
-                type='email'
-                id='registerEmail'
-                name='registerEmail'
-                autoComplete='off'
-                required
-                className='block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6'
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className='sm:col-span-3'>
-            <label
-              htmlFor='registerPassword'
-              className='block text-sm/6 font-medium text-gray-900'
-            >
-              Enter Password:
-            </label>
-            <div className='mt-2'>
-              <input
-                type='password'
-                id='registerPassword'
-                name='registerPassword'
-                autoComplete='off'
-                required
-                className='block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6'
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className='sm:col-span-3'>
-            <label
-              htmlFor='confirmPassword'
-              className='block text-sm/6 font-medium text-gray-900'
-            >
-              Confirm Password:
-            </label>
-            <div className='mt-2'>
-              <input
-                type='password'
-                id='confirmPassword'
-                name='confirmPassword'
-                autoComplete='off'
-                required
-                className='block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6'
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
-      </form>
-      <div className='flex justify-self-center'>
-        <button
-          type='submit'
-          style={{ cursor: 'pointer' }}
-          className='flex-auto my-10 mx-10 rounded-md bg-indigo-600 px-10 py-2 text-xs font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
-          onClick={formValidation}
-        >
-          Register Account
-        </button>
-      </div>
-    </div>
+      <Button
+        type='sumbit'
+        sx={{ m: '10px' }}
+        variant='contained'
+        onClick={handleRegister}
+      >
+        Register Account
+      </Button>
+    </>
   );
 }

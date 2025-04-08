@@ -16,23 +16,19 @@ import {
   Visibility,
   VisibilityOff,
   Email,
-  Person,
-  HowToReg,
+  Login as LoginIcon,
 } from '@mui/icons-material';
 import kahootTheme from '../theme/kahootTheme';
 import ApiCall from './apiCall';
 import LockIcon from '@mui/icons-material/Lock';
 
-export default function Register() {
+export default function Login() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
     password: '',
-    confirmPassword: '',
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -44,39 +40,17 @@ export default function Register() {
     }));
   };
 
-  const validateForm = () => {
-    if (!formData.name.trim()) {
-      setError('Please enter your name');
-      return false;
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
+    // Form validation
     if (!formData.email.trim()) {
       setError('Please enter your email');
-      return false;
+      return;
     }
 
     if (!formData.password.trim()) {
       setError('Please enter your password');
-      return false;
-    }
-
-    if (!formData.confirmPassword.trim()) {
-      setError('Please confirm your password');
-      return false;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return false;
-    }
-
-    return true;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
       return;
     }
 
@@ -86,9 +60,8 @@ export default function Register() {
     try {
       // Use apiCall utility
       const data = await ApiCall(
-        '/admin/auth/register',
+        '/admin/auth/login',
         {
-          name: formData.name,
           email: formData.email,
           password: formData.password,
         },
@@ -96,7 +69,7 @@ export default function Register() {
       );
 
       if (data.error) {
-        throw new Error(data.error || 'Registration failed');
+        throw new Error(data.error || 'Login failed');
       }
 
       // Store token in localStorage
@@ -105,7 +78,7 @@ export default function Register() {
       // Redirect to dashboard
       navigate('/dashboard');
     } catch (err) {
-      setError(err.message || 'Failed to register. Please try again.');
+      setError(err.message || 'Failed to login. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -126,6 +99,7 @@ export default function Register() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          backgroundColor: '#F2F2F2',
           backgroundImage: 'linear-gradient(135deg, #46178F 0%, #7E57C2 100%)',
           py: { xs: 2, sm: 4 },
           px: { xs: 1, sm: 2 },
@@ -156,7 +130,7 @@ export default function Register() {
                   fontWeight: 700,
                 }}
               >
-                Join BigBrain!
+                Welcome to BigBrain!
               </Typography>
               <Typography
                 variant="body1"
@@ -165,7 +139,7 @@ export default function Register() {
                   fontSize: { xs: '0.875rem', sm: '1rem' },
                 }}
               >
-                Create an account to start making amazing quizzes
+                Login to start creating awesome quizzes!
               </Typography>
             </Box>
 
@@ -191,39 +165,6 @@ export default function Register() {
                 width: '100%',
               }}
             >
-              <TextField
-                fullWidth
-                label="Name"
-                name="name"
-                type="text"
-                value={formData.name}
-                onChange={handleChange}
-                onKeyDown={handleKeyPress}
-                variant="outlined"
-                size="medium"
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Person
-                          color="primary"
-                          sx={{ fontSize: { xs: 18, sm: 24 } }}
-                        />
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-                sx={{
-                  mb: { xs: 2, sm: 3 },
-                  '& .MuiInputBase-root': {
-                    fontSize: { xs: '0.875rem', sm: '1rem' },
-                  },
-                  '& .MuiInputLabel-root': {
-                    fontSize: { xs: '0.875rem', sm: '1rem' },
-                  },
-                }}
-              />
-
               <TextField
                 fullWidth
                 label="Email"
@@ -271,7 +212,10 @@ export default function Register() {
                   input: {
                     startAdornment: (
                       <InputAdornment position="start">
-                        <LockIcon />
+                        <LockIcon
+                          color="primary"
+                          sx={{ fontSize: { xs: 18, sm: 24 } }}
+                        />
                       </InputAdornment>
                     ),
                     endAdornment: (
@@ -305,56 +249,6 @@ export default function Register() {
                 }}
               />
 
-              <TextField
-                fullWidth
-                label="Confirm Password"
-                name="confirmPassword"
-                type={showConfirmPassword ? 'text' : 'password'}
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                onKeyDown={handleKeyPress}
-                variant="outlined"
-                size="medium"
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <LockIcon />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle confirm password visibility"
-                          onClick={() =>
-                            setShowConfirmPassword(!showConfirmPassword)
-                          }
-                          edge="end"
-                          size="small"
-                        >
-                          {showConfirmPassword ? (
-                            <VisibilityOff
-                              sx={{ fontSize: { xs: 18, sm: 24 } }}
-                            />
-                          ) : (
-                            <Visibility sx={{ fontSize: { xs: 18, sm: 24 } }} />
-                          )}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-                sx={{
-                  mb: { xs: 2, sm: 3 },
-                  '& .MuiInputBase-root': {
-                    fontSize: { xs: '0.875rem', sm: '1rem' },
-                  },
-                  '& .MuiInputLabel-root': {
-                    fontSize: { xs: '0.875rem', sm: '1rem' },
-                  },
-                }}
-              />
-
               <Button
                 type="submit"
                 variant="contained"
@@ -362,7 +256,7 @@ export default function Register() {
                 size="large"
                 fullWidth
                 disabled={isLoading}
-                startIcon={<HowToReg sx={{ fontSize: { xs: 18, sm: 22 } }} />}
+                startIcon={<LoginIcon sx={{ fontSize: { xs: 18, sm: 22 } }} />}
                 sx={{
                   py: { xs: 1, sm: 1.5 },
                   mt: { xs: 1, sm: 1 },
@@ -376,7 +270,7 @@ export default function Register() {
                   transition: 'all 0.2s',
                 }}
               >
-                {isLoading ? 'Registering...' : 'Create Account'}
+                {isLoading ? 'Logging in...' : 'Login'}
               </Button>
 
               <Box sx={{ mt: { xs: 2, sm: 4 }, textAlign: 'center' }}>
@@ -385,16 +279,16 @@ export default function Register() {
                   color="text.secondary"
                   sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
                 >
-                  Already have an account?{' '}
+                  Don&apos;t have an account?{' '}
                   <Link
-                    to="/login"
+                    to="/register"
                     style={{
                       color: kahootTheme.palette.primary.main,
                       textDecoration: 'none',
                       fontWeight: 600,
                     }}
                   >
-                    Login here
+                    Register here
                   </Link>
                 </Typography>
               </Box>

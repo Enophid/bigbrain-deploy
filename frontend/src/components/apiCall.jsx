@@ -1,6 +1,7 @@
 import { BACKEND_PORT } from '../../backend.config.json';
 
-export default async function apiCall(path, body, method) {
+// Using named export instead of default for better imports
+export const ApiCall = async (path, body, method) => {
   const response = await fetch(`http://localhost:${BACKEND_PORT}` + path, {
     method: method,
     body: method === 'GET' ? undefined : JSON.stringify(body),
@@ -10,6 +11,8 @@ export default async function apiCall(path, body, method) {
     },
   });
   const json = await response.json();
-  const data = await json;
-  return data;
-}
+  return json;
+};
+
+// For backward compatibility
+export default ApiCall;

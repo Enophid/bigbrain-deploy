@@ -1,16 +1,22 @@
-import { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Register from './components/register';
+import Login from './components/login';
+import GlobalStyles from './theme/globalStyles';
+import { Box } from '@mui/material';
 
 function App() {
   return (
-    <>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <GlobalStyles />
       <BrowserRouter>
-        <Routes>
-          <Route path='/register' element={<Register />} />
-        </Routes>
+        <div>
+          <Routes>
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+          </Routes>
+        </div>
       </BrowserRouter>
-    </>
+    </Box>
   );
 }
 

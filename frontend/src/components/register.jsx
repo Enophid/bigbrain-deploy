@@ -127,7 +127,8 @@ export default function Register() {
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: bigBrainTheme.palette.background.default,
-          backgroundImage: 'linear-gradient(135deg, #2D3047 0%, #00B4D8 50%, #06D6A0 100%)',
+          backgroundImage:
+            'linear-gradient(135deg, #2D3047 0%, #00B4D8 50%, #06D6A0 100%)',
           backgroundSize: '400% 400%',
           animation: 'gradient 15s ease infinite',
           py: { xs: 2, sm: 4 },

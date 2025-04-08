@@ -21,7 +21,7 @@ const GlobalStyles = () => {
           padding: 0,
           overflowX: 'hidden',
         },
-        'body': {
+        body: {
           fontFamily: '"Poppins", "Inter", "Arial", sans-serif',
           WebkitFontSmoothing: 'antialiased',
           MozOsxFontSmoothing: 'grayscale',
@@ -58,4 +58,4 @@ const GlobalStyles = () => {
   );
 };
 
-export default GlobalStyles; 
+export default GlobalStyles;

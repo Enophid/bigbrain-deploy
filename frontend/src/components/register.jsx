@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import apiCall from './apiCall';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
@@ -19,7 +20,12 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errorMessages, setErrorMessages] = useState('');
+  const [token, setToken] = useState('');
   console.log(name, password, confirmPassword, email);
+
+  useEffect(() => {
+    console.log(token);
+  }, [token]);
 
   const handleClickShowPassword = () => {
     setShowPassword((show) => !show);
@@ -50,10 +56,22 @@ export default function Register() {
     return errors === '';
   };
 
+  const fetchData = async (path, body, method) => {
+    try {
+      const data = await apiCall(path, body, method); // Call the function
+      if (data.error) {
+        alert(data.error);
+      } else {
+        setToken(data.token);
+      }
+    } catch (error) {
+      console.log('Error fetching data:', error);
+    }
+  };
+
   const handleRegister = () => {
     if (formValidation()) {
-      // Proceed with registration logic (e.g., API call)
-      alert('Successfully registered account!');
+      fetchData('/admin/auth/register', { email, password, name }, 'POST');
     }
   };
 

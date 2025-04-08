@@ -126,10 +126,24 @@ export default function Register() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundImage: 'linear-gradient(135deg, #46178F 0%, #7E57C2 100%)',
+          backgroundColor: bigBrainTheme.palette.background.default,
+          backgroundImage: 'linear-gradient(135deg, #2D3047 0%, #00B4D8 50%, #06D6A0 100%)',
+          backgroundSize: '400% 400%',
+          animation: 'gradient 15s ease infinite',
           py: { xs: 2, sm: 4 },
           px: { xs: 1, sm: 2 },
           overflow: 'auto',
+          '@keyframes gradient': {
+            '0%': {
+              backgroundPosition: '0% 50%',
+            },
+            '50%': {
+              backgroundPosition: '100% 50%',
+            },
+            '100%': {
+              backgroundPosition: '0% 50%',
+            },
+          },
         }}
       >
         <Container maxWidth="sm" sx={{ width: '100%' }}>

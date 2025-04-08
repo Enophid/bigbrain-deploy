@@ -249,7 +249,50 @@ export default function Login() {
                 }}
               />
 
-              
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                size="large"
+                fullWidth
+                disabled={isLoading}
+                startIcon={<LoginIcon sx={{ fontSize: { xs: 18, sm: 22 } }} />}
+                sx={{
+                  py: { xs: 1, sm: 1.5 },
+                  mt: { xs: 1, sm: 1 },
+                  fontSize: { xs: '0.9rem', sm: '1.1rem' },
+                  fontWeight: 700,
+                  boxShadow: 3,
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: 4,
+                  },
+                  transition: 'all 0.2s',
+                }}
+              >
+                {isLoading ? 'Logging in...' : 'Login'}
+              </Button>
+
+              <Box sx={{ mt: { xs: 2, sm: 4 }, textAlign: 'center' }}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+                >
+                  Don&apos;t have an account?{' '}
+                  <Link
+                    to="/register"
+                    style={{
+                      color: kahootTheme.palette.primary.main,
+                      textDecoration: 'none',
+                      fontWeight: 600,
+                    }}
+                  >
+                    Register here
+                  </Link>
+                </Typography>
+              </Box>
+            </Box>
           </Paper>
         </Container>
       </Box>

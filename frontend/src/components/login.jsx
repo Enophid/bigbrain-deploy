@@ -91,5 +91,168 @@ export default function Login() {
     }
   };
 
-  
+  return (
+    <ThemeProvider theme={kahootTheme}>
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#F2F2F2',
+          backgroundImage: 'linear-gradient(135deg, #46178F 0%, #7E57C2 100%)',
+          py: { xs: 2, sm: 4 },
+          px: { xs: 1, sm: 2 },
+          overflow: 'auto',
+        }}
+      >
+        <Container maxWidth="sm" sx={{ width: '100%' }}>
+          <Paper
+            elevation={8}
+            sx={{
+              p: { xs: 2, sm: 3, md: 5 },
+              borderRadius: { xs: 3, sm: 4 },
+              textAlign: 'center',
+              background: 'white',
+              width: '100%',
+              maxWidth: '100%',
+              mx: 'auto',
+            }}
+          >
+            <Box sx={{ mb: { xs: 2, sm: 4 } }}>
+              <Typography
+                variant="h3"
+                color="primary"
+                gutterBottom
+                sx={{
+                  fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2.5rem' },
+                  mb: { xs: 0.5, sm: 1 },
+                  fontWeight: 700,
+                }}
+              >
+                Welcome to BigBrain!
+              </Typography>
+              <Typography
+                variant="body1"
+                color="text.secondary"
+                sx={{
+                  fontSize: { xs: '0.875rem', sm: '1rem' },
+                }}
+              >
+                Login to start creating awesome quizzes!
+              </Typography>
+            </Box>
+
+            {error && (
+              <Alert
+                severity="error"
+                sx={{
+                  mb: 3,
+                  borderRadius: 2,
+                  fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                }}
+              >
+                {error}
+              </Alert>
+            )}
+
+            <Box
+              component="form"
+              onSubmit={handleSubmit}
+              noValidate
+              sx={{
+                mt: { xs: 1, sm: 2 },
+                width: '100%',
+              }}
+            >
+              <TextField
+                fullWidth
+                label="Email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                onKeyDown={handleKeyPress}
+                variant="outlined"
+                size="medium"
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Email
+                          color="primary"
+                          sx={{ fontSize: { xs: 18, sm: 24 } }}
+                        />
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+                sx={{
+                  mb: { xs: 2, sm: 3 },
+                  '& .MuiInputBase-root': {
+                    fontSize: { xs: '0.875rem', sm: '1rem' },
+                  },
+                  '& .MuiInputLabel-root': {
+                    fontSize: { xs: '0.875rem', sm: '1rem' },
+                  },
+                }}
+              />
+
+              <TextField
+                fullWidth
+                label="Password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                value={formData.password}
+                onChange={handleChange}
+                onKeyDown={handleKeyPress}
+                variant="outlined"
+                size="medium"
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LockIcon
+                          color="primary"
+                          sx={{ fontSize: { xs: 18, sm: 24 } }}
+                        />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                          size="small"
+                        >
+                          {showPassword ? (
+                            <VisibilityOff
+                              sx={{ fontSize: { xs: 18, sm: 24 } }}
+                            />
+                          ) : (
+                            <Visibility sx={{ fontSize: { xs: 18, sm: 24 } }} />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+                sx={{
+                  mb: { xs: 2, sm: 3 },
+                  '& .MuiInputBase-root': {
+                    fontSize: { xs: '0.875rem', sm: '1rem' },
+                  },
+                  '& .MuiInputLabel-root': {
+                    fontSize: { xs: '0.875rem', sm: '1rem' },
+                  },
+                }}
+              />
+
+              
+          </Paper>
+        </Container>
+      </Box>
+    </ThemeProvider>
+  );
 }

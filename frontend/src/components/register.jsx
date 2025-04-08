@@ -19,7 +19,7 @@ import {
   Person,
   HowToReg,
 } from '@mui/icons-material';
-import kahootTheme from '../theme/kahootTheme';
+import bigBrainTheme from '../theme/bigBrainTheme';
 import ApiCall from './apiCall';
 import LockIcon from '@mui/icons-material/Lock';
 
@@ -119,7 +119,7 @@ export default function Register() {
   };
 
   return (
-    <ThemeProvider theme={kahootTheme}>
+    <ThemeProvider theme={bigBrainTheme}>
       <Box
         sx={{
           minHeight: '100vh',
@@ -389,7 +389,7 @@ export default function Register() {
                   <Link
                     to="/login"
                     style={{
-                      color: kahootTheme.palette.primary.main,
+                      color: bigBrainTheme.palette.primary.main,
                       textDecoration: 'none',
                       fontWeight: 600,
                     }}

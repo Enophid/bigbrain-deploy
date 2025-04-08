@@ -18,7 +18,7 @@ import {
   Email,
   Login as LoginIcon,
 } from '@mui/icons-material';
-import kahootTheme from '../theme/kahootTheme';
+import bigBrainTheme from '../theme/bigBrainTheme';
 import ApiCall from './apiCall';
 import LockIcon from '@mui/icons-material/Lock';
 
@@ -92,7 +92,7 @@ export default function Login() {
   };
 
   return (
-    <ThemeProvider theme={kahootTheme}>
+    <ThemeProvider theme={bigBrainTheme}>
       <Box
         sx={{
           minHeight: '100vh',
@@ -283,7 +283,7 @@ export default function Login() {
                   <Link
                     to="/register"
                     style={{
-                      color: kahootTheme.palette.primary.main,
+                      color: bigBrainTheme.palette.primary.main,
                       textDecoration: 'none',
                       fontWeight: 600,
                     }}

@@ -69,22 +69,20 @@ function Dashboard() {
   };
 
   useEffect(() => {
-    try {
-      const GameToRender = async () => {
-        const data = await ApiCall('/admin/games', {}, 'GET');
-        if (data.error) {
-          throw new Error(data.error);
-        }
-        setGames(data.games);
-        console.log(data.games);
-      };
-
-      if (!hasFetched.current) {
-        GameToRender();
-        hasFetched.current = true;
+    const GameToRender = async () => {
+      const data = await ApiCall('/admin/games', {}, 'GET');
+      if (data.error) {
+        throw new Error(data.error);
       }
-    } catch (err) {
-      console.error(err.message);
+      setGames(data.games);
+      console.log(data.games);
+    };
+
+    if (!hasFetched.current) {
+      GameToRender().catch(err => {
+        console.error(err.message);
+      });
+      hasFetched.current = true;
     }
   }, []);
 
@@ -267,7 +265,7 @@ function Dashboard() {
           ) : (
             <Grid container spacing={3}>
               {games.map((game, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
+                <Grid item xs={12} sm={6} md={4} key={game.id}>
                   <Fade in={true} timeout={300 + index * 100}>
                     <Card
                       sx={{
@@ -559,7 +557,7 @@ function Dashboard() {
                       textTransform: 'none',
                     }}
                   >
-                    Select Image
+                    Select Image{' '}
                     <input
                       type="file"
                       hidden

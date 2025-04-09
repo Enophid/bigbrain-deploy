@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ApiCall from './apiCall';
 import FileToDataUrl from '../helper/helpers';
 import {
@@ -20,6 +21,7 @@ import {
   Container,
   Fade,
   Tooltip,
+  useMediaQuery,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -33,11 +35,16 @@ import {
 import bigBrainTheme from '../theme/bigBrainTheme';
 import GlobalStyles from '../theme/globalStyles';
 import Logout from './logout';
+import { useTheme } from '@mui/material/styles';
+
 const GenerateRandomID = () => {
   return Math.floor(Math.random() * Math.pow(10, 8));
 };
 
 function Dashboard() {
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [games, setGames] = useState([]);
   const [open, setOpen] = useState(false);
   const [fileName, setFileName] = useState('No file chosen');
@@ -79,7 +86,7 @@ function Dashboard() {
     };
 
     if (!hasFetched.current) {
-      GameToRender().catch(err => {
+      GameToRender().catch((err) => {
         console.error(err.message);
       });
       hasFetched.current = true;
@@ -112,6 +119,53 @@ function Dashboard() {
       thumbnail: '',
     });
     setFileName('No file chosen');
+  };
+
+  // Navigate to edit game
+  const handleEditGame = (gameId) => {
+    navigate(`/game/${gameId}`);
+  };
+
+  // Delete game
+  const handleDeleteGame = async (gameId) => {
+    try {
+      const response = await ApiCall(`/admin/games/${gameId}`, {}, 'DELETE');
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      // Remove game from state after successful deletion
+      setGames((prevGames) => prevGames.filter((game) => game.id !== gameId));
+    } catch (err) {
+      console.error('Failed to delete game:', err.message);
+      // Could add error handling UI here
+    }
+  };
+
+  // Start game
+  const handleStartGame = async (gameId) => {
+    try {
+      const response = await ApiCall(
+        `/admin/games/${gameId}/start`,
+        {},
+        'POST'
+      );
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      // Update the game status in the UI
+      setGames((prevGames) =>
+        prevGames.map((game) =>
+          game.id === gameId ? { ...game, active: true } : game
+        )
+      );
+
+      // Could redirect to session page or show session ID
+      // navigate(`/game/${gameId}/session/${response.sessionId}`);
+      console.log('Game started successfully, session:', response);
+    } catch (err) {
+      console.error('Failed to start game:', err.message);
+    }
   };
 
   return (
@@ -318,6 +372,7 @@ function Dashboard() {
                         >
                           <Tooltip title="Edit Game">
                             <IconButton
+                              size={isMobile ? 'small' : 'medium'}
                               color="primary"
                               sx={{
                                 backgroundColor: 'rgba(255,255,255,0.9)',
@@ -325,12 +380,16 @@ function Dashboard() {
                                   backgroundColor: 'white',
                                 },
                               }}
+                              onClick={() => handleEditGame(game.id)}
                             >
-                              <EditIcon fontSize="small" />
+                              <EditIcon
+                                fontSize={isMobile ? 'small' : 'medium'}
+                              />
                             </IconButton>
                           </Tooltip>
                           <Tooltip title="Delete Game">
                             <IconButton
+                              size={isMobile ? 'small' : 'medium'}
                               color="error"
                               sx={{
                                 backgroundColor: 'rgba(255,255,255,0.9)',
@@ -338,8 +397,11 @@ function Dashboard() {
                                   backgroundColor: 'white',
                                 },
                               }}
+                              onClick={() => handleDeleteGame(game.id)}
                             >
-                              <DeleteIcon fontSize="small" />
+                              <DeleteIcon
+                                fontSize={isMobile ? 'small' : 'medium'}
+                              />
                             </IconButton>
                           </Tooltip>
                         </Box>
@@ -432,6 +494,7 @@ function Dashboard() {
                               boxShadow: '0 6px 12px rgba(0,0,0,0.15)',
                             },
                           }}
+                          onClick={() => handleStartGame(game.id)}
                         >
                           Start Game
                         </Button>

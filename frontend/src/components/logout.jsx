@@ -59,6 +59,7 @@ export default function Logout() {
 
   const buttonLabel = isMobile ? '' : 'Logout';
   const tooltipTitle = isMobile ? 'Logout' : 'Click to log out of your account';
+
   return (
     <>
       <Tooltip title={tooltipTitle} arrow placement="bottom">
@@ -97,6 +98,7 @@ export default function Logout() {
           {buttonLabel}
         </Button>
       </Tooltip>
+
       <Dialog
         open={open}
         slots={{
@@ -158,6 +160,7 @@ export default function Logout() {
           >
             Log out of BigBrain?
           </DialogTitle>
+
           <DialogContent>
             <DialogContentText
               id="logout-confirmation-dialog"
@@ -169,6 +172,7 @@ export default function Logout() {
               You will need to login again to access your quizzes and data.
             </DialogContentText>
           </DialogContent>
+
           <DialogActions sx={{ px: 2, pb: 2 }}>
             <Button
               onClick={handleCloseDialog}

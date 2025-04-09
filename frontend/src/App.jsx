@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Register from './components/register';
 import Login from './components/login';
 import Dashboard from './components/dashboard';
+import GameEditor from './components/GameEditor';
 import GlobalStyles from './theme/globalStyles';
 import { Box } from '@mui/material';
 
@@ -16,7 +17,7 @@ function App() {
           <Route path="/login" element={<Login />} />
 
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/game/:gameId" element={<Dashboard />} /> {/* Placeholder until game editor is created */}
+          <Route path="/game/:gameId" element={<GameEditor />} />
           {/* Add other authenticated routes here */}
 
           {/* Redirect to login for any other paths */}

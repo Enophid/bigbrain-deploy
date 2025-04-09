@@ -174,7 +174,50 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart }) => {
               </Box>
             </Box>
 
-            
+            <Box
+              sx={{
+                display: 'flex',
+                gap: 1,
+                flexWrap: 'wrap',
+                mb: 2,
+              }}
+            >
+              <Chip
+                label="Active"
+                size="small"
+                color={game.active ? 'success' : 'default'}
+                variant={game.active ? 'filled' : 'outlined'}
+              />
+              <Chip
+                label={new Date(game.createAt).toLocaleDateString()}
+                size="small"
+                variant="outlined"
+              />
+            </Box>
+          </CardContent>
+
+          <Divider />
+          <Box sx={{ p: 2 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              startIcon={<PlayArrowIcon />}
+              sx={{
+                borderRadius: 2,
+                py: 1,
+                textTransform: 'none',
+                fontWeight: 600,
+                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                '&:hover': {
+                  boxShadow: '0 6px 12px rgba(0,0,0,0.15)',
+                },
+              }}
+              onClick={() => onStart(game.id)}
+            >
+              Start Game
+            </Button>
+          </Box>
         </Card>
       </Fade>
     </Grid>

@@ -288,7 +288,40 @@ const QuestionModal = ({
 
           <Divider />
 
-          
+          <Box
+            sx={{ p: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}
+          >
+            <Button
+              variant="outlined"
+              onClick={onClose}
+              sx={{
+                borderRadius: 2,
+                px: 3,
+                textTransform: 'none',
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<SaveIcon />}
+              onClick={handleSaveQuestion}
+              sx={{
+                borderRadius: 2,
+                px: 3,
+                textTransform: 'none',
+                fontWeight: 600,
+              }}
+              disabled={
+                !newQuestion.text ||
+                newQuestion.answers.some((a) => !a.text) ||
+                !newQuestion.answers.some((a) => a.isCorrect)
+              }
+            >
+              Save Question
+            </Button>
+          </Box>
         </Paper>
       </Fade>
     </Modal>

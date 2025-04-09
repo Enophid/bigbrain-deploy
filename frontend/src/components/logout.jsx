@@ -12,7 +12,7 @@ import {
   Tooltip,
   Box,
 } from '@mui/material';
-import { ApiCall } from './apiCall';
+import ApiCall from './apiCall';
 import LogoutIcon from '@mui/icons-material/Logout';
 
 export default function Logout() {
@@ -36,7 +36,7 @@ export default function Logout() {
       const data = await ApiCall(
         '/admin/auth/logout',
         { token: localStorage.getItem('token') },
-        'POST'
+        'POST',
       );
       if (data.error) {
         throw new Error(data.error || 'Logout failed');
@@ -56,10 +56,10 @@ export default function Logout() {
 
   return (
     <>
-      <Tooltip title={tooltipTitle} arrow placement="bottom">
+      <Tooltip title={tooltipTitle} arrow placement='bottom'>
         <Button
           variant={isMobile ? 'text' : 'outlined'}
-          color="secondary"
+          color='secondary'
           onClick={handleOpenDialog}
           startIcon={
             <LogoutIcon
@@ -69,7 +69,7 @@ export default function Logout() {
             />
           }
           size={isMobile ? 'small' : 'medium'}
-          aria-label="Logout from BigBrain"
+          aria-label='Logout from BigBrain'
           sx={{
             borderRadius: 2,
             fontWeight: 500,
@@ -96,7 +96,7 @@ export default function Logout() {
       <Dialog
         open={open}
         onClose={handleCloseDialog}
-        aria-describedby="logout-confirmation-dialog"
+        aria-describedby='logout-confirmation-dialog'
         slots={{
           paper: 'div',
           backdrop: 'div',
@@ -145,7 +145,7 @@ export default function Logout() {
 
           <DialogContent>
             <DialogContentText
-              id="logout-confirmation-dialog"
+              id='logout-confirmation-dialog'
               sx={{
                 fontSize: { xs: '0.875rem', sm: '1rem' },
                 color: 'text.primary',
@@ -158,15 +158,15 @@ export default function Logout() {
           <DialogActions sx={{ px: 2, pb: 2 }}>
             <Button
               onClick={handleCloseDialog}
-              variant="outlined"
+              variant='outlined'
               sx={{ borderRadius: 2 }}
             >
               Cancel
             </Button>
             <Button
               onClick={handleLogout}
-              variant="contained"
-              color="primary"
+              variant='contained'
+              color='primary'
               disabled={isLoggingOut}
               sx={{
                 borderRadius: 2,

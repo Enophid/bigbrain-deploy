@@ -4,7 +4,6 @@ import Login from './components/login';
 import Dashboard from './components/dashboard';
 import GlobalStyles from './theme/globalStyles';
 import { Box } from '@mui/material';
-import AuthLayout from './components/AuthLayout';
 
 function App() {
   return (
@@ -13,17 +12,14 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Public routes */}
-          <Route path='/register' element={<Register />} />
-          <Route path='/login' element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
 
-          {/* Protected routes wrapped with AuthLayout */}
-          <Route element={<AuthLayout />}>
-            <Route path='/dashboard' element={<Dashboard />} />
-            {/* Add other authenticated routes here */}
-          </Route>
+          <Route path="/dashboard" element={<Dashboard />} />
+          {/* Add other authenticated routes here */}
 
           {/* Redirect to login for any other paths */}
-          <Route path='*' element={<Navigate to='/login' replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     </Box>

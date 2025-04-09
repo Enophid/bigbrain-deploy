@@ -11,6 +11,7 @@ import {
   DialogTitle,
   Tooltip,
   Box,
+  Fade,
 } from '@mui/material';
 import ApiCall from './apiCall';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -100,30 +101,28 @@ export default function Logout() {
         open={open}
         onClose={handleCloseDialog}
         aria-describedby='logout-confirmation-dialog'
-        slots={{
-          paper: 'div',
-          backdrop: 'div',
+        TransitionComponent={Fade}
+        TransitionProps={{
+          timeout: 300
         }}
-        slotProps={{
-          paper: {
-            style: {
-              borderRadius: '12px',
-              width: '85%',
-              maxWidth: '400px',
-              margin: '0 auto',
-              padding: '4px 8px',
-              boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.25)',
-              border: '2px solid',
-              borderColor: theme.palette.secondary.main,
-              backgroundColor: 'white',
-            },
-          },
-          backdrop: {
-            style: {
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
-              backdropFilter: 'blur(6px)',
-            },
-          },
+        PaperProps={{
+          style: {
+            borderRadius: '12px',
+            width: '85%',
+            maxWidth: '400px',
+            margin: '0 auto',
+            padding: '4px 8px',
+            boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.25)',
+            border: '2px solid',
+            borderColor: theme.palette.secondary.main,
+            backgroundColor: 'white',
+          }
+        }}
+        BackdropProps={{
+          style: {
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            backdropFilter: 'blur(6px)',
+          }
         }}
       >
         <Box

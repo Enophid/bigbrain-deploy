@@ -118,20 +118,36 @@ function GameEditor() {
       <Box
         sx={{
           minHeight: '100vh',
+          height: '100%',
           display: 'flex',
           flexDirection: 'column',
           backgroundColor: bigBrainTheme.palette.background.default,
           backgroundImage:
             'linear-gradient(135deg, #2D3047 0%, #00B4D8 50%, #06D6A0 100%)',
           backgroundSize: '400% 400%',
+          backgroundAttachment: 'fixed',
           animation: 'gradient 15s ease infinite',
+          overflow: 'hidden',
+          position: 'fixed',
+          width: '100%',
+          left: 0,
+          top: 0,
           '@keyframes gradient': {
             '0%': { backgroundPosition: '0% 50%' },
             '50%': { backgroundPosition: '100% 50%' },
             '100%': { backgroundPosition: '0% 50%' },
           },
         }}
-      >
+      />
+      
+      {/* Content Container */}
+      <Box sx={{ 
+        position: 'relative',
+        minHeight: '100vh',
+        zIndex: 1,
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
         {/* Alert Message */}
         <AlertMessage message={alertMessage} show={showAlert} />
 
@@ -185,7 +201,14 @@ function GameEditor() {
           </Button>
         </Box>
 
-        <Container maxWidth="xl">
+        <Container maxWidth="xl" sx={{ 
+          flexGrow: 1, 
+          position: 'relative',
+          zIndex: 1,
+          mb: 5,
+          pb: 5,
+          overflowY: 'auto'
+        }}>
           {/* Tabs */}
           <Box sx={{ mb: 4 }}>
             <Tabs
@@ -245,48 +268,48 @@ function GameEditor() {
           {/* Game Info Tab */}
           {tabValue === 1 && <GameInfoTab game={game} onEditMetadata={() => setMetadataModalOpen(true)} />}
         </Container>
+      
+        {/* Question Modal */}
+        <QuestionModal 
+          open={questionModalOpen}
+          onClose={() => setQuestionModalOpen(false)}
+          currentQuestion={currentQuestion}
+          game={game}
+          onSave={async (updatedQuestions) => {
+            const success = await updateGame({
+              ...game,
+              questions: updatedQuestions
+            });
+            
+            if (success) {
+              setQuestionModalOpen(false);
+              displayAlert('Question saved successfully');
+            }
+          }}
+          error={error}
+          displayAlert={displayAlert}
+        />
+
+        {/* Game Metadata Modal */}
+        <MetadataModal
+          open={metadataModalOpen}
+          onClose={() => setMetadataModalOpen(false)}
+          game={game}
+          onSave={async (gameMetadata) => {
+            const success = await updateGame({
+              ...game,
+              name: gameMetadata.name,
+              thumbnail: gameMetadata.thumbnail
+            });
+            
+            if (success) {
+              setMetadataModalOpen(false);
+              displayAlert('Game details updated successfully');
+              await fetchGameData();
+            }
+          }}
+        />
       </Box>
-
-      {/* Question Modal */}
-      <QuestionModal 
-        open={questionModalOpen}
-        onClose={() => setQuestionModalOpen(false)}
-        currentQuestion={currentQuestion}
-        game={game}
-        onSave={async (updatedQuestions) => {
-          const success = await updateGame({
-            ...game,
-            questions: updatedQuestions
-          });
-          
-          if (success) {
-            setQuestionModalOpen(false);
-            displayAlert('Question saved successfully');
-          }
-        }}
-        error={error}
-        displayAlert={displayAlert}
-      />
-
-      {/* Game Metadata Modal */}
-      <MetadataModal
-        open={metadataModalOpen}
-        onClose={() => setMetadataModalOpen(false)}
-        game={game}
-        onSave={async (gameMetadata) => {
-          const success = await updateGame({
-            ...game,
-            name: gameMetadata.name,
-            thumbnail: gameMetadata.thumbnail
-          });
-          
-          if (success) {
-            setMetadataModalOpen(false);
-            displayAlert('Game details updated successfully');
-            await fetchGameData();
-          }
-        }}
-      />
     </ThemeProvider>
   );
 }

@@ -202,8 +202,38 @@ function Dashboard() {
           </Container>
         </Box>
 
-        
-  );
+        <Container
+          maxWidth="xl"
+          sx={{
+            flexGrow: 1,
+            mb: 5,
+            px: { xs: 2, sm: 3, md: 4 },
+            overflowY: 'auto',
+          }}
+        >
+          {/* Dashboard Title and Create Button */}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              mb: 4,
+            }}
+          >
+            <Typography
+              variant="h3"
+              sx={{
+                color: '#fff',
+                fontWeight: 700,
+                textShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                fontSize: { xs: '1.75rem', sm: '2.25rem', md: '2.75rem' },
+              }}
+            >
+              Your Games
+            </Typography>
+          </Box>
+
+          
 }
 
 export default Dashboard;

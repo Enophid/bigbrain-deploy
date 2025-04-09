@@ -165,7 +165,36 @@ const CreateGameModal = ({
 
           <Divider />
 
-          
+          <Box
+            sx={{ p: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}
+          >
+            <Button
+              variant="outlined"
+              onClick={onClose}
+              sx={{
+                borderRadius: 2,
+                px: 3,
+                textTransform: 'none',
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={onCreateGame}
+              startIcon={<AddIcon />}
+              disabled={!gameDetails.name || !gameDetails.thumbnail}
+              sx={{
+                borderRadius: 2,
+                px: 3,
+                textTransform: 'none',
+                fontWeight: 600,
+              }}
+            >
+              Create Game
+            </Button>
+          </Box>
         </Paper>
       </Fade>
     </Modal>

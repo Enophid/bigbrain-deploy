@@ -59,11 +59,15 @@ function Dashboard() {
     thumbnail: '',
   });
 
+  // Modal handlers
   const handleClose = () => setOpen(false);
+  const handleOpenModal = () => setOpen(true);
+
+  // File upload handler
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
-      setFileName(file.name); // Set the file name for display
+      setFileName(file.name);
     }
     const dataURL = await FileToDataUrl(file);
     setNewGameDetails((d) => ({
@@ -75,29 +79,28 @@ function Dashboard() {
     }));
   };
 
+  // Load games on component mount
   useEffect(() => {
-    const GameToRender = async () => {
-      const data = await ApiCall('/admin/games', {}, 'GET');
-      if (data.error) {
-        throw new Error(data.error);
+    const fetchGames = async () => {
+      try {
+        const data = await ApiCall('/admin/games', {}, 'GET');
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        setGames(data.games);
+      } catch (err) {
+        console.error('Failed to fetch games:', err.message);
       }
-      setGames(data.games);
-      console.log(data.games);
     };
 
     if (!hasFetched.current) {
-      GameToRender().catch((err) => {
-        console.error(err.message);
-      });
+      fetchGames();
       hasFetched.current = true;
     }
   }, []);
 
-  const HandleOpenModal = () => {
-    setOpen(true);
-  };
-
-  const HandleOnChange = (e) => {
+  // Form input handler
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewGameDetails((details) => ({
       ...details,
@@ -105,8 +108,8 @@ function Dashboard() {
     }));
   };
 
-  const HandleAddNewGame = () => {
-    console.log(newGameDetails);
+  // Create new game
+  const handleAddNewGame = () => {
     setGames((curGames) => [...curGames, newGameDetails]);
     setOpen(false);
     setNewGameDetails({
@@ -137,7 +140,6 @@ function Dashboard() {
       setGames((prevGames) => prevGames.filter((game) => game.id !== gameId));
     } catch (err) {
       console.error('Failed to delete game:', err.message);
-      // Could add error handling UI here
     }
   };
 
@@ -160,8 +162,6 @@ function Dashboard() {
         )
       );
 
-      // Could redirect to session page or show session ID
-      // navigate(`/game/${gameId}/session/${response.sessionId}`);
       console.log('Game started successfully, session:', response);
     } catch (err) {
       console.error('Failed to start game:', err.message);
@@ -228,11 +228,11 @@ function Dashboard() {
                   variant="contained"
                   color="primary"
                   startIcon={<AddIcon />}
-                  onClick={HandleOpenModal}
+                  onClick={handleOpenModal}
                   sx={{
                     borderRadius: 2,
                     py: { xs: 1, sm: 1.25 },
-                    px: { xs: 2, sm: 1 },
+                    px: { xs: 2, sm: 3 },
                     fontSize: { xs: '0.875rem', sm: '1rem' },
                     fontWeight: 600,
                     boxShadow: '0 4px 10px rgba(0,0,0,0.15)',
@@ -263,7 +263,7 @@ function Dashboard() {
             overflowY: 'auto',
           }}
         >
-          {/* Dashboard Title and Create Button */}
+          {/* Dashboard Title */}
           <Box
             sx={{
               display: 'flex',
@@ -285,16 +285,17 @@ function Dashboard() {
             </Typography>
           </Box>
 
-          {/* Game Cards Grid */}
+          {/* Empty State */}
           {games.length === 0 ? (
             <Paper
-              elevation={0}
               sx={{
-                p: 5,
+                py: 4,
                 textAlign: 'center',
-                backgroundColor: 'rgba(255,255,255,0.1)',
-                backdropFilter: 'blur(10px)',
                 borderRadius: 4,
+                boxShadow: '0 12px 24px rgba(0,0,0,0.15)',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(8px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
               }}
             >
               <Typography variant="h5" sx={{ color: 'white', mb: 2 }}>
@@ -310,7 +311,7 @@ function Dashboard() {
                 variant="contained"
                 color="primary"
                 startIcon={<AddIcon />}
-                onClick={HandleOpenModal}
+                onClick={handleOpenModal}
                 sx={{ mt: 3, textTransform: 'none', borderRadius: 2 }}
               >
                 Create Game
@@ -319,8 +320,16 @@ function Dashboard() {
           ) : (
             <Grid container spacing={3}>
               {games.map((game, index) => (
-                <Grid item xs={12} sm={6} md={4} key={game.id}>
-                  <Fade in={true} timeout={300 + index * 100}>
+                <Grid sx={{ 
+                  width: { 
+                    xs: '100%', 
+                    sm: '50%', 
+                    md: '33.33%', 
+                    lg: '33.33%' 
+                  }, 
+                  p: 1.5 
+                }} key={game.id}>
+                  <Fade in timeout={300 + index * 100}>
                     <Card
                       sx={{
                         height: '100%',
@@ -361,6 +370,7 @@ function Dashboard() {
                               'linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,0.8) 100%)',
                           }}
                         />
+                        {/* Action Buttons */}
                         <Box
                           sx={{
                             position: 'absolute',
@@ -420,6 +430,7 @@ function Dashboard() {
                         </Typography>
                       </Box>
 
+                      {/* Game Info */}
                       <CardContent sx={{ flexGrow: 1, pt: 2 }}>
                         <Box
                           sx={{ display: 'flex', alignItems: 'center', mb: 2 }}
@@ -509,7 +520,12 @@ function Dashboard() {
       </Box>
 
       {/* Create Game Modal */}
-      <Modal open={open} onClose={handleClose} closeAfterTransition>
+      <Modal 
+        open={open} 
+        onClose={handleClose} 
+        closeAfterTransition
+        aria-labelledby="create-game-modal-title"
+      >
         <Fade in={open}>
           <Paper
             elevation={24}
@@ -525,7 +541,9 @@ function Dashboard() {
               borderRadius: 3,
               boxShadow: '0 24px 48px rgba(0, 0, 0, 0.2)',
               p: 0,
+              outline: 'none',
             }}
+            tabIndex={-1}
           >
             <Box
               sx={{
@@ -536,6 +554,7 @@ function Dashboard() {
               }}
             >
               <Typography
+                id="create-game-modal-title"
                 variant="h4"
                 sx={{
                   color: 'white',
@@ -557,7 +576,7 @@ function Dashboard() {
                 variant="outlined"
                 fullWidth
                 required
-                onChange={HandleOnChange}
+                onChange={handleInputChange}
                 sx={{ mb: 3 }}
                 placeholder="Enter an engaging title for your game"
               />
@@ -661,7 +680,7 @@ function Dashboard() {
               <Button
                 variant="contained"
                 color="primary"
-                onClick={HandleAddNewGame}
+                onClick={handleAddNewGame}
                 startIcon={<AddIcon />}
                 disabled={!newGameDetails.name || !newGameDetails.thumbnail}
                 sx={{

@@ -65,7 +65,7 @@ export default function Login() {
           email: formData.email,
           password: formData.password,
         },
-        'POST'
+        'POST',
       );
 
       if (data.error) {
@@ -74,6 +74,7 @@ export default function Login() {
 
       // Store token in localStorage
       localStorage.setItem('token', data.token);
+      localStorage.setItem('admin', formData.email);
 
       // Redirect to dashboard
       navigate('/dashboard');
@@ -120,7 +121,7 @@ export default function Login() {
           },
         }}
       >
-        <Container maxWidth="sm" sx={{ width: '100%' }}>
+        <Container maxWidth='sm' sx={{ width: '100%' }}>
           <Paper
             elevation={8}
             sx={{
@@ -135,8 +136,8 @@ export default function Login() {
           >
             <Box sx={{ mb: { xs: 2, sm: 4 } }}>
               <Typography
-                variant="h3"
-                color="primary"
+                variant='h3'
+                color='primary'
                 gutterBottom
                 sx={{
                   fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2.5rem' },
@@ -147,8 +148,8 @@ export default function Login() {
                 Welcome to BigBrain!
               </Typography>
               <Typography
-                variant="body1"
-                color="text.secondary"
+                variant='body1'
+                color='text.secondary'
                 sx={{
                   fontSize: { xs: '0.875rem', sm: '1rem' },
                 }}
@@ -159,7 +160,7 @@ export default function Login() {
 
             {error && (
               <Alert
-                severity="error"
+                severity='error'
                 sx={{
                   mb: 3,
                   borderRadius: 2,
@@ -171,7 +172,7 @@ export default function Login() {
             )}
 
             <Box
-              component="form"
+              component='form'
               onSubmit={handleSubmit}
               noValidate
               sx={{
@@ -181,20 +182,20 @@ export default function Login() {
             >
               <TextField
                 fullWidth
-                label="Email"
-                name="email"
-                type="email"
+                label='Email'
+                name='email'
+                type='email'
                 value={formData.email}
                 onChange={handleChange}
                 onKeyDown={handleKeyPress}
-                variant="outlined"
-                size="medium"
+                variant='outlined'
+                size='medium'
                 slotProps={{
                   input: {
                     startAdornment: (
-                      <InputAdornment position="start">
+                      <InputAdornment position='start'>
                         <Email
-                          color="primary"
+                          color='primary'
                           sx={{ fontSize: { xs: 18, sm: 24 } }}
                         />
                       </InputAdornment>
@@ -214,31 +215,31 @@ export default function Login() {
 
               <TextField
                 fullWidth
-                label="Password"
-                name="password"
+                label='Password'
+                name='password'
                 type={showPassword ? 'text' : 'password'}
                 value={formData.password}
                 onChange={handleChange}
                 onKeyDown={handleKeyPress}
-                variant="outlined"
-                size="medium"
+                variant='outlined'
+                size='medium'
                 slotProps={{
                   input: {
                     startAdornment: (
-                      <InputAdornment position="start">
+                      <InputAdornment position='start'>
                         <LockIcon
-                          color="primary"
+                          color='primary'
                           sx={{ fontSize: { xs: 18, sm: 24 } }}
                         />
                       </InputAdornment>
                     ),
                     endAdornment: (
-                      <InputAdornment position="end">
+                      <InputAdornment position='end'>
                         <IconButton
-                          aria-label="toggle password visibility"
+                          aria-label='toggle password visibility'
                           onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                          size="small"
+                          edge='end'
+                          size='small'
                         >
                           {showPassword ? (
                             <VisibilityOff
@@ -264,10 +265,10 @@ export default function Login() {
               />
 
               <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                size="large"
+                type='submit'
+                variant='contained'
+                color='primary'
+                size='large'
                 fullWidth
                 disabled={isLoading}
                 startIcon={<LoginIcon sx={{ fontSize: { xs: 18, sm: 22 } }} />}
@@ -289,13 +290,13 @@ export default function Login() {
 
               <Box sx={{ mt: { xs: 2, sm: 4 }, textAlign: 'center' }}>
                 <Typography
-                  variant="body2"
-                  color="text.secondary"
+                  variant='body2'
+                  color='text.secondary'
                   sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
                 >
                   Don&apos;t have an account?{' '}
                   <Link
-                    to="/register"
+                    to='/register'
                     style={{
                       color: bigBrainTheme.palette.primary.main,
                       textDecoration: 'none',

@@ -16,6 +16,7 @@ function App() {
           <Route path="/login" element={<Login />} />
 
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/game/:gameId" element={<Dashboard />} /> {/* Placeholder until game editor is created */}
           {/* Add other authenticated routes here */}
 
           {/* Redirect to login for any other paths */}

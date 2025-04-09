@@ -122,7 +122,177 @@ const QuestionModal = ({
     }
   };
 
-  
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      closeAfterTransition
+      aria-labelledby="question-modal-title"
+      aria-describedby="question-modal-description"
+      disableRestoreFocus
+    >
+      <Fade in={open}>
+        <Paper
+          elevation={24}
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: { xs: '95%', sm: '90%', md: '600px' },
+            maxWidth: '95vw',
+            maxHeight: '90vh',
+            overflow: 'auto',
+            borderRadius: 3,
+            boxShadow: '0 24px 48px rgba(0, 0, 0, 0.2)',
+            p: 0,
+            outline: 'none',
+          }}
+          tabIndex={-1}
+        >
+          <Box
+            sx={{
+              background: `linear-gradient(135deg, ${bigBrainTheme.palette.primary.main} 0%, ${bigBrainTheme.palette.secondary.dark} 100%)`,
+              p: 3,
+              borderTopLeftRadius: 12,
+              borderTopRightRadius: 12,
+            }}
+          >
+            <Typography
+              id="question-modal-title"
+              variant="h5"
+              sx={{
+                color: 'white',
+                fontWeight: 700,
+                textAlign: 'center',
+                textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+              }}
+            >
+              {currentQuestion ? 'Edit Question' : 'Add Question'}
+            </Typography>
+          </Box>
+
+          <Box sx={{ p: 3 }}>
+            <TextField
+              label="Question Text"
+              multiline
+              rows={2}
+              value={newQuestion.text}
+              onChange={(e) => handleQuestionChange('text', e.target.value)}
+              fullWidth
+              sx={{ mb: 3 }}
+            />
+
+            <Grid container spacing={3} sx={{ mb: 3 }}>
+              <Grid sx={{ width: { xs: '100%', sm: '50%' } }}>
+                <TextField
+                  label="Time Limit (seconds)"
+                  type="number"
+                  value={newQuestion.timeLimit || ''}
+                  onChange={(e) =>
+                    handleQuestionChange(
+                      'timeLimit',
+                      parseInt(e.target.value) || 0
+                    )
+                  }
+                  fullWidth
+                  slotProps={{ input: { min: 5, max: 300 } }}
+                />
+              </Grid>
+              <Grid sx={{ width: { xs: '100%', sm: '50%' } }}>
+                <TextField
+                  label="Points"
+                  type="number"
+                  value={newQuestion.points || ''}
+                  onChange={(e) =>
+                    handleQuestionChange(
+                      'points',
+                      parseInt(e.target.value) || 0
+                    )
+                  }
+                  fullWidth
+                  slotProps={{ input: { min: 1, max: 100 } }}
+                />
+              </Grid>
+            </Grid>
+
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Answer Options
+            </Typography>
+
+            {newQuestion.answers.map((answer, index) => (
+              <Box
+                key={answer.id}
+                sx={{
+                  mb: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
+                }}
+              >
+                <TextField
+                  label={`Option ${index + 1}`}
+                  value={answer.text}
+                  onChange={(e) => {
+                    const updatedAnswers = [...newQuestion.answers];
+                    updatedAnswers[index].text = e.target.value;
+                    handleQuestionChange('answers', updatedAnswers);
+                  }}
+                  fullWidth
+                />
+                <Button
+                  variant={answer.isCorrect ? 'contained' : 'outlined'}
+                  color={answer.isCorrect ? 'success' : 'primary'}
+                  onClick={() => {
+                    const updatedAnswers = [...newQuestion.answers];
+                    updatedAnswers[index].isCorrect =
+                      !updatedAnswers[index].isCorrect;
+                    handleQuestionChange('answers', updatedAnswers);
+                  }}
+                  sx={{ minWidth: '80px', textTransform: 'none' }}
+                >
+                  {answer.isCorrect ? 'Correct' : 'Wrong'}
+                </Button>
+                {newQuestion.answers.length > 2 && (
+                  <IconButton
+                    color="error"
+                    onClick={() => {
+                      const updatedAnswers = newQuestion.answers.filter(
+                        (_, i) => i !== index
+                      );
+                      handleQuestionChange('answers', updatedAnswers);
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                )}
+              </Box>
+            ))}
+
+            <Button
+              variant="outlined"
+              startIcon={<AddIcon />}
+              onClick={() => {
+                // Use timestamp-based ID for new answers
+                const newId = Date.now();
+                handleQuestionChange('answers', [
+                  ...newQuestion.answers,
+                  { id: newId, text: '', isCorrect: false },
+                ]);
+              }}
+              sx={{ mb: 3, textTransform: 'none' }}
+            >
+              Add Option
+            </Button>
+          </Box>
+
+          <Divider />
+
+          
+        </Paper>
+      </Fade>
+    </Modal>
+  );
 };
 
 export default QuestionModal;

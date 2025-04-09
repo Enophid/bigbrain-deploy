@@ -1,4 +1,4 @@
-import { useState, forwardRef } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Button,
@@ -10,16 +10,10 @@ import {
   DialogContentText,
   DialogTitle,
   Tooltip,
-  Slide,
   Box,
 } from '@mui/material';
 import { ApiCall } from './apiCall';
 import LogoutIcon from '@mui/icons-material/Logout';
-
-// Transition effect for the dialog
-const Transition = forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
 
 export default function Logout() {
   const navigate = useNavigate();
@@ -101,43 +95,31 @@ export default function Logout() {
 
       <Dialog
         open={open}
+        onClose={handleCloseDialog}
+        aria-describedby="logout-confirmation-dialog"
         slots={{
-          transition: Transition,
           paper: 'div',
           backdrop: 'div',
         }}
         slotProps={{
-          transition: { direction: 'up' },
           paper: {
-            sx: {
-              borderRadius: 3,
-              width: { xs: '85%', sm: 'auto' },
-              p: { xs: 1, sm: 1 },
-              boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.25)',
-              transform: 'translateY(0)',
+            style: {
+              borderRadius: '12px',
+              width: '85%',
               maxWidth: '400px',
-              mx: 'auto',
-              position: 'relative',
-              zIndex: 1300,
+              margin: '0 auto',
+              padding: '4px 8px',
+              boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.25)',
               border: '2px solid',
-              borderColor: (theme) => theme.palette.secondary.main,
+              borderColor: theme.palette.secondary.main,
               backgroundColor: 'white',
             },
           },
           backdrop: {
-            sx: {
+            style: {
               backgroundColor: 'rgba(0, 0, 0, 0.7)',
               backdropFilter: 'blur(6px)',
             },
-          },
-        }}
-        keepMounted
-        onClose={handleCloseDialog}
-        aria-describedby="logout-confirmation-dialog"
-        sx={{
-          '& .MuiBackdrop-root': {
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            backdropFilter: 'blur(4px)',
           },
         }}
       >

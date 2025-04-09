@@ -419,7 +419,24 @@ function Dashboard() {
 
                       <Divider />
                       <Box sx={{ p: 2 }}>
-                        
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          fullWidth
+                          startIcon={<PlayArrowIcon />}
+                          sx={{
+                            borderRadius: 2,
+                            py: 1,
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                            '&:hover': {
+                              boxShadow: '0 6px 12px rgba(0,0,0,0.15)',
+                            },
+                          }}
+                        >
+                          Start Game
+                        </Button>
                       </Box>
                     </Card>
                   </Fade>
@@ -430,7 +447,176 @@ function Dashboard() {
         </Container>
       </Box>
 
-      
+      {/* Create Game Modal */}
+      <Modal open={open} onClose={handleClose} closeAfterTransition>
+        <Fade in={open}>
+          <Paper
+            elevation={24}
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: { xs: '90%', sm: '500px', md: '600px' },
+              maxWidth: '95vw',
+              maxHeight: '90vh',
+              overflow: 'auto',
+              borderRadius: 3,
+              boxShadow: '0 24px 48px rgba(0, 0, 0, 0.2)',
+              p: 0,
+            }}
+          >
+            <Box
+              sx={{
+                background: `linear-gradient(135deg, ${bigBrainTheme.palette.primary.main} 0%, ${bigBrainTheme.palette.secondary.dark} 100%)`,
+                p: 3,
+                borderTopLeftRadius: 12,
+                borderTopRightRadius: 12,
+              }}
+            >
+              <Typography
+                variant="h4"
+                sx={{
+                  color: 'white',
+                  fontWeight: 700,
+                  textAlign: 'center',
+                  textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                }}
+              >
+                Create New Game
+              </Typography>
+            </Box>
+
+            <Box sx={{ p: 3 }}>
+              <TextField
+                type="text"
+                label="Game Title"
+                name="name"
+                value={newGameDetails.name}
+                variant="outlined"
+                fullWidth
+                required
+                onChange={HandleOnChange}
+                sx={{ mb: 3 }}
+                placeholder="Enter an engaging title for your game"
+              />
+
+              <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500 }}>
+                Game Thumbnail
+              </Typography>
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  alignItems: { xs: 'flex-start', sm: 'center' },
+                  gap: 2,
+                  mb: 3,
+                  p: 2,
+                  borderRadius: 2,
+                  border: '1px dashed',
+                  borderColor: 'divider',
+                  backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                }}
+              >
+                <Box
+                  sx={{
+                    width: { xs: '100%', sm: '120px' },
+                    height: { xs: '120px', sm: '80px' },
+                    borderRadius: 1,
+                    overflow: 'hidden',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                  }}
+                >
+                  {newGameDetails.thumbnail ? (
+                    <img
+                      src={newGameDetails.thumbnail}
+                      alt="Thumbnail preview"
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  ) : (
+                    <ImageIcon sx={{ fontSize: 40, color: 'text.disabled' }} />
+                  )}
+                </Box>
+
+                <Box sx={{ flexGrow: 1 }}>
+                  <Button
+                    variant="outlined"
+                    component="label"
+                    startIcon={<ImageIcon />}
+                    sx={{
+                      mb: 1,
+                      borderRadius: 2,
+                      textTransform: 'none',
+                    }}
+                  >
+                    Select Image
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
+                  </Button>
+                  <Typography variant="body2" color="text.secondary">
+                    {fileName}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: 'block', mt: 0.5 }}
+                  >
+                    Recommended: 16:9 ratio, PNG or JPG
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            <Divider />
+
+            <Box
+              sx={{ p: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}
+            >
+              <Button
+                variant="outlined"
+                onClick={handleClose}
+                sx={{
+                  borderRadius: 2,
+                  px: 3,
+                  textTransform: 'none',
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={HandleAddNewGame}
+                startIcon={<AddIcon />}
+                disabled={!newGameDetails.name || !newGameDetails.thumbnail}
+                sx={{
+                  borderRadius: 2,
+                  px: 3,
+                  textTransform: 'none',
+                  fontWeight: 600,
+                }}
+              >
+                Create Game
+              </Button>
+            </Box>
+          </Paper>
+        </Fade>
+      </Modal>
+    </ThemeProvider>
   );
 }
 

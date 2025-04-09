@@ -46,14 +46,14 @@ export default function Logout() {
       );
       if (data.error) {
         throw new Error(data.error || 'Logout failed');
+      } else {
+        localStorage.removeItem('token');
+        navigate('/login');
+        setIsLoggingOut(false);
+        setOpen(false);
       }
     } catch (error) {
       console.error('Logout failed:', error);
-    } finally {
-      localStorage.removeItem('token');
-      navigate('/login');
-      setIsLoggingOut(false);
-      setOpen(false);
     }
   };
 

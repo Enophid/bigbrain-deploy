@@ -36,7 +36,8 @@ function GameEditor() {
   const navigate = useNavigate();
 
   // Custom hooks
-  const { game, loading, error, updateGame, fetchGameData } = useGameData(gameId);
+  const { game, loading, error, updateGame, fetchGameData } =
+    useGameData(gameId);
   const { alertMessage, showAlert, displayAlert } = useAlert();
 
   // UI state
@@ -139,15 +140,17 @@ function GameEditor() {
           },
         }}
       />
-      
+
       {/* Content Container */}
-      <Box sx={{ 
-        position: 'relative',
-        minHeight: '100vh',
-        zIndex: 1,
-        display: 'flex',
-        flexDirection: 'column'
-      }}>
+      <Box
+        sx={{
+          position: 'relative',
+          minHeight: '100vh',
+          zIndex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         {/* Alert Message */}
         <AlertMessage message={alertMessage} show={showAlert} />
 
@@ -201,14 +204,17 @@ function GameEditor() {
           </Button>
         </Box>
 
-        <Container maxWidth="xl" sx={{ 
-          flexGrow: 1, 
-          position: 'relative',
-          zIndex: 1,
-          mb: 5,
-          pb: 5,
-          overflowY: 'auto'
-        }}>
+        <Container
+          maxWidth="xl"
+          sx={{
+            flexGrow: 1,
+            position: 'relative',
+            zIndex: 1,
+            mb: 5,
+            pb: 5,
+            overflowY: 'auto',
+          }}
+        >
           {/* Tabs */}
           <Box sx={{ mb: 4 }}>
             <Tabs
@@ -249,14 +255,14 @@ function GameEditor() {
 
           {/* Questions Tab */}
           {tabValue === 0 && (
-            <QuestionTab 
+            <QuestionTab
               game={game}
               onAddQuestion={handleAddQuestion}
               onEditQuestion={handleEditQuestion}
               onDeleteQuestion={async (questionId) => {
                 const success = await updateGame({
                   ...game,
-                  questions: game.questions.filter(q => q.id !== questionId)
+                  questions: game.questions.filter((q) => q.id !== questionId),
                 });
                 if (success) {
                   displayAlert('Question deleted successfully');
@@ -266,11 +272,16 @@ function GameEditor() {
           )}
 
           {/* Game Info Tab */}
-          {tabValue === 1 && <GameInfoTab game={game} onEditMetadata={() => setMetadataModalOpen(true)} />}
+          {tabValue === 1 && (
+            <GameInfoTab
+              game={game}
+              onEditMetadata={() => setMetadataModalOpen(true)}
+            />
+          )}
         </Container>
-      
+
         {/* Question Modal */}
-        <QuestionModal 
+        <QuestionModal
           open={questionModalOpen}
           onClose={() => setQuestionModalOpen(false)}
           currentQuestion={currentQuestion}
@@ -278,9 +289,9 @@ function GameEditor() {
           onSave={async (updatedQuestions) => {
             const success = await updateGame({
               ...game,
-              questions: updatedQuestions
+              questions: updatedQuestions,
             });
-            
+
             if (success) {
               setQuestionModalOpen(false);
               displayAlert('Question saved successfully');
@@ -299,9 +310,9 @@ function GameEditor() {
             const success = await updateGame({
               ...game,
               name: gameMetadata.name,
-              thumbnail: gameMetadata.thumbnail
+              thumbnail: gameMetadata.thumbnail,
             });
-            
+
             if (success) {
               setMetadataModalOpen(false);
               displayAlert('Game details updated successfully');

@@ -19,14 +19,14 @@ import {
 } from '@mui/icons-material';
 import bigBrainTheme from '../../theme/bigBrainTheme';
 
-const QuestionModal = ({ 
-  open, 
-  onClose, 
-  currentQuestion, 
-  game, 
-  onSave, 
-  error, 
-  displayAlert 
+const QuestionModal = ({
+  open,
+  onClose,
+  currentQuestion,
+  game,
+  onSave,
+  error,
+  displayAlert,
 }) => {
   // State for the question form
   const [newQuestion, setNewQuestion] = useState({
@@ -337,5 +337,5 @@ QuestionModal.propTypes = {
   game: PropTypes.object.isRequired,
   onSave: PropTypes.func.isRequired,
   error: PropTypes.string,
-  displayAlert: PropTypes.func
-}; 
+  displayAlert: PropTypes.func,
+};

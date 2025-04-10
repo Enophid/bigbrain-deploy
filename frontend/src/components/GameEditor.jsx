@@ -52,7 +52,7 @@ function GameEditor() {
   };
 
   // Tab change handler
-  const handleTabChange = (newValue) => {
+  const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
 

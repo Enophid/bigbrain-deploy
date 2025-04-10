@@ -26,9 +26,9 @@ const AlertMessage = ({ message, show }) => {
   );
 };
 
-export default AlertMessage; 
+export default AlertMessage;
 
 AlertMessage.propTypes = {
   message: PropTypes.string,
-  show: PropTypes.bool.isRequired
-}; 
+  show: PropTypes.bool.isRequired,
+};

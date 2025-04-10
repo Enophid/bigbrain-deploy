@@ -10,10 +10,7 @@ import {
   Paper,
   Fade,
 } from '@mui/material';
-import {
-  Save as SaveIcon,
-  Image as ImageIcon,
-} from '@mui/icons-material';
+import { Save as SaveIcon, Image as ImageIcon } from '@mui/icons-material';
 import bigBrainTheme from '../../theme/bigBrainTheme';
 import FileToDataUrl from '../../helper/helpers';
 
@@ -237,7 +234,7 @@ MetadataModal.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   game: PropTypes.object.isRequired,
-  onSave: PropTypes.func.isRequired
+  onSave: PropTypes.func.isRequired,
 };
 
-export default MetadataModal; 
+export default MetadataModal;

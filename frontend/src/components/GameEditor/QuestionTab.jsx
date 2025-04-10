@@ -18,8 +18,12 @@ import {
   Delete as DeleteIcon,
 } from '@mui/icons-material';
 
-
-const QuestionTab = ({ game, onAddQuestion, onEditQuestion, onDeleteQuestion }) => {
+const QuestionTab = ({
+  game,
+  onAddQuestion,
+  onEditQuestion,
+  onDeleteQuestion,
+}) => {
   return (
     <Box>
       <Box
@@ -136,9 +140,7 @@ const QuestionTab = ({ game, onAddQuestion, onEditQuestion, onDeleteQuestion }) 
                       >
                         {question.answers
                           ? `${
-                            question.answers.filter(
-                              (a) => a.isCorrect
-                            ).length
+                            question.answers.filter((a) => a.isCorrect).length
                           } correct answer(s) • ${
                             question.answers.length
                           } total options`
@@ -162,5 +164,5 @@ QuestionTab.propTypes = {
   game: PropTypes.object.isRequired,
   onAddQuestion: PropTypes.func.isRequired,
   onEditQuestion: PropTypes.func.isRequired,
-  onDeleteQuestion: PropTypes.func.isRequired
-}; 
+  onDeleteQuestion: PropTypes.func.isRequired,
+};

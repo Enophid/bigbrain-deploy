@@ -37,7 +37,7 @@ export default function Logout() {
       const data = await ApiCall(
         '/admin/auth/logout',
         { token: localStorage.getItem('token') },
-        'POST',
+        'POST'
       );
       if (data.error) {
         throw new Error(data.error || 'Logout failed');
@@ -57,10 +57,10 @@ export default function Logout() {
 
   return (
     <>
-      <Tooltip title={tooltipTitle} arrow placement='bottom'>
+      <Tooltip title={tooltipTitle} arrow placement="bottom">
         <Button
           variant={isMobile ? 'text' : 'contained'}
-          color='error'
+          color="error"
           onClick={handleOpenDialog}
           startIcon={
             <LogoutIcon
@@ -71,7 +71,7 @@ export default function Logout() {
             />
           }
           size={isMobile ? 'small' : 'medium'}
-          aria-label='Logout from BigBrain'
+          aria-label="Logout from BigBrain"
           sx={{
             borderRadius: 8,
             fontWeight: 600,
@@ -90,7 +90,9 @@ export default function Logout() {
               outline: `2px solid ${theme.palette.error.main}`,
               outlineOffset: '2px',
             },
-            background: isMobile ? 'transparent' : 'linear-gradient(45deg, #d32f2f 30%, #f44336 90%)',
+            background: isMobile
+              ? 'transparent'
+              : 'linear-gradient(45deg, #d32f2f 30%, #f44336 90%)',
           }}
         >
           {buttonLabel}
@@ -100,10 +102,10 @@ export default function Logout() {
       <Dialog
         open={open}
         onClose={handleCloseDialog}
-        aria-describedby='logout-confirmation-dialog'
+        aria-describedby="logout-confirmation-dialog"
         TransitionComponent={Fade}
         TransitionProps={{
-          timeout: 300
+          timeout: 300,
         }}
         PaperProps={{
           style: {
@@ -116,13 +118,13 @@ export default function Logout() {
             border: '2px solid',
             borderColor: theme.palette.secondary.main,
             backgroundColor: 'white',
-          }
+          },
         }}
         BackdropProps={{
           style: {
             backgroundColor: 'rgba(0, 0, 0, 0.7)',
             backdropFilter: 'blur(6px)',
-          }
+          },
         }}
       >
         <Box
@@ -147,7 +149,7 @@ export default function Logout() {
 
           <DialogContent>
             <DialogContentText
-              id='logout-confirmation-dialog'
+              id="logout-confirmation-dialog"
               sx={{
                 fontSize: { xs: '0.875rem', sm: '1rem' },
                 color: 'text.primary',
@@ -156,20 +158,20 @@ export default function Logout() {
               You will need to login again to access your quizzes and data.
             </DialogContentText>
           </DialogContent>
-          
+
           <Box sx={{ display: 'flex', justifyContent: 'center' }}>
             <DialogActions sx={{ px: 2, pb: 2 }}>
               <Button
                 onClick={handleCloseDialog}
-                variant='outlined'
+                variant="outlined"
                 sx={{ borderRadius: 2 }}
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleLogout}
-                variant='contained'
-                color='primary'
+                variant="contained"
+                color="primary"
                 disabled={isLoggingOut}
                 sx={{
                   borderRadius: 2,

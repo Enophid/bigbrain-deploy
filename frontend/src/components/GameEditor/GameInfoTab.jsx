@@ -1,10 +1,10 @@
-import { 
-  Box, 
-  Typography, 
-  Card, 
-  CardContent, 
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
   Button,
-  Grid 
+  Grid,
 } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 import PropTypes from 'prop-types';
@@ -154,9 +154,9 @@ const GameInfoTab = ({ game, onEditMetadata }) => {
   );
 };
 
-export default GameInfoTab; 
+export default GameInfoTab;
 
 GameInfoTab.propTypes = {
   game: PropTypes.object.isRequired,
-  onEditMetadata: PropTypes.func.isRequired
-}; 
+  onEditMetadata: PropTypes.func.isRequired,
+};

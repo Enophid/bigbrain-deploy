@@ -166,10 +166,10 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart }) => {
                 />
                 <Typography variant="body2" color="text.secondary">
                   {game.questions.reduce(
-                    (acc, q) => acc + (q.duration || 0),
+                    (acc, q) => acc + (q.timeLimit / 60 || 0),
                     0
                   )}{' '}
-                  min
+                  minutes
                 </Typography>
               </Box>
             </Box>

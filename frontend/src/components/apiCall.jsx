@@ -1,9 +1,8 @@
 import { BACKEND_PORT } from '../../backend.config.json';
 
 const ApiCall = async (path, body, method) => {
- 
   const token = localStorage.getItem('token');
-  
+
   try {
     const response = await fetch(`http://localhost:${BACKEND_PORT}` + path, {
       method: method,
@@ -13,7 +12,7 @@ const ApiCall = async (path, body, method) => {
         Authorization: token ? `Bearer ${token}` : undefined,
       },
     });
-    
+
     if (!response.ok) {
       // If response status is 401 or 403, the token might be invalid
       if (response.status === 401 || response.status === 403) {
@@ -21,7 +20,7 @@ const ApiCall = async (path, body, method) => {
         // You might want to redirect to login here or handle token refresh
       }
     }
-    
+
     const json = await response.json();
     return json;
   } catch (error) {

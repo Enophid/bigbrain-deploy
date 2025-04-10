@@ -44,10 +44,10 @@ const GameInfoTab = ({ game, onEditMetadata }) => {
                 </Typography>
                 <Typography variant="body1" fontWeight={500}>
                   {game?.questions?.reduce(
-                    (acc, q) => acc + (q.timeLimit || 0),
+                    (acc, q) => acc + (q.timeLimit / 60 || 0),
                     0
                   ) || 0}{' '}
-                  seconds
+                  minutes
                 </Typography>
               </Box>
 

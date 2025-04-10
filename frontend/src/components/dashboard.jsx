@@ -20,7 +20,7 @@ import CreateGameModal from './dashboard/CreateGameModal';
 import EmptyState from './dashboard/EmptyState';
 
 // Helper function
-const generateRandomID = () => Math.floor(Math.random() * 10**8);
+const generateRandomID = () => Math.floor(Math.random() * 10 ** 8);
 
 function Dashboard() {
   const navigate = useNavigate();

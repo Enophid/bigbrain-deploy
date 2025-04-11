@@ -88,19 +88,52 @@ function Dashboard() {
   };
 
   // Create new game
-  const handleAddNewGame = () => {
-    setGames((curGames) => [...curGames, newGameDetails]);
-    setModalOpen(false);
-    setNewGameDetails({
-      id: 0,
-      owner: '',
-      questions: [],
-      active: 0,
-      createAt: '',
-      name: '',
-      thumbnail: '',
-    });
-    setFileName('No file chosen');
+  const handleAddNewGame = async () => {
+    try {
+      // Create a new game object with integer ID
+      const gameId = generateRandomID();
+      const newGame = {
+        ...newGameDetails,
+        id: gameId,  // Make sure this is an integer
+        owner: localStorage.getItem('admin'), // Use 'admin' key which stores the email
+        questions: [], // Start with empty questions array
+        createAt: new Date().toISOString(),
+        name: newGameDetails.name || 'Untitled Game', // Ensure name is set
+      };
+      
+      console.log('New game data:', newGame);
+      
+      // Add to local state
+      const updatedGames = [...games, newGame];
+      setGames(updatedGames);
+      
+      console.log('Saving games to backend:', updatedGames);
+      
+      // Save to backend - note we're sending all games
+      const response = await ApiCall('/admin/games', { games: updatedGames }, 'PUT');
+      console.log('Backend response:', response);
+      
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      
+      // Reset form
+      setModalOpen(false);
+      setNewGameDetails({
+        id: 0,
+        owner: '',
+        questions: [],
+        active: 0,
+        createAt: '',
+        name: '',
+        thumbnail: '',
+      });
+      setFileName('No file chosen');
+    } catch (err) {
+      console.error('Failed to save game:', err.message);
+      // Revert local state if backend failed
+      setGames(games);
+    }
   };
 
   // Game management handlers
@@ -110,11 +143,23 @@ function Dashboard() {
 
   const handleDeleteGame = async (gameId) => {
     try {
-      const response = await ApiCall(`/admin/games/${gameId}`, {}, 'DELETE');
+      // Filter out the game to delete
+      const updatedGames = games.filter(game => game.id !== gameId);
+      
+      // Update local state
+      setGames(updatedGames);
+      
+      console.log('Deleting game ID:', gameId);
+      console.log('Updated games list:', updatedGames);
+      
+      // Save to backend
+      const response = await ApiCall('/admin/games', { games: updatedGames }, 'PUT');
+      
       if (response.error) {
         throw new Error(response.error);
       }
-      setGames((prevGames) => prevGames.filter((game) => game.id !== gameId));
+      
+      console.log('Game deleted successfully');
     } catch (err) {
       console.error('Failed to delete game:', err.message);
     }

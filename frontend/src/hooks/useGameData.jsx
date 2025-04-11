@@ -5,6 +5,7 @@ const useGameData = (gameId) => {
   const [game, setGame] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [allGames, setAllGames] = useState([]); // Store all games
 
   // Fetch game data
   const fetchGameData = async () => {
@@ -15,6 +16,9 @@ const useGameData = (gameId) => {
       if (data.error) {
         throw new Error(data.error);
       }
+
+      // Store all games
+      setAllGames(data.games);
 
       // Find the specific game by ID
       const gameData = data.games.find((g) => g.id.toString() === gameId);
@@ -47,10 +51,17 @@ const useGameData = (gameId) => {
   // Update game data
   const updateGame = async (updatedGame) => {
     try {
-      // Update the entire game using the bulk update endpoint
+      // Create a new array with all games, replacing the updated one
+      const updatedGames = allGames.map(g => 
+        g.id === updatedGame.id ? updatedGame : g
+      );
+      
+      console.log('Updating all games:', updatedGames);
+      
+      // Update the games using the bulk update endpoint
       const response = await ApiCall(
         '/admin/games',
-        { games: [updatedGame] },
+        { games: updatedGames },
         'PUT'
       );
 

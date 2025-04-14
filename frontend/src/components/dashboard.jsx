@@ -306,9 +306,6 @@ function Dashboard() {
       // Close the session modal
       setSessionModalOpen(false);
       
-      // Show confirmation message
-      alert(`Session for ${currentSession.gameName} has been ended.`);
-      
       console.log('Game session ended successfully');
     } catch (err) {
       console.error('Failed to end game session:', err.message);

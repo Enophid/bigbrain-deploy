@@ -165,6 +165,182 @@ function Dashboard() {
     navigate(`/game/${gameId}`);
   };
 
+  const handleDeleteGame = async (gameId) => {
+    try {
+      // Get the current user's email from localStorage
+      const userEmail = localStorage.getItem('admin');
+      
+      if (!userEmail) {
+        throw new Error("User not authenticated. Please log in again.");
+      }
+      
+      // Find the game to ensure it exists
+      const gameToDelete = games.find(game => game.id === gameId);
+      
+      if (!gameToDelete) {
+        throw new Error("Game not found");
+      }
+      
+      // Check if the game is active
+      if (gameToDelete.active) {
+        throw new Error("Cannot delete a game with an active session. End the session first.");
+      }
+      
+      // Filter out the game to delete
+      const updatedGames = games.filter(game => game.id !== gameId);
+      
+      // Make sure all games have the owner field set
+      const gamesWithOwner = updatedGames.map(game => ({
+        ...game,
+        owner: game.owner || userEmail
+      }));
+      
+      // Update local state
+      setGames(gamesWithOwner);
+      
+      console.log('Deleting game ID:', gameId);
+      
+      // Save to backend
+      const response = await ApiCall('/admin/games', { games: gamesWithOwner }, 'PUT');
+      
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      
+      console.log('Game deleted successfully');
+    } catch (err) {
+      console.error('Failed to delete game:', err.message);
+      // Show an alert to the user
+      alert(`Failed to delete game: ${err.message}`);
+    }
+  };
+
+  const handleStartGame = async (gameId) => {
+    try {
+      // Re-fetch the games list first to ensure we have the latest state
+      const refreshData = await ApiCall('/admin/games', {}, 'GET');
+      if (refreshData.error) {
+        throw new Error(refreshData.error);
+      }
+      
+      // Update games with the latest data
+      setGames(refreshData.games);
+      
+      // Find the game in the updated list
+      const game = refreshData.games.find(g => g.id === gameId);
+      
+      if (!game) {
+        throw new Error("Game not found");
+      }
+      
+      const gameName = game.name || 'Game';
+      
+      // If the game is already active, just show the session modal with current session ID
+      if (game.active) {
+        setCurrentSession({
+          id: game.active,
+          gameName,
+          isNewSession: false,
+          gameId: gameId
+        });
+        setSessionModalOpen(true);
+        return;
+      }
+      
+      // Otherwise start a new game session
+      const response = await ApiCall(
+        `/admin/game/${gameId}/mutate`,
+        { mutationType: 'START' },
+        'POST'
+      );
+      
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      
+      // Re-fetch games to update the game's active status
+      const updatedData = await ApiCall('/admin/games', {}, 'GET');
+      if (!updatedData.error) {
+        setGames(updatedData.games);
+      }
+      
+      // Set current session and open modal
+      setCurrentSession({ 
+        id: response.data.sessionId, 
+        gameName,
+        isNewSession: true,
+        gameId: gameId
+      });
+      setSessionModalOpen(true);
+
+      console.log('Game started successfully, session:', response.data.sessionId);
+    } catch (err) {
+      console.error('Failed to start game:', err.message);
+      alert(`Failed to start game: ${err.message}`);
+    }
+  };
+
+  const handleEndSession = async () => {
+    try {
+      if (!currentSession.gameId) {
+        throw new Error("Game ID not found");
+      }
+
+      // Call the API to end the game session
+      const response = await ApiCall(
+        `/admin/game/${currentSession.gameId}/mutate`,
+        { mutationType: 'END' },
+        'POST'
+      );
+      
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      
+      // Re-fetch games to update the game's active status
+      const updatedData = await ApiCall('/admin/games', {}, 'GET');
+      if (!updatedData.error) {
+        setGames(updatedData.games);
+      }
+      
+      // Close the session modal
+      setSessionModalOpen(false);
+      
+      // Show confirmation message
+      alert(`Session for ${currentSession.gameName} has been ended.`);
+      
+      console.log('Game session ended successfully');
+    } catch (err) {
+      console.error('Failed to end game session:', err.message);
+      alert(`Failed to end game session: ${err.message}`);
+    }
+  };
+
+  const handleCloseSessionModal = () => {
+    setSessionModalOpen(false);
+  };
+
+  // Add this function to refresh games data periodically
+  useEffect(() => {
+    // Function to refresh games data
+    const refreshGames = async () => {
+      try {
+        const data = await ApiCall('/admin/games', {}, 'GET');
+        if (!data.error) {
+          setGames(data.games);
+        }
+      } catch (error) {
+        console.error('Failed to refresh games data:', error);
+      }
+    };
+
+    // Set up periodic refresh every 15 seconds
+    const intervalId = setInterval(refreshGames, 15000);
+
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalId);
+  }, []);
+
   
 }
 

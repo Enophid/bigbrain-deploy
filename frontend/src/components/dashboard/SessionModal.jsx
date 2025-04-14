@@ -179,4 +179,199 @@ const SessionModal = ({ open, onClose, sessionId, gameName, isNewSession = true,
         </Button>
       </Box>
     );
-  } 
+  } else if (sessionEnded) {
+    modalTitle = 'Session Ended';
+    modalTitleColor = theme => theme.palette.info.main;
+    modalIcon = <AssessmentIcon />;
+    modalIconLabel = "Ended";
+    
+    modalContent = (
+      <>
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Session for {gameName} has ended
+        </Typography>
+        
+        <Typography variant="body1" sx={{ mb: 3 }}>
+          Would you like to view the results for this session?
+        </Typography>
+      </>
+    );
+    
+    modalActions = (
+      <>
+        <Button 
+          variant="outlined"
+          onClick={onClose}
+          sx={{ borderRadius: 2 }}
+        >
+          No, Close
+        </Button>
+        <Button
+          variant="contained"
+          color="info"
+          onClick={handleViewResults}
+          startIcon={<AssessmentIcon />}
+          sx={{ borderRadius: 2 }}
+        >
+          Yes, View Results
+        </Button>
+      </>
+    );
+  } else {
+    modalTitle = isNewSession ? 'Game Session Started!' : 'Active Game Session';
+    modalTitleColor = theme => isNewSession ? theme.palette.primary.main : theme.palette.success.main;
+    modalIcon = isNewSession ? <PlayArrowIcon /> : <TimerIcon />;
+    modalIconLabel = isNewSession ? "New" : "Live";
+    
+    modalContent = (
+      <>
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          {gameName} {isNewSession ? 'is now ready to play' : 'is currently active'}
+        </Typography>
+        
+        <Typography variant="body1" sx={{ mb: 3 }}>
+          {isNewSession 
+            ? 'Share this session with your players so they can join:' 
+            : 'Players can continue to join this active session:'}
+        </Typography>
+        
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+            Session ID:
+          </Typography>
+          <TextField
+            fullWidth
+            variant="outlined"
+            value={sessionId}
+            InputProps={{
+              readOnly: true,
+              sx: { fontWeight: 'bold', fontSize: '1.1rem' }
+            }}
+          />
+        </Box>
+        
+        <Box>
+          <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+            Direct link:
+          </Typography>
+          <TextField
+            fullWidth
+            variant="outlined"
+            value={playUrl}
+            InputProps={{
+              readOnly: true,
+              endAdornment: (
+                <Tooltip title={copied ? "Copied!" : "Copy to clipboard"}>
+                  <IconButton onClick={handleCopyLink} edge="end">
+                    {copied ? <CheckIcon color="success" /> : <CopyIcon />}
+                  </IconButton>
+                </Tooltip>
+              ),
+            }}
+          />
+        </Box>
+
+        {!isNewSession && (
+          <Box sx={{ mt: 4, mb: 2 }}>
+            <Divider sx={{ mb: 3 }} />
+            <Typography variant="body2" color="error.main" fontWeight="medium">
+              Only one session of a game can be active at a time. To start a new session, you must first end the current one.
+            </Typography>
+          </Box>
+        )}
+      </>
+    );
+    
+    modalActions = (
+      <>
+        <Box>
+          {!isNewSession && (
+            <Button
+              variant="outlined"
+              color="error"
+              onClick={handleShowEndConfirm}
+              startIcon={<StopIcon />}
+              sx={{ borderRadius: 2, mr: 2 }}
+            >
+              End Session
+            </Button>
+          )}
+        </Box>
+        <Box>
+          <Button 
+            variant="outlined"
+            onClick={onClose}
+            sx={{ borderRadius: 2, mr: 2 }}
+          >
+            Close
+          </Button>
+          <Button
+            variant="contained"
+            color={isNewSession ? "primary" : "success"}
+            onClick={handleCopyLink}
+            startIcon={copied ? <CheckIcon /> : <CopyIcon />}
+            sx={{ borderRadius: 2 }}
+          >
+            {copied ? "Copied!" : "Copy Link"}
+          </Button>
+        </Box>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Dialog 
+        open={open} 
+        onClose={handleManualClose}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+          }
+        }}
+        // Prevent closing when clicking backdrop or pressing escape during session end
+        disableEscapeKeyDown={endingSession}
+        disableBackdropClick={endingSession}
+      >
+        <DialogTitle sx={{ 
+          pb: 1, 
+          fontWeight: 600,
+          backgroundColor: modalTitleColor,
+          color: 'white',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          {modalTitle}
+          
+          <Chip
+            icon={modalIcon}
+            label={modalIconLabel}
+            size="small"
+            sx={{ 
+              color: 'white',
+              borderColor: 'white',
+              '& .MuiChip-icon': {
+                color: 'white'
+              }
+            }}
+            variant="outlined"
+          />
+        </DialogTitle>
+        <DialogContent sx={{ pt: 3, pb: 2 }}>
+          {modalContent}
+        </DialogContent>
+        {modalActions && (
+          <DialogActions sx={{ px: 3, pb: 3, display: 'flex', justifyContent: 'space-between' }}>
+            {modalActions}
+          </DialogActions>
+        )}
+      </Dialog>
+
+      
+    </>
+  );
+};

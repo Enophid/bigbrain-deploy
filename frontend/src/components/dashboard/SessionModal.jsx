@@ -207,7 +207,39 @@ const SessionEndedContent = ({ gameName }) => (
   </>
 );
 
+// Helper function for rendering the session ended actions
+const SessionEndedActions = ({
+  onClose,
+  handleViewResults,
+  initialFocusRef,
+}) => (
+  <>
+    <Button variant="outlined" onClick={onClose} sx={{ borderRadius: 2 }}>
+      No, Close
+    </Button>
+    <Button
+      variant="contained"
+      color="info"
+      onClick={handleViewResults}
+      startIcon={<AssessmentIcon />}
+      sx={{ borderRadius: 2 }}
+      ref={initialFocusRef}
+    >
+      Yes, View Results
+    </Button>
+  </>
+);
 
+// Helper function for rendering the ending session content
+const EndingSessionContent = () => (
+  <Box sx={{ py: 4, textAlign: 'center' }}>
+    <CircularProgress color="warning" size={60} sx={{ mb: 3 }} />
+    <Typography variant="h6">Ending the game session...</Typography>
+    <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
+      Please wait while we process your request
+    </Typography>
+  </Box>
+);
 
 const SessionModal = ({
   open,

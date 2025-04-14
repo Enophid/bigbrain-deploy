@@ -27,6 +27,186 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
+// Helper function for rendering the default modal content
+const DefaultSessionContent = ({
+  gameName,
+  isNewSession,
+  sessionId,
+  playUrl,
+  copied,
+  handleCopyLink,
+}) => (
+  <>
+    <Typography variant="h6" sx={{ mb: 2 }}>
+      {gameName} {isNewSession ? 'is now ready to play' : 'is currently active'}
+    </Typography>
+
+    <Typography variant="body1" sx={{ mb: 3 }}>
+      {isNewSession
+        ? 'Share this session with your players so they can join:'
+        : 'Players can continue to join this active session:'}
+    </Typography>
+
+    <Box sx={{ mb: 3 }}>
+      <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+        Session ID:
+      </Typography>
+      <TextField
+        fullWidth
+        variant="outlined"
+        value={sessionId}
+        slotProps={{
+          input: {
+            readOnly: true,
+            sx: { fontWeight: 'bold', fontSize: '1.1rem' },
+          },
+        }}
+      />
+    </Box>
+
+    <Box>
+      <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+        Direct link:
+      </Typography>
+      <TextField
+        fullWidth
+        variant="outlined"
+        value={playUrl}
+        slotProps={{
+          input: {
+            readOnly: true,
+            endAdornment: (
+              <Tooltip title={copied ? 'Copied!' : 'Copy to clipboard'}>
+                <IconButton onClick={handleCopyLink} edge="end">
+                  {copied ? <CheckIcon color="success" /> : <CopyIcon />}
+                </IconButton>
+              </Tooltip>
+            ),
+          },
+        }}
+      />
+    </Box>
+
+    {!isNewSession && (
+      <Box sx={{ mt: 4, mb: 2 }}>
+        <Divider sx={{ mb: 3 }} />
+        <Typography variant="body2" color="error.main" fontWeight="medium">
+          Only one session of a game can be active at a time. To start a new
+          session, you must first end the current one.
+        </Typography>
+      </Box>
+    )}
+  </>
+);
+
+// Helper function for rendering the default modal actions
+const DefaultSessionActions = ({
+  isNewSession,
+  copied,
+  handleShowEndConfirm,
+  onClose,
+  handleCopyLink,
+  initialFocusRef,
+}) => (
+  <>
+    <Box>
+      {!isNewSession && (
+        <Button
+          variant="outlined"
+          color="error"
+          onClick={handleShowEndConfirm}
+          startIcon={<StopIcon />}
+          sx={{ borderRadius: 2, mr: 2 }}
+          ref={initialFocusRef}
+        >
+          End Session
+        </Button>
+      )}
+    </Box>
+    <Box>
+      <Button
+        variant="outlined"
+        onClick={onClose}
+        sx={{ borderRadius: 2, mr: 2 }}
+      >
+        Close
+      </Button>
+      <Button
+        variant="contained"
+        color={isNewSession ? 'primary' : 'success'}
+        onClick={handleCopyLink}
+        startIcon={copied ? <CheckIcon /> : <CopyIcon />}
+        sx={{ borderRadius: 2 }}
+        ref={isNewSession ? initialFocusRef : null}
+      >
+        {copied ? 'Copied!' : 'Copy Link'}
+      </Button>
+    </Box>
+  </>
+);
+
+// Helper function for rendering the end confirmation content
+const ConfirmEndContent = () => (
+  <>
+    <Typography variant="h6" sx={{ mb: 2 }}>
+      Are you sure you want to end this session?
+    </Typography>
+    <Typography variant="body1" sx={{ mb: 1 }}>
+      Ending this session will:
+    </Typography>
+    <Box sx={{ pl: 2, mb: 3 }}>
+      <Typography variant="body2" paragraph>
+        • Send all active players to the results screen
+      </Typography>
+      <Typography variant="body2" paragraph>
+        • Stop the session permanently (it cannot be restarted)
+      </Typography>
+      <Typography variant="body2" paragraph>
+        • Allow you to view the final results
+      </Typography>
+    </Box>
+  </>
+);
+
+// Helper function for rendering the end confirmation actions
+const ConfirmEndActions = ({
+  handleCancelEndSession,
+  handleConfirmEndSession,
+  initialFocusRef,
+}) => (
+  <Box sx={{ display: 'flex', width: '100%', justifyContent: 'space-between' }}>
+    <Button
+      variant="outlined"
+      onClick={handleCancelEndSession}
+      sx={{ borderRadius: 2 }}
+    >
+      Cancel
+    </Button>
+    <Button
+      variant="contained"
+      color="error"
+      onClick={handleConfirmEndSession}
+      startIcon={<StopIcon />}
+      sx={{ borderRadius: 2 }}
+      ref={initialFocusRef}
+    >
+      End Session
+    </Button>
+  </Box>
+);
+
+// Helper function for rendering the session ended content
+const SessionEndedContent = ({ gameName }) => (
+  <>
+    <Typography variant="h6" sx={{ mb: 2 }}>
+      Session for {gameName} has ended
+    </Typography>
+    <Typography variant="body1" sx={{ mb: 3 }}>
+      Would you like to view the results for this session?
+    </Typography>
+  </>
+);
+
 
 
 const SessionModal = ({

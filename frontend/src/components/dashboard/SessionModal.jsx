@@ -212,23 +212,29 @@ const SessionEndedActions = ({
   onClose,
   handleViewResults,
   initialFocusRef,
-}) => (
-  <>
-    <Button variant="outlined" onClick={onClose} sx={{ borderRadius: 2 }}>
-      No, Close
-    </Button>
-    <Button
-      variant="contained"
-      color="info"
-      onClick={handleViewResults}
-      startIcon={<AssessmentIcon />}
-      sx={{ borderRadius: 2 }}
-      ref={initialFocusRef}
-    >
-      Yes, View Results
-    </Button>
-  </>
-);
+}) => {
+  return (
+    <>
+      <Button 
+        variant="outlined" 
+        onClick={onClose} 
+        sx={{ borderRadius: 2 }}
+      >
+        No, Close
+      </Button>
+      <Button
+        variant="contained"
+        color="info"
+        onClick={handleViewResults}
+        startIcon={<AssessmentIcon />}
+        sx={{ borderRadius: 2 }}
+        ref={initialFocusRef}
+      >
+        Yes, View Results
+      </Button>
+    </>
+  );
+};
 
 // Helper function for rendering the ending session content
 const EndingSessionContent = () => (
@@ -289,52 +295,72 @@ const SessionModal = ({
   };
 
   const handleConfirmEndSession = async () => {
-    // Hide the confirmation dialog
     setShowEndConfirm(false);
-
     try {
-      // Set loading state
       setEndingSession(true);
-
-      // Create a local copy of onEndSession to prevent closure issues
-      const endSessionFn = onEndSession;
-
-      // Actually end the session
-      await endSessionFn();
-
-      // Show the results prompt
-      setSessionEnded(true);
+      
+      // Call the onEndSession function from props
+      if (onEndSession) {
+        const success = await onEndSession();
+        
+        if (success) {
+          // Show the Session Ended view
+          setSessionEnded(true);
+        } else {
+          // If session ending failed, just close the modal
+          onClose();
+        }
+      }
     } catch (error) {
       console.error('Error ending session:', error);
-      // Handle error if needed
+      onClose(); // Close on error
     } finally {
       setEndingSession(false);
     }
   };
 
   const handleViewResults = () => {
-    // Close the current modal
     onClose();
-    // Navigate to the results page
-    navigate(`/results/${sessionId}`);
+    if (sessionId) {
+      navigate(`/session/${sessionId}`);
+    } else {
+      console.error('Cannot navigate to results: Session ID is missing.');
+    }
   };
-
-  // Custom close handler to prevent closing when in loading state
+  
+  // Regular close handler (used for non-end-session cases)
   const handleClose = (event, reason) => {
-    if (endingSession) {
-      return; // Don't close during session end
+    // Prevent closing with backdrop or escape key during loading
+    if (endingSession && (reason === 'backdropClick' || reason === 'escapeKeyDown')) {
+      return;
     }
-
-    if (reason === 'backdropClick' || reason === 'escapeKeyDown') {
-      if (endingSession) {
-        return; // Don't close during session end
-      }
-    }
-
+    
+    // Reset state
+    setShowEndConfirm(false);
+    setCopied(false);
+    
+    // Don't reset sessionEnded here - we want it to persist
+    
+    // Call the parent's close handler
     onClose();
   };
+  
+  // Special handler for "No, Close" in Session Ended view
+  const handleCloseAfterEnd = () => {
+    // No need to call onEndSession again, it was already called
+    onClose();
+  };
+  
+  // Reset session ended state when the modal is closed or reopened
+  const handleModalOnExited = () => {
+    // Reset all local state after the closing animation completes
+    setSessionEnded(false);
+    setShowEndConfirm(false);
+    setEndingSession(false);
+    setCopied(false);
+  };
 
-  // Determine modal state properties
+  // Determine modal content based on current state
   let modalContent;
   let modalActions;
   let modalTitle;
@@ -370,7 +396,7 @@ const SessionModal = ({
     modalContent = <SessionEndedContent gameName={gameName} />;
     modalActions = (
       <SessionEndedActions
-        onClose={onClose}
+        onClose={handleCloseAfterEnd}
         handleViewResults={handleViewResults}
         initialFocusRef={initialFocusRef}
       />
@@ -396,7 +422,7 @@ const SessionModal = ({
         isNewSession={isNewSession}
         copied={copied}
         handleShowEndConfirm={handleShowEndConfirm}
-        onClose={onClose}
+        onClose={handleClose}
         handleCopyLink={handleCopyLink}
         initialFocusRef={initialFocusRef}
       />
@@ -416,6 +442,9 @@ const SessionModal = ({
               borderRadius: 2,
               boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
             },
+          },
+          transition: {
+            onExited: handleModalOnExited, // Reset state when modal is fully closed
           },
         }}
         disableEscapeKeyDown={endingSession}
@@ -484,7 +513,7 @@ const SessionModal = ({
   );
 };
 
-// Prop types for helper components
+// PropTypes for helper components
 DefaultSessionContent.propTypes = {
   gameName: PropTypes.string,
   isNewSession: PropTypes.bool,

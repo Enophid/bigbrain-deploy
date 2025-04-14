@@ -30,11 +30,11 @@ function Dashboard() {
   const [fileName, setFileName] = useState('No file chosen');
   const hasFetched = useRef(false);
   const [sessionModalOpen, setSessionModalOpen] = useState(false);
-  const [currentSession, setCurrentSession] = useState({ 
-    id: null, 
+  const [currentSession, setCurrentSession] = useState({
+    id: null,
     gameName: '',
     isNewSession: true,
-    gameId: null
+    gameId: null,
   });
   const [newGameDetails, setNewGameDetails] = useState({
     id: 0,
@@ -100,11 +100,11 @@ function Dashboard() {
     try {
       // Get the current user's email from localStorage
       const userEmail = localStorage.getItem('admin');
-      
+
       if (!userEmail) {
-        throw new Error("User not authenticated. Please log in again.");
+        throw new Error('User not authenticated. Please log in again.');
       }
-      
+
       const gameId = generateRandomID();
       const newGame = {
         ...newGameDetails,
@@ -117,7 +117,7 @@ function Dashboard() {
 
       // Update local state
       const updatedGames = [...games, newGame];
-      
+
       // Reset form and close modal
       setNewGameDetails({
         id: 0,
@@ -130,20 +130,24 @@ function Dashboard() {
       });
       setFileName('No file chosen');
       setModalOpen(false);
-      
+
       // Save to backend
-      const response = await ApiCall('/admin/games', { games: updatedGames }, 'PUT');
-      
+      const response = await ApiCall(
+        '/admin/games',
+        { games: updatedGames },
+        'PUT'
+      );
+
       if (response.error) {
         throw new Error(response.error);
       }
-      
+
       // Re-fetch the games to ensure we have the latest state from the server
       const refreshData = await ApiCall('/admin/games', {}, 'GET');
       if (refreshData.error) {
         throw new Error(refreshData.error);
       }
-      
+
       setGames(refreshData.games);
       console.log('New game created successfully');
     } catch (err) {
@@ -169,44 +173,50 @@ function Dashboard() {
     try {
       // Get the current user's email from localStorage
       const userEmail = localStorage.getItem('admin');
-      
+
       if (!userEmail) {
-        throw new Error("User not authenticated. Please log in again.");
+        throw new Error('User not authenticated. Please log in again.');
       }
-      
+
       // Find the game to ensure it exists
-      const gameToDelete = games.find(game => game.id === gameId);
-      
+      const gameToDelete = games.find((game) => game.id === gameId);
+
       if (!gameToDelete) {
-        throw new Error("Game not found");
+        throw new Error('Game not found');
       }
-      
+
       // Check if the game is active
       if (gameToDelete.active) {
-        throw new Error("Cannot delete a game with an active session. End the session first.");
+        throw new Error(
+          'Cannot delete a game with an active session. End the session first.'
+        );
       }
-      
+
       // Filter out the game to delete
-      const updatedGames = games.filter(game => game.id !== gameId);
-      
+      const updatedGames = games.filter((game) => game.id !== gameId);
+
       // Make sure all games have the owner field set
-      const gamesWithOwner = updatedGames.map(game => ({
+      const gamesWithOwner = updatedGames.map((game) => ({
         ...game,
-        owner: game.owner || userEmail
+        owner: game.owner || userEmail,
       }));
-      
+
       // Update local state
       setGames(gamesWithOwner);
-      
+
       console.log('Deleting game ID:', gameId);
-      
+
       // Save to backend
-      const response = await ApiCall('/admin/games', { games: gamesWithOwner }, 'PUT');
-      
+      const response = await ApiCall(
+        '/admin/games',
+        { games: gamesWithOwner },
+        'PUT'
+      );
+
       if (response.error) {
         throw new Error(response.error);
       }
-      
+
       console.log('Game deleted successfully');
     } catch (err) {
       console.error('Failed to delete game:', err.message);
@@ -222,58 +232,61 @@ function Dashboard() {
       if (refreshData.error) {
         throw new Error(refreshData.error);
       }
-      
+
       // Update games with the latest data
       setGames(refreshData.games);
-      
+
       // Find the game in the updated list
-      const game = refreshData.games.find(g => g.id === gameId);
-      
+      const game = refreshData.games.find((g) => g.id === gameId);
+
       if (!game) {
-        throw new Error("Game not found");
+        throw new Error('Game not found');
       }
-      
+
       const gameName = game.name || 'Game';
-      
+
       // If the game is already active, just show the session modal with current session ID
       if (game.active) {
         setCurrentSession({
           id: game.active,
           gameName,
           isNewSession: false,
-          gameId: gameId
+          gameId: gameId,
         });
         setSessionModalOpen(true);
         return;
       }
-      
+
       // Otherwise start a new game session
       const response = await ApiCall(
         `/admin/game/${gameId}/mutate`,
         { mutationType: 'START' },
         'POST'
       );
-      
+
       if (response.error) {
         throw new Error(response.error);
       }
-      
+
       // Re-fetch games to update the game's active status
       const updatedData = await ApiCall('/admin/games', {}, 'GET');
       if (!updatedData.error) {
         setGames(updatedData.games);
       }
-      
+
       // Set current session and open modal
-      setCurrentSession({ 
-        id: response.data.sessionId, 
+      setCurrentSession({
+        id: response.data.sessionId,
         gameName,
         isNewSession: true,
-        gameId: gameId
+        gameId: gameId,
       });
       setSessionModalOpen(true);
 
-      console.log('Game started successfully, session:', response.data.sessionId);
+      console.log(
+        'Game started successfully, session:',
+        response.data.sessionId
+      );
     } catch (err) {
       console.error('Failed to start game:', err.message);
       alert(`Failed to start game: ${err.message}`);
@@ -283,7 +296,7 @@ function Dashboard() {
   const handleEndSession = async () => {
     try {
       if (!currentSession.gameId) {
-        throw new Error("Game ID not found");
+        throw new Error('Game ID not found');
       }
 
       // Call the API to end the game session
@@ -292,20 +305,20 @@ function Dashboard() {
         { mutationType: 'END' },
         'POST'
       );
-      
+
       if (response.error) {
         throw new Error(response.error);
       }
-      
+
       // Re-fetch games to update the game's active status
       const updatedData = await ApiCall('/admin/games', {}, 'GET');
       if (!updatedData.error) {
         setGames(updatedData.games);
       }
-      
+
       // Close the session modal
       setSessionModalOpen(false);
-      
+
       console.log('Game session ended successfully');
     } catch (err) {
       console.error('Failed to end game session:', err.message);

@@ -115,18 +115,18 @@ export default function Logout() {
               maxWidth: '400px',
               margin: '0 auto',
               padding: '4px 8px',
-            boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.25)',
-            border: '2px solid',
-            borderColor: theme.palette.secondary.main,
-            backgroundColor: 'white',
-          },
-          backdrop: {
-            style: {
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
-              backdropFilter: 'blur(6px)',
+              boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.25)',
+              border: '2px solid',
+              borderColor: theme.palette.secondary.main,
+              backgroundColor: 'white',
             },
-          },
-        }}}
+            backdrop: {
+              style: {
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                backdropFilter: 'blur(6px)',
+              },
+            },
+          }}}
       >
         <Box
           sx={{

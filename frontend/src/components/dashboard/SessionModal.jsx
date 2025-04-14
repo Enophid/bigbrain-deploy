@@ -371,7 +371,32 @@ const SessionModal = ({ open, onClose, sessionId, gameName, isNewSession = true,
         )}
       </Dialog>
 
-      
+      <Snackbar 
+        open={showAlert} 
+        autoHideDuration={3000} 
+        onClose={handleCloseAlert}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseAlert} 
+          severity="success" 
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          Link copied to clipboard!
+        </Alert>
+      </Snackbar>
     </>
   );
 };
+
+SessionModal.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  sessionId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  gameName: PropTypes.string,
+  isNewSession: PropTypes.bool,
+  onEndSession: PropTypes.func,
+};
+
+export default SessionModal; 

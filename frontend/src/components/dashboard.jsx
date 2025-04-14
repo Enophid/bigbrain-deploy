@@ -9,9 +9,12 @@ import {
   Container,
   Typography,
   Grid,
+  Alert,
+  Snackbar,
 } from '@mui/material';
 import bigBrainTheme from '../theme/bigBrainTheme';
 import GlobalStyles from '../theme/globalStyles';
+import useAlert from '../hooks/useAlert';
 
 // Component imports
 import Header from './dashboard/Header';
@@ -45,6 +48,7 @@ function Dashboard() {
     name: '',
     thumbnail: '',
   });
+  const { alertMessage, showAlert, alertSeverity, displayAlert } = useAlert();
 
   // Load games on component mount
   useEffect(() => {
@@ -425,6 +429,7 @@ function Dashboard() {
                   onEdit={handleEditGame}
                   onDelete={handleDeleteGame}
                   onStart={handleStartGame}
+                  displayAlert={displayAlert}
                 />
               ))}
             </Grid>
@@ -452,6 +457,16 @@ function Dashboard() {
         isNewSession={currentSession.isNewSession}
         onEndSession={handleEndSession}
       />
+
+      <Snackbar
+        open={showAlert}
+        autoHideDuration={5000}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert severity={alertSeverity} variant="filled" sx={{ width: '100%' }}>
+          {alertMessage}
+        </Alert>
+      </Snackbar>
     </ThemeProvider>
   );
 }

@@ -68,6 +68,37 @@ function GameEditor() {
     setQuestionModalOpen(true);
   };
 
+  // Create a reusable handler for saving game updates
+  const createSaveHandler = (
+    updateData,
+    closeModalFunction,
+    successMessage,
+    shouldRefetch = false
+  ) => {
+    return async (data) => {
+      // Prepare update payload based on the type of data
+      const updatePayload =
+        typeof updateData === 'function' ? updateData(data) : updateData;
+
+      // Update the game with the new data
+      const success = await updateGame({
+        ...game,
+        ...updatePayload,
+      });
+
+      // If successful, close modal and show feedback
+      if (success) {
+        closeModalFunction(false);
+        displayAlert(successMessage);
+
+        // Optionally refetch game data
+        if (shouldRefetch) {
+          await fetchGameData();
+        }
+      }
+    };
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -286,17 +317,11 @@ function GameEditor() {
           onClose={() => setQuestionModalOpen(false)}
           currentQuestion={currentQuestion}
           game={game}
-          onSave={async (updatedQuestions) => {
-            const success = await updateGame({
-              ...game,
-              questions: updatedQuestions,
-            });
-
-            if (success) {
-              setQuestionModalOpen(false);
-              displayAlert('Question saved successfully');
-            }
-          }}
+          onSave={createSaveHandler(
+            (updatedQuestions) => ({ questions: updatedQuestions }),
+            setQuestionModalOpen,
+            'Question saved successfully'
+          )}
           error={error}
           displayAlert={displayAlert}
         />
@@ -306,19 +331,15 @@ function GameEditor() {
           open={metadataModalOpen}
           onClose={() => setMetadataModalOpen(false)}
           game={game}
-          onSave={async (gameMetadata) => {
-            const success = await updateGame({
-              ...game,
+          onSave={createSaveHandler(
+            (gameMetadata) => ({
               name: gameMetadata.name,
               thumbnail: gameMetadata.thumbnail,
-            });
-
-            if (success) {
-              setMetadataModalOpen(false);
-              displayAlert('Game details updated successfully');
-              await fetchGameData();
-            }
-          }}
+            }),
+            setMetadataModalOpen,
+            'Game details updated successfully',
+            true
+          )}
         />
       </Box>
     </ThemeProvider>

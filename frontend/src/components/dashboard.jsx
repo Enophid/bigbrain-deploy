@@ -320,13 +320,10 @@ function Dashboard() {
         setGames(updatedData.games);
       }
 
-      // Close the session modal
-      setSessionModalOpen(false);
-
-      console.log('Game session ended successfully');
+      return true; // Return success
     } catch (err) {
-      console.error('Failed to end game session:', err.message);
-      alert(`Failed to end game session: ${err.message}`);
+      displayAlert(`Failed to end game session: ${err.message}`, 'error');
+      return false; // Return failure
     }
   };
 

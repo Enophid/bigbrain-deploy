@@ -104,10 +104,12 @@ export default function Logout() {
         onClose={handleCloseDialog}
         aria-describedby="logout-confirmation-dialog"
         TransitionComponent={Fade}
-        TransitionProps={{
-          timeout: 300,
-        }}
         slotProps={{
+          transition: {
+            style: {
+              timeout: 300,
+            },
+          },
           paper: {
             style: {
               borderRadius: '12px',

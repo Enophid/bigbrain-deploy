@@ -249,6 +249,7 @@ const GameCardInfo = ({ game, isActive }) => {
     </CardContent>
   );
 };
+
 const GameCardFooter = ({ game, onStart }) => {
   const isActive = Boolean(game.active);
   return (
@@ -278,6 +279,7 @@ const GameCardFooter = ({ game, onStart }) => {
     </>
   );
 };
+
 const GameCard = ({ game, index, onEdit, onDelete, onStart, displayAlert }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -303,6 +305,7 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart, displayAlert }) => {
         : '0 20px 40px rgba(0,0,0,0.2)',
     },
   };
+
   return (
     <Grid
       sx={{
@@ -332,11 +335,13 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart, displayAlert }) => {
     </Grid>
   );
 };
+
 GameCardMedia.propTypes = {
   game: PropTypes.object.isRequired,
   isActive: PropTypes.bool.isRequired,
   theme: PropTypes.object.isRequired,
 };
+
 GameCardActions.propTypes = {
   game: PropTypes.object.isRequired,
   isMobile: PropTypes.bool.isRequired,

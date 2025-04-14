@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import {
   Dialog,
@@ -27,6 +27,8 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
+
+
 const SessionModal = ({
   open,
   onClose,
@@ -41,6 +43,9 @@ const SessionModal = ({
   const [sessionEnded, setSessionEnded] = useState(false);
   const [endingSession, setEndingSession] = useState(false);
   const navigate = useNavigate();
+
+  // Ref for managing focus
+  const initialFocusRef = useRef(null);
 
   // Generate the play URL with the session ID
   const playUrl = `${window.location.origin}/play?session=${sessionId}`;
@@ -102,15 +107,22 @@ const SessionModal = ({
     navigate(`/results/${sessionId}`);
   };
 
-  // Optional manual close handler to ensure we control when the modal closes
-  const handleManualClose = () => {
-    // Only close if we're not in the middle of ending a session
-    if (!endingSession) {
-      onClose();
+  // Custom close handler to prevent closing when in loading state
+  const handleClose = (event, reason) => {
+    if (endingSession) {
+      return; // Don't close during session end
     }
+
+    if (reason === 'backdropClick' || reason === 'escapeKeyDown') {
+      if (endingSession) {
+        return; // Don't close during session end
+      }
+    }
+
+    onClose();
   };
 
-  // Render different content based on the modal state
+  // Determine modal state properties
   let modalContent;
   let modalActions;
   let modalTitle;
@@ -123,103 +135,33 @@ const SessionModal = ({
     modalTitleColor = (theme) => theme.palette.warning.main;
     modalIcon = <StopIcon />;
     modalIconLabel = 'Processing';
-
-    modalContent = (
-      <Box sx={{ py: 4, textAlign: 'center' }}>
-        <CircularProgress color="warning" size={60} sx={{ mb: 3 }} />
-        <Typography variant="h6">Ending the game session...</Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-          Please wait while we process your request
-        </Typography>
-      </Box>
-    );
-
+    modalContent = <EndingSessionContent />;
     modalActions = null;
   } else if (showEndConfirm) {
     modalTitle = 'End Game Session?';
     modalTitleColor = (theme) => theme.palette.warning.main;
     modalIcon = <StopIcon />;
     modalIconLabel = 'Confirm';
-
-    modalContent = (
-      <>
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          Are you sure you want to end this session?
-        </Typography>
-
-        <Typography variant="body1" sx={{ mb: 1 }}>
-          Ending this session will:
-        </Typography>
-
-        <Box sx={{ pl: 2, mb: 3 }}>
-          <Typography variant="body2" paragraph>
-            • Send all active players to the results screen
-          </Typography>
-          <Typography variant="body2" paragraph>
-            • Stop the session permanently (it cannot be restarted)
-          </Typography>
-          <Typography variant="body2" paragraph>
-            • Allow you to view the final results
-          </Typography>
-        </Box>
-      </>
-    );
-
+    modalContent = <ConfirmEndContent />;
     modalActions = (
-      <Box
-        sx={{ display: 'flex', width: '100%', justifyContent: 'space-between' }}
-      >
-        <Button
-          variant="outlined"
-          onClick={handleCancelEndSession}
-          sx={{ borderRadius: 2 }}
-        >
-          Cancel
-        </Button>
-        <Button
-          variant="contained"
-          color="error"
-          onClick={handleConfirmEndSession}
-          startIcon={<StopIcon />}
-          sx={{ borderRadius: 2 }}
-        >
-          End Session
-        </Button>
-      </Box>
+      <ConfirmEndActions
+        handleCancelEndSession={handleCancelEndSession}
+        handleConfirmEndSession={handleConfirmEndSession}
+        initialFocusRef={initialFocusRef}
+      />
     );
   } else if (sessionEnded) {
     modalTitle = 'Session Ended';
     modalTitleColor = (theme) => theme.palette.info.main;
     modalIcon = <AssessmentIcon />;
     modalIconLabel = 'Ended';
-
-    modalContent = (
-      <>
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          Session for {gameName} has ended
-        </Typography>
-
-        <Typography variant="body1" sx={{ mb: 3 }}>
-          Would you like to view the results for this session?
-        </Typography>
-      </>
-    );
-
+    modalContent = <SessionEndedContent gameName={gameName} />;
     modalActions = (
-      <>
-        <Button variant="outlined" onClick={onClose} sx={{ borderRadius: 2 }}>
-          No, Close
-        </Button>
-        <Button
-          variant="contained"
-          color="info"
-          onClick={handleViewResults}
-          startIcon={<AssessmentIcon />}
-          sx={{ borderRadius: 2 }}
-        >
-          Yes, View Results
-        </Button>
-      </>
+      <SessionEndedActions
+        onClose={onClose}
+        handleViewResults={handleViewResults}
+        initialFocusRef={initialFocusRef}
+      />
     );
   } else {
     modalTitle = isNewSession ? 'Game Session Started!' : 'Active Game Session';
@@ -227,102 +169,25 @@ const SessionModal = ({
       isNewSession ? theme.palette.primary.main : theme.palette.success.main;
     modalIcon = isNewSession ? <PlayArrowIcon /> : <TimerIcon />;
     modalIconLabel = isNewSession ? 'New' : 'Live';
-
     modalContent = (
-      <>
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          {gameName}{' '}
-          {isNewSession ? 'is now ready to play' : 'is currently active'}
-        </Typography>
-
-        <Typography variant="body1" sx={{ mb: 3 }}>
-          {isNewSession
-            ? 'Share this session with your players so they can join:'
-            : 'Players can continue to join this active session:'}
-        </Typography>
-
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
-            Session ID:
-          </Typography>
-          <TextField
-            fullWidth
-            variant="outlined"
-            value={sessionId}
-            InputProps={{
-              readOnly: true,
-              sx: { fontWeight: 'bold', fontSize: '1.1rem' },
-            }}
-          />
-        </Box>
-
-        <Box>
-          <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
-            Direct link:
-          </Typography>
-          <TextField
-            fullWidth
-            variant="outlined"
-            value={playUrl}
-            InputProps={{
-              readOnly: true,
-              endAdornment: (
-                <Tooltip title={copied ? 'Copied!' : 'Copy to clipboard'}>
-                  <IconButton onClick={handleCopyLink} edge="end">
-                    {copied ? <CheckIcon color="success" /> : <CopyIcon />}
-                  </IconButton>
-                </Tooltip>
-              ),
-            }}
-          />
-        </Box>
-
-        {!isNewSession && (
-          <Box sx={{ mt: 4, mb: 2 }}>
-            <Divider sx={{ mb: 3 }} />
-            <Typography variant="body2" color="error.main" fontWeight="medium">
-              Only one session of a game can be active at a time. To start a new
-              session, you must first end the current one.
-            </Typography>
-          </Box>
-        )}
-      </>
+      <DefaultSessionContent
+        gameName={gameName}
+        isNewSession={isNewSession}
+        sessionId={sessionId}
+        playUrl={playUrl}
+        copied={copied}
+        handleCopyLink={handleCopyLink}
+      />
     );
-
     modalActions = (
-      <>
-        <Box>
-          {!isNewSession && (
-            <Button
-              variant="outlined"
-              color="error"
-              onClick={handleShowEndConfirm}
-              startIcon={<StopIcon />}
-              sx={{ borderRadius: 2, mr: 2 }}
-            >
-              End Session
-            </Button>
-          )}
-        </Box>
-        <Box>
-          <Button
-            variant="outlined"
-            onClick={onClose}
-            sx={{ borderRadius: 2, mr: 2 }}
-          >
-            Close
-          </Button>
-          <Button
-            variant="contained"
-            color={isNewSession ? 'primary' : 'success'}
-            onClick={handleCopyLink}
-            startIcon={copied ? <CheckIcon /> : <CopyIcon />}
-            sx={{ borderRadius: 2 }}
-          >
-            {copied ? 'Copied!' : 'Copy Link'}
-          </Button>
-        </Box>
-      </>
+      <DefaultSessionActions
+        isNewSession={isNewSession}
+        copied={copied}
+        handleShowEndConfirm={handleShowEndConfirm}
+        onClose={onClose}
+        handleCopyLink={handleCopyLink}
+        initialFocusRef={initialFocusRef}
+      />
     );
   }
 
@@ -330,20 +195,23 @@ const SessionModal = ({
     <>
       <Dialog
         open={open}
-        onClose={handleManualClose}
+        onClose={handleClose}
         maxWidth="sm"
         fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 2,
-            boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: 2,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+            },
           },
         }}
-        // Prevent closing when clicking backdrop or pressing escape during session end
         disableEscapeKeyDown={endingSession}
-        disableBackdropClick={endingSession}
+        keepMounted={false}
+        aria-labelledby="session-modal-title"
       >
         <DialogTitle
+          id="session-modal-title"
           sx={{
             pb: 1,
             fontWeight: 600,
@@ -403,6 +271,45 @@ const SessionModal = ({
     </>
   );
 };
+
+// Prop types for helper components
+DefaultSessionContent.propTypes = {
+  gameName: PropTypes.string,
+  isNewSession: PropTypes.bool,
+  sessionId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  playUrl: PropTypes.string,
+  copied: PropTypes.bool,
+  handleCopyLink: PropTypes.func,
+};
+
+DefaultSessionActions.propTypes = {
+  isNewSession: PropTypes.bool,
+  copied: PropTypes.bool,
+  handleShowEndConfirm: PropTypes.func,
+  onClose: PropTypes.func,
+  handleCopyLink: PropTypes.func,
+  initialFocusRef: PropTypes.object,
+};
+
+ConfirmEndContent.propTypes = {};
+
+ConfirmEndActions.propTypes = {
+  handleCancelEndSession: PropTypes.func,
+  handleConfirmEndSession: PropTypes.func,
+  initialFocusRef: PropTypes.object,
+};
+
+SessionEndedContent.propTypes = {
+  gameName: PropTypes.string,
+};
+
+SessionEndedActions.propTypes = {
+  onClose: PropTypes.func,
+  handleViewResults: PropTypes.func,
+  initialFocusRef: PropTypes.object,
+};
+
+EndingSessionContent.propTypes = {};
 
 SessionModal.propTypes = {
   open: PropTypes.bool.isRequired,

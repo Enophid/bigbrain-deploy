@@ -108,26 +108,48 @@ const DefaultSessionActions = ({
   handleCopyLink,
   initialFocusRef,
 }) => (
-  <>
-    <Box>
-      {!isNewSession && (
-        <Button
-          variant="outlined"
-          color="error"
-          onClick={handleShowEndConfirm}
-          startIcon={<StopIcon />}
-          sx={{ borderRadius: 2, mr: 2 }}
-          ref={initialFocusRef}
-        >
-          End Session
-        </Button>
-      )}
-    </Box>
-    <Box>
+  <Box
+    sx={{
+      display: 'flex',
+      flexDirection: { xs: 'column', sm: 'row' },
+      width: '100%',
+    }}
+  >
+    {!isNewSession && (
+      <Button
+        variant="outlined"
+        color="error"
+        onClick={handleShowEndConfirm}
+        startIcon={<StopIcon />}
+        sx={{
+          borderRadius: 2,
+          mb: { xs: 1, sm: 0 },
+          mr: { sm: 2 },
+          width: { xs: '100%', sm: 'auto' },
+        }}
+        ref={initialFocusRef}
+      >
+        End Session
+      </Button>
+    )}
+
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: { xs: 'column', sm: 'row' },
+        width: { xs: '100%', sm: '100%' },
+        justifyContent: { sm: 'space-between' },
+      }}
+    >
       <Button
         variant="outlined"
         onClick={onClose}
-        sx={{ borderRadius: 2, mr: 2 }}
+        sx={{
+          borderRadius: 2,
+          mb: { xs: 1, sm: 0 },
+          mr: { sm: 2 },
+          width: { xs: '100%', sm: 'auto' },
+        }}
       >
         Close
       </Button>
@@ -136,13 +158,13 @@ const DefaultSessionActions = ({
         color={isNewSession ? 'primary' : 'success'}
         onClick={handleCopyLink}
         startIcon={copied ? <CheckIcon /> : <CopyIcon />}
-        sx={{ borderRadius: 2 }}
+        sx={{ borderRadius: 2, width: { xs: '100%', sm: 'auto' } }}
         ref={isNewSession ? initialFocusRef : null}
       >
         {copied ? 'Copied!' : 'Copy Link'}
       </Button>
     </Box>
-  </>
+  </Box>
 );
 
 // Helper function for rendering the end confirmation content
@@ -155,13 +177,13 @@ const ConfirmEndContent = () => (
       Ending this session will:
     </Typography>
     <Box sx={{ pl: 2, mb: 3 }}>
-      <Typography variant="body2" paragraph>
+      <Typography variant="body2" component="p">
         • Send all active players to the results screen
       </Typography>
-      <Typography variant="body2" paragraph>
+      <Typography variant="body2" component="p">
         • Stop the session permanently (it cannot be restarted)
       </Typography>
-      <Typography variant="body2" paragraph>
+      <Typography variant="body2" component="p">
         • Allow you to view the final results
       </Typography>
     </Box>
@@ -174,11 +196,22 @@ const ConfirmEndActions = ({
   handleConfirmEndSession,
   initialFocusRef,
 }) => (
-  <Box sx={{ display: 'flex', width: '100%', justifyContent: 'space-between' }}>
+  <Box
+    sx={{
+      display: 'flex',
+      flexDirection: { xs: 'column', sm: 'row' },
+      width: '100%',
+      justifyContent: 'space-between',
+    }}
+  >
     <Button
       variant="outlined"
       onClick={handleCancelEndSession}
-      sx={{ borderRadius: 2 }}
+      sx={{
+        borderRadius: 2,
+        mb: { xs: 1, sm: 0 },
+        width: { xs: '100%', sm: 'auto' },
+      }}
     >
       Cancel
     </Button>
@@ -187,7 +220,7 @@ const ConfirmEndActions = ({
       color="error"
       onClick={handleConfirmEndSession}
       startIcon={<StopIcon />}
-      sx={{ borderRadius: 2 }}
+      sx={{ borderRadius: 2, width: { xs: '100%', sm: 'auto' } }}
       ref={initialFocusRef}
     >
       End Session
@@ -214,11 +247,23 @@ const SessionEndedActions = ({
   initialFocusRef,
 }) => {
   return (
-    <>
-      <Button 
-        variant="outlined" 
-        onClick={onClose} 
-        sx={{ borderRadius: 2 }}
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: { xs: 'column', sm: 'row' },
+        width: '100%',
+        justifyContent: 'space-between',
+      }}
+    >
+      <Button
+        variant="outlined"
+        onClick={onClose}
+        sx={{
+          borderRadius: 2,
+          mb: { xs: 1, sm: 0 },
+          mr: { sm: 2 },
+          width: { xs: '100%', sm: 'auto' },
+        }}
       >
         No, Close
       </Button>
@@ -227,12 +272,12 @@ const SessionEndedActions = ({
         color="info"
         onClick={handleViewResults}
         startIcon={<AssessmentIcon />}
-        sx={{ borderRadius: 2 }}
+        sx={{ borderRadius: 2, width: { xs: '100%', sm: 'auto' } }}
         ref={initialFocusRef}
       >
         Yes, View Results
       </Button>
-    </>
+    </Box>
   );
 };
 
@@ -298,11 +343,11 @@ const SessionModal = ({
     setShowEndConfirm(false);
     try {
       setEndingSession(true);
-      
+
       // Call the onEndSession function from props
       if (onEndSession) {
         const success = await onEndSession();
-        
+
         if (success) {
           // Show the Session Ended view
           setSessionEnded(true);
@@ -327,30 +372,33 @@ const SessionModal = ({
       console.error('Cannot navigate to results: Session ID is missing.');
     }
   };
-  
+
   // Regular close handler (used for non-end-session cases)
   const handleClose = (event, reason) => {
     // Prevent closing with backdrop or escape key during loading
-    if (endingSession && (reason === 'backdropClick' || reason === 'escapeKeyDown')) {
+    if (
+      endingSession &&
+      (reason === 'backdropClick' || reason === 'escapeKeyDown')
+    ) {
       return;
     }
-    
+
     // Reset state
     setShowEndConfirm(false);
     setCopied(false);
-    
+
     // Don't reset sessionEnded here - we want it to persist
-    
+
     // Call the parent's close handler
     onClose();
   };
-  
+
   // Special handler for "No, Close" in Session Ended view
   const handleCloseAfterEnd = () => {
     // No need to call onEndSession again, it was already called
     onClose();
   };
-  
+
   // Reset session ended state when the modal is closed or reopened
   const handleModalOnExited = () => {
     // Reset all local state after the closing animation completes
@@ -441,6 +489,9 @@ const SessionModal = ({
             sx: {
               borderRadius: 2,
               boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+              margin: { xs: '16px', sm: '32px' },
+              width: { xs: 'calc(100% - 32px)', sm: '500px' },
+              maxWidth: { xs: 'calc(100% - 32px)', sm: '500px' },
             },
           },
           transition: {
@@ -461,6 +512,9 @@ const SessionModal = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
+            px: { xs: 2, sm: 3 },
+            py: { xs: 1.5, sm: 2 },
+            fontSize: { xs: '1.1rem', sm: '1.25rem' },
           }}
         >
           {modalTitle}
@@ -475,18 +529,23 @@ const SessionModal = ({
               '& .MuiChip-icon': {
                 color: 'white',
               },
+              fontSize: { xs: '0.7rem', sm: '0.8rem' },
+              height: { xs: 24, sm: 32 },
             }}
             variant="outlined"
           />
         </DialogTitle>
-        <DialogContent sx={{ pt: 3, pb: 2 }}>{modalContent}</DialogContent>
+        <DialogContent sx={{ pt: 3, pb: 2, px: { xs: 2, sm: 3 } }}>
+          {modalContent}
+        </DialogContent>
         {modalActions && (
           <DialogActions
             sx={{
-              px: 3,
-              pb: 3,
+              px: { xs: 2, sm: 3 },
+              pb: { xs: 2, sm: 3 },
               display: 'flex',
               justifyContent: 'space-between',
+              flexDirection: { xs: 'column', sm: 'row' },
             }}
           >
             {modalActions}

@@ -20,12 +20,14 @@ import {
   DeleteOutline as DeleteIcon,
   QuestionAnswer as QuestionIcon,
   AccessTime as TimeIcon,
+  Sensors as LiveIcon,
 } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 
 const GameCard = ({ game, index, onEdit, onDelete, onStart }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isActive = Boolean(game.active);
   
   return (
     <Grid sx={{ 
@@ -45,12 +47,17 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart }) => {
             flexDirection: 'column',
             borderRadius: 3,
             overflow: 'hidden',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+            boxShadow: isActive 
+              ? `0 10px 30px ${theme.palette.success.main}40`
+              : '0 10px 30px rgba(0,0,0,0.15)',
             transition: 'all 0.3s ease',
             backgroundColor: 'rgba(255,255,255,0.97)',
+            border: isActive ? `2px solid ${theme.palette.success.main}` : 'none',
             '&:hover': {
               transform: 'translateY(-8px)',
-              boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+              boxShadow: isActive 
+                ? `0 20px 40px ${theme.palette.success.main}50`
+                : '0 20px 40px rgba(0,0,0,0.2)',
             },
           }}
         >
@@ -65,8 +72,31 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart }) => {
               alt={`${game.name} Thumbnail`}
               sx={{
                 objectFit: 'cover',
+                filter: isActive ? 'none' : 'none',
               }}
             />
+            {isActive && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 16,
+                  left: 16,
+                  display: 'flex',
+                  alignItems: 'center',
+                  backgroundColor: theme.palette.success.main,
+                  color: 'white',
+                  px: 1.5,
+                  py: 0.5,
+                  borderRadius: 4,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                }}
+              >
+                <LiveIcon fontSize="small" sx={{ mr: 0.5, animation: 'pulse 1.5s infinite' }} />
+                <Typography variant="body2" fontWeight="bold">
+                  LIVE
+                </Typography>
+              </Box>
+            )}
             <Box
               sx={{
                 position: 'absolute',
@@ -116,6 +146,7 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart }) => {
                     },
                   }}
                   onClick={() => onDelete(game.id)}
+                  disabled={isActive}
                 >
                   <DeleteIcon
                     fontSize={isMobile ? 'small' : 'medium'}
@@ -182,25 +213,50 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart }) => {
                 mb: 2,
               }}
             >
+              {isActive ? (
+                <Chip
+                  label="Active Session"
+                  size="small"
+                  color="success"
+                  sx={{ 
+                    fontWeight: 'bold',
+                    animation: 'pulse 1.5s infinite',
+                    '@keyframes pulse': {
+                      '0%': { boxShadow: '0 0 0 0 rgba(76, 175, 80, 0.4)' },
+                      '70%': { boxShadow: '0 0 0 10px rgba(76, 175, 80, 0)' },
+                      '100%': { boxShadow: '0 0 0 0 rgba(76, 175, 80, 0)' },
+                    }
+                  }}
+                />
+              ) : (
+                <Chip
+                  label="Inactive"
+                  size="small"
+                  color="default"
+                  variant="outlined"
+                />
+              )}
               <Chip
-                label="Active"
-                size="small"
-                color={game.active ? 'success' : 'default'}
-                variant={game.active ? 'filled' : 'outlined'}
-              />
-              <Chip
-                label={new Date(game.createAt).toLocaleDateString()}
+                label={new Date(game.createAt || '').toLocaleDateString() || "No date"}
                 size="small"
                 variant="outlined"
               />
             </Box>
+
+            {isActive && (
+              <Box sx={{ mt: 1, mb: 1 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'medium' }}>
+                  Session ID: <Typography component="span" variant="body2" color="success.main" fontWeight="bold">{game.active}</Typography>
+                </Typography>
+              </Box>
+            )}
           </CardContent>
 
           <Divider />
           <Box sx={{ p: 2 }}>
             <Button
               variant="contained"
-              color="primary"
+              color={isActive ? "success" : "primary"}
               fullWidth
               startIcon={<PlayArrowIcon />}
               sx={{
@@ -214,8 +270,9 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart }) => {
                 },
               }}
               onClick={() => onStart(game.id)}
+              disabled={false}
             >
-              Start Game
+              {isActive ? 'View Active Session' : 'Start Game'}
             </Button>
           </Box>
         </Card>

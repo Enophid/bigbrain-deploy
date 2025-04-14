@@ -54,35 +54,37 @@ function Play() {
   const handleJoinGame = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     if (!sessionId) {
       setError('Please enter a session ID');
       return;
     }
-    
+
     if (!playerName.trim()) {
       setError('Please enter your name');
       return;
     }
 
     setLoading(true);
-    
+
     try {
       const response = await ApiCall(
         `/play/join/${sessionId}`,
         { name: playerName },
         'POST'
       );
-      
+
       if (response.error) {
         throw new Error(response.error);
       }
-      
+
       setPlayerId(response.playerId);
       setJoined(true);
       setLoading(false);
     } catch (err) {
-      setError(err.message || 'Failed to join game. Please check the session ID.');
+      setError(
+        err.message || 'Failed to join game. Please check the session ID.'
+      );
       setLoading(false);
     }
   };
@@ -120,12 +122,15 @@ function Play() {
               backgroundColor: 'rgba(255, 255, 255, 0.95)',
             }}
           >
-            <Typography 
-              variant="h4" 
-              component="h1" 
-              gutterBottom 
+            <Typography
+              variant="h4"
+              component="h1"
+              gutterBottom
               align="center"
-              sx={{ fontWeight: 700, color: bigBrainTheme.palette.primary.main }}
+              sx={{
+                fontWeight: 700,
+                color: bigBrainTheme.palette.primary.main,
+              }}
             >
               Join Game Session
             </Typography>
@@ -141,10 +146,10 @@ function Play() {
                   onChange={(e) => setSessionId(e.target.value)}
                   disabled={loading}
                   InputProps={{
-                    sx: { borderRadius: 2 }
+                    sx: { borderRadius: 2 },
                   }}
                 />
-                
+
                 <TextField
                   label="Your Name"
                   variant="outlined"
@@ -154,16 +159,16 @@ function Play() {
                   onChange={(e) => setPlayerName(e.target.value)}
                   disabled={loading}
                   InputProps={{
-                    sx: { borderRadius: 2 }
+                    sx: { borderRadius: 2 },
                   }}
                 />
-                
+
                 {error && (
                   <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>
                     {error}
                   </Alert>
                 )}
-                
+
                 <Button
                   type="submit"
                   fullWidth
@@ -173,7 +178,11 @@ function Play() {
                   disabled={loading}
                   sx={{ mt: 3, mb: 2, borderRadius: 2, py: 1.2 }}
                 >
-                  {loading ? <CircularProgress size={24} color="inherit" /> : 'Join Game'}
+                  {loading ? (
+                    <CircularProgress size={24} color="inherit" />
+                  ) : (
+                    'Join Game'
+                  )}
                 </Button>
               </Box>
             ) : (
@@ -185,7 +194,9 @@ function Play() {
                   <Typography variant="body1" align="center" paragraph>
                     Waiting for the host to start the game...
                   </Typography>
-                  <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                  <Box
+                    sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}
+                  >
                     <CircularProgress />
                   </Box>
                 </CardContent>
@@ -197,4 +208,4 @@ function Play() {
     </ThemeProvider>
   );
 }
-export default Play; 
+export default Play;

@@ -72,7 +72,7 @@ const Header = ({ onCreateGame }) => {
 };
 
 Header.propTypes = {
-  onCreateGame: PropTypes.func.isRequired
+  onCreateGame: PropTypes.func.isRequired,
 };
 
-export default Header; 
+export default Header;

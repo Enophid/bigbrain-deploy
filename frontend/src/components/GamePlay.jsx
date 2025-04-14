@@ -28,11 +28,11 @@ function GamePlay() {
     const fetchQuestionData = async () => {
       try {
         const response = await ApiCall(`/play/${playerId}/question`, {}, 'GET');
-        
+
         if (response.error) {
           throw new Error(response.error);
         }
-        
+
         setCurrentQuestion(response.question);
         setLoading(false);
       } catch (err) {
@@ -119,26 +119,33 @@ function GamePlay() {
               backgroundImage: 'linear-gradient(to right, #ffffff, #f8f9fa)',
             }}
           >
-            <Typography 
-              variant="h4" 
-              component="h1" 
-              gutterBottom 
+            <Typography
+              variant="h4"
+              component="h1"
+              gutterBottom
               align="center"
-              sx={{ fontWeight: 700, color: bigBrainTheme.palette.primary.main }}
+              sx={{
+                fontWeight: 700,
+                color: bigBrainTheme.palette.primary.main,
+              }}
             >
               Game In Progress
             </Typography>
-            
+
             {currentQuestion ? (
               <Box sx={{ mt: 4 }}>
                 <Typography variant="h5" gutterBottom>
                   {currentQuestion.text || 'Question text would appear here'}
                 </Typography>
-                
-                <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-                  This is a placeholder for the actual gameplay interface.
-                  The complete implementation would include questions, answer options,
-                  timers, and score tracking.
+
+                <Typography
+                  variant="body1"
+                  color="text.secondary"
+                  sx={{ mb: 4 }}
+                >
+                  This is a placeholder for the actual gameplay interface. The
+                  complete implementation would include questions, answer
+                  options, timers, and score tracking.
                 </Typography>
               </Box>
             ) : (
@@ -153,4 +160,4 @@ function GamePlay() {
   );
 }
 
-export default GamePlay; 
+export default GamePlay;

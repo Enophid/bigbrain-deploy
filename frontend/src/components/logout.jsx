@@ -128,7 +128,8 @@ export default function Logout() {
                 backdropFilter: 'blur(6px)',
               },
             },
-          }}}
+          },
+        }}
       >
         <Box
           sx={{

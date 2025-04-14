@@ -18,10 +18,7 @@ const EmptyState = ({ onCreateGame }) => {
       <Typography variant="h5" sx={{ color: 'white', mb: 2 }}>
         No games found
       </Typography>
-      <Typography
-        variant="body1"
-        sx={{ color: 'rgba(255,255,255,0.7)' }}
-      >
+      <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)' }}>
         Create your first game to get started!
       </Typography>
       <Button
@@ -38,7 +35,7 @@ const EmptyState = ({ onCreateGame }) => {
 };
 
 EmptyState.propTypes = {
-  onCreateGame: PropTypes.func.isRequired
+  onCreateGame: PropTypes.func.isRequired,
 };
 
-export default EmptyState; 
+export default EmptyState;

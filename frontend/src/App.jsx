@@ -5,6 +5,7 @@ import Dashboard from './components/dashboard';
 import GameEditor from './components/GameEditor';
 import Play from './components/Play';
 import GamePlay from './components/GamePlay';
+import GameResults from './components/GameResults';
 import GlobalStyles from './theme/globalStyles';
 import { Box } from '@mui/material';
 
@@ -23,6 +24,7 @@ function App() {
           {/* Admin routes */}
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/game/:gameId" element={<GameEditor />} />
+          <Route path="/session/:sessionId" element={<GameResults />} />
           {/* Add other authenticated routes here */}
 
           {/* Redirect to login for any other paths */}

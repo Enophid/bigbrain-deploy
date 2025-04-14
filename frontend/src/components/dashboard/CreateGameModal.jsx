@@ -22,9 +22,9 @@ const CreateGameModal = ({
   onCreateGame,
 }) => {
   return (
-    <Modal 
-      open={open} 
-      onClose={onClose} 
+    <Modal
+      open={open}
+      onClose={onClose}
       closeAfterTransition
       aria-labelledby="create-game-modal-title"
     >
@@ -208,7 +208,7 @@ CreateGameModal.propTypes = {
   fileName: PropTypes.string.isRequired,
   onInputChange: PropTypes.func.isRequired,
   onFileChange: PropTypes.func.isRequired,
-  onCreateGame: PropTypes.func.isRequired
+  onCreateGame: PropTypes.func.isRequired,
 };
 
-export default CreateGameModal; 
+export default CreateGameModal;

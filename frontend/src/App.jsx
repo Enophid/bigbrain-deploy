@@ -3,6 +3,8 @@ import Register from './components/register';
 import Login from './components/login';
 import Dashboard from './components/dashboard';
 import GameEditor from './components/GameEditor';
+import Play from './components/Play';
+import GamePlay from './components/GamePlay';
 import GlobalStyles from './theme/globalStyles';
 import { Box } from '@mui/material';
 
@@ -15,7 +17,10 @@ function App() {
           {/* Public routes */}
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/play" element={<Play />} />
+          <Route path="/gameplay/:playerId" element={<GamePlay />} />
 
+          {/* Admin routes */}
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/game/:gameId" element={<GameEditor />} />
           {/* Add other authenticated routes here */}

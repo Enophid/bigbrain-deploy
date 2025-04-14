@@ -28,17 +28,19 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isActive = Boolean(game.active);
-  
+
   return (
-    <Grid sx={{ 
-      width: { 
-        xs: '100%', 
-        sm: '50%', 
-        md: '33.33%', 
-        lg: '33.33%' 
-      }, 
-      p: 1.5 
-    }}>
+    <Grid
+      sx={{
+        width: {
+          xs: '100%',
+          sm: '50%',
+          md: '33.33%',
+          lg: '33.33%',
+        },
+        p: 1.5,
+      }}
+    >
       <Fade in timeout={300 + index * 100}>
         <Card
           sx={{
@@ -47,15 +49,17 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart }) => {
             flexDirection: 'column',
             borderRadius: 3,
             overflow: 'hidden',
-            boxShadow: isActive 
+            boxShadow: isActive
               ? `0 10px 30px ${theme.palette.success.main}40`
               : '0 10px 30px rgba(0,0,0,0.15)',
             transition: 'all 0.3s ease',
             backgroundColor: 'rgba(255,255,255,0.97)',
-            border: isActive ? `2px solid ${theme.palette.success.main}` : 'none',
+            border: isActive
+              ? `2px solid ${theme.palette.success.main}`
+              : 'none',
             '&:hover': {
               transform: 'translateY(-8px)',
-              boxShadow: isActive 
+              boxShadow: isActive
                 ? `0 20px 40px ${theme.palette.success.main}50`
                 : '0 20px 40px rgba(0,0,0,0.2)',
             },
@@ -91,7 +95,10 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart }) => {
                   boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
                 }}
               >
-                <LiveIcon fontSize="small" sx={{ mr: 0.5, animation: 'pulse 1.5s infinite' }} />
+                <LiveIcon
+                  fontSize="small"
+                  sx={{ mr: 0.5, animation: 'pulse 1.5s infinite' }}
+                />
                 <Typography variant="body2" fontWeight="bold">
                   LIVE
                 </Typography>
@@ -130,9 +137,7 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart }) => {
                   }}
                   onClick={() => onEdit(game.id)}
                 >
-                  <EditIcon
-                    fontSize={isMobile ? 'small' : 'medium'}
-                  />
+                  <EditIcon fontSize={isMobile ? 'small' : 'medium'} />
                 </IconButton>
               </Tooltip>
               <Tooltip title="Delete Game">
@@ -148,9 +153,7 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart }) => {
                   onClick={() => onDelete(game.id)}
                   disabled={isActive}
                 >
-                  <DeleteIcon
-                    fontSize={isMobile ? 'small' : 'medium'}
-                  />
+                  <DeleteIcon fontSize={isMobile ? 'small' : 'medium'} />
                 </IconButton>
               </Tooltip>
             </Box>
@@ -171,9 +174,7 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart }) => {
 
           {/* Game Info */}
           <CardContent sx={{ flexGrow: 1, pt: 2 }}>
-            <Box
-              sx={{ display: 'flex', alignItems: 'center', mb: 2 }}
-            >
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <QuestionIcon
                   fontSize="small"
@@ -190,11 +191,7 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart }) => {
                 sx={{ mx: 1.5, my: 0.5 }}
               />
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <TimeIcon
-                  fontSize="small"
-                  color="primary"
-                  sx={{ mr: 0.5 }}
-                />
+                <TimeIcon fontSize="small" color="primary" sx={{ mr: 0.5 }} />
                 <Typography variant="body2" color="text.secondary">
                   {game.questions.reduce(
                     (acc, q) => acc + (q.timeLimit / 60 || 0),
@@ -218,14 +215,14 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart }) => {
                   label="Active Session"
                   size="small"
                   color="success"
-                  sx={{ 
+                  sx={{
                     fontWeight: 'bold',
                     animation: 'pulse 1.5s infinite',
                     '@keyframes pulse': {
                       '0%': { boxShadow: '0 0 0 0 rgba(76, 175, 80, 0.4)' },
                       '70%': { boxShadow: '0 0 0 10px rgba(76, 175, 80, 0)' },
                       '100%': { boxShadow: '0 0 0 0 rgba(76, 175, 80, 0)' },
-                    }
+                    },
                   }}
                 />
               ) : (
@@ -237,7 +234,10 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart }) => {
                 />
               )}
               <Chip
-                label={new Date(game.createAt || '').toLocaleDateString() || "No date"}
+                label={
+                  new Date(game.createAt || '').toLocaleDateString() ||
+                  'No date'
+                }
                 size="small"
                 variant="outlined"
               />
@@ -245,8 +245,20 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart }) => {
 
             {isActive && (
               <Box sx={{ mt: 1, mb: 1 }}>
-                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'medium' }}>
-                  Session ID: <Typography component="span" variant="body2" color="success.main" fontWeight="bold">{game.active}</Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontWeight: 'medium' }}
+                >
+                  Session ID:{' '}
+                  <Typography
+                    component="span"
+                    variant="body2"
+                    color="success.main"
+                    fontWeight="bold"
+                  >
+                    {game.active}
+                  </Typography>
                 </Typography>
               </Box>
             )}
@@ -256,7 +268,7 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart }) => {
           <Box sx={{ p: 2 }}>
             <Button
               variant="contained"
-              color={isActive ? "success" : "primary"}
+              color={isActive ? 'success' : 'primary'}
               fullWidth
               startIcon={<PlayArrowIcon />}
               sx={{
@@ -286,7 +298,7 @@ GameCard.propTypes = {
   index: PropTypes.number.isRequired,
   onEdit: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
-  onStart: PropTypes.func.isRequired
+  onStart: PropTypes.func.isRequired,
 };
 
-export default GameCard; 
+export default GameCard;

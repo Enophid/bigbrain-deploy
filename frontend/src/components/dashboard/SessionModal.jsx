@@ -198,3 +198,14 @@ const SessionModal = ({ open, onClose, sessionId, gameName, isNewSession = true,
     </>
   );
 };
+
+SessionModal.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  sessionId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  gameName: PropTypes.string,
+  isNewSession: PropTypes.bool,
+  onEndSession: PropTypes.func,
+};
+
+export default SessionModal; 

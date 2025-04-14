@@ -90,9 +90,7 @@ export default function Logout() {
               outline: `2px solid ${theme.palette.error.main}`,
               outlineOffset: '2px',
             },
-            background: isMobile
-              ? 'transparent'
-              : 'linear-gradient(45deg, #d32f2f 30%, #f44336 90%)',
+            background: 'linear-gradient(45deg, #d32f2f 30%, #f44336 90%)',
           }}
         >
           {buttonLabel}

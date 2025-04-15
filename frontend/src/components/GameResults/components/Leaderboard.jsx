@@ -18,11 +18,11 @@ const Leaderboard = ({ results }) => (
       overflow: 'hidden',
     }}
   >
-    <SectionHeader 
-      title="Leaderboard" 
+    <SectionHeader
+      title="Leaderboard"
       icon={
-        <TrophyIcon 
-          sx={{ 
+        <TrophyIcon
+          sx={{
             fontSize: 40,
             color: '#FFD700',
             position: 'absolute',
@@ -30,7 +30,7 @@ const Leaderboard = ({ results }) => (
             top: '50%',
             transform: 'translateY(-50%)',
             display: { xs: 'none', sm: 'block' },
-          }} 
+          }}
         />
       }
     />
@@ -72,4 +72,4 @@ Leaderboard.propTypes = {
   ).isRequired,
 };
 
-export default Leaderboard; 
+export default Leaderboard;

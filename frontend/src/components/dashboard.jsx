@@ -417,18 +417,40 @@ function Dashboard() {
           {games.length === 0 ? (
             <EmptyState onCreateGame={handleOpenModal} />
           ) : (
-            <Grid container spacing={3}>
-              {games.map((game, index) => (
-                <GameCard
-                  key={game.id}
-                  game={game}
-                  index={index}
-                  onEdit={handleEditGame}
-                  onDelete={handleDeleteGame}
-                  onStart={handleStartGame}
-                  displayAlert={displayAlert}
-                />
-              ))}
+            <Grid
+              container
+              spacing={3}
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: {
+                  xs: '1fr', // 1 column on mobile
+                  sm: 'repeat(2, 1fr)', // 2 columns on tablet
+                  md: 'repeat(2, 1fr)', // 2 columns on smaller desktops
+                  lg: 'repeat(3, 1fr)', // 3 columns on large desktops
+                },
+                gap: { xs: 2, sm: 3, md: 4 }, // Increasing gap on larger screens
+                padding: { xs: 1, sm: 2 }, // Add some padding
+                maxWidth: '1400px', // Limit maximum width
+                mx: 'auto', // Center the grid
+              }}
+            >
+              {games
+                .slice() // Create a shallow copy to avoid mutating the original array
+                .sort(
+                  (a, b) =>
+                    new Date(b.createAt || 0) - new Date(a.createAt || 0)
+                ) // Sort by creation date (newest first)
+                .map((game, index) => (
+                  <GameCard
+                    key={game.id}
+                    game={game}
+                    index={index}
+                    onEdit={handleEditGame}
+                    onDelete={handleDeleteGame}
+                    onStart={handleStartGame}
+                    displayAlert={displayAlert}
+                  />
+                ))}
             </Grid>
           )}
         </Container>

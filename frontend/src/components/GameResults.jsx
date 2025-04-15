@@ -13,8 +13,20 @@ import {
   TableRow,
   Paper,
   CircularProgress,
+  Tabs,
+  Tab,
+  Avatar,
+  Fade,
+  Divider,
+  Chip,
 } from '@mui/material';
-import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
+import {
+  ArrowBack as ArrowBackIcon,
+  BarChart as BarChartIcon,
+  People as PeopleIcon,
+  EmojiEvents as TrophyIcon,
+  Assessment as AssessmentIcon,
+} from '@mui/icons-material';
 import bigBrainTheme from '../theme/bigBrainTheme';
 import GlobalStyles from '../theme/globalStyles';
 import ApiCall from './apiCall';
@@ -27,9 +39,14 @@ const GameResult = () => {
   const hasFetched = useRef(false);
   const [result, setResult] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showStats, setShowStats] = useState(false);
 
   const handleBackToGameEditor = () => {
     navigate(`/dashboard`);
+  };
+
+  const toggleView = (event, newValue) => {
+    setShowStats(newValue === 1);
   };
 
   useEffect(() => {
@@ -39,7 +56,7 @@ const GameResult = () => {
         const data = await ApiCall(
           `/admin/session/${sessionId}/results`,
           {},
-          'GET',
+          'GET'
         );
         if (data && data.results) {
           setResult(data.results);
@@ -97,12 +114,14 @@ const GameResult = () => {
             display: 'flex',
             flexDirection: 'column',
             overflow: 'auto',
+            pb: 6,
           }}
         >
+          {/* Header Section */}
           <Box
             sx={{
-              backgroundColor: 'rgba(0, 0, 0, 0.3)',
-              backdropFilter: 'blur(8px)',
+              backgroundColor: 'rgba(0, 0, 0, 0.4)',
+              backdropFilter: 'blur(10px)',
               borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
               py: 2,
               px: { xs: 2, sm: 4 },
@@ -110,115 +129,110 @@ const GameResult = () => {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
+              boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <IconButton
-                color='inherit'
+                color="inherit"
                 onClick={handleBackToGameEditor}
-                sx={{ mr: 2, color: 'white' }}
+                sx={{
+                  mr: 2,
+                  color: 'white',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  },
+                  transition: 'all 0.2s ease-in-out',
+                }}
               >
                 <ArrowBackIcon />
               </IconButton>
               <Typography
-                variant='h4'
+                variant="h4"
                 sx={{
                   color: '#fff',
                   fontWeight: 700,
-                  textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                  textShadow: '0 2px 4px rgba(0,0,0,0.3)',
                   fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2.25rem' },
+                  letterSpacing: '0.5px',
                 }}
               >
-                Game Result
+                Game Results
               </Typography>
             </Box>
+            <Chip
+              icon={<AssessmentIcon />}
+              label="Results"
+              sx={{
+                backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                color: 'white',
+                fontWeight: 'bold',
+                backdropFilter: 'blur(5px)',
+                '& .MuiChip-icon': {
+                  color: 'white',
+                },
+              }}
+            />
           </Box>
 
-          {console.log(result)}
-          {loading ? (
-            <Box
+          {/* Navigation Tabs */}
+          <Box
+            sx={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'center',
+              mb: 4,
+            }}
+          >
+            <Paper
+              elevation={3}
               sx={{
-                minHeight: '100vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                borderRadius: '50px',
+                overflow: 'hidden',
+                width: { xs: '90%', sm: '70%', md: '50%' },
+                maxWidth: '500px',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
               }}
             >
-              <CircularProgress size={60} sx={{ marginRight: 2 }} />
-              <Typography variant='h6'>Loading results...</Typography>
-            </Box>
-          ) : (
-            <Box
-              sx={{
-                width: '100%',
-                maxWidth: 600,
-                mx: 'auto',
-                mt: 4,
-                textAlign: 'center',
-                borderRadius: 3,
-                bgcolor: 'rgba(255, 255, 255, 0.9)',
-                boxShadow: 3,
-                p: 3,
-              }}
-            >
-              <Typography variant='h4' fontWeight={600} sx={{ mb: 2 }}>
-                🎉 Top Players 🎉
-              </Typography>
+              <Tabs
+                value={showStats ? 1 : 0}
+                onChange={toggleView}
+                variant="fullWidth"
+                sx={{
+                  '& .MuiTabs-indicator': {
+                    backgroundColor: bigBrainTheme.palette.primary.main,
+                    height: 3,
+                  },
+                }}
+              >
+                <Tab
+                  icon={<PeopleIcon />}
+                  iconPosition="start"
+                  label="Leaderboard"
+                  sx={{
+                    fontWeight: 600,
+                    textTransform: 'none',
+                    fontSize: '1rem',
+                    py: 1.5,
+                  }}
+                />
+                <Tab
+                  icon={<BarChartIcon />}
+                  iconPosition="start"
+                  label="Statistics"
+                  sx={{
+                    fontWeight: 600,
+                    textTransform: 'none',
+                    fontSize: '1rem',
+                    py: 1.5,
+                  }}
+                />
+              </Tabs>
+            </Paper>
+          </Box>
 
-              <TableContainer component={Paper} sx={{ borderRadius: 3 }}>
-                <Table>
-                  <TableBody>
-                    {result.slice(0, 5).length !== 0 ? (
-                      result.slice(0, 5).map((player, index) => (
-                        <TableRow key={player.id || index}>
-                          <TableCell
-                            align='center'
-                            sx={{
-                              fontSize: 18,
-                              fontWeight: 600,
-                              color:
-                                index === 0
-                                  ? 'gold'
-                                  : index === 1
-                                    ? 'silver'
-                                    : index === 2
-                                      ? 'brown'
-                                      : 'text.primary',
-                            }}
-                          >
-                            {index + 1}️⃣
-                          </TableCell>
-                          <TableCell
-                            align='left'
-                            sx={{ fontSize: 18, fontWeight: 500 }}
-                          >
-                            {player.name || `Player ${index + 1}`}
-                          </TableCell>
-                          <TableCell
-                            align='right'
-                            sx={{ fontSize: 18, fontWeight: 500 }}
-                          >
-                            {player.score || 0} 🏆
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={3} align='center'>
-                          No players to display! 🛑
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Box>
-          )}
-          <ResultBarChart />
-          <ResultLineChart />
-        </Box>
-      </Box>
-    </ThemeProvider>
+ 
   );
 };
 

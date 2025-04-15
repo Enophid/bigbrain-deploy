@@ -1,11 +1,6 @@
 import PropTypes from 'prop-types';
+import { Box, Typography, IconButton, Chip } from '@mui/material';
 import {
-  Box,
-  Typography,
-  IconButton,
-  Chip,
-} from '@mui/material';
-import { 
   ArrowBack as ArrowBackIcon,
   Assessment as AssessmentIcon,
 } from '@mui/icons-material';
@@ -30,8 +25,8 @@ const ResultsHeader = ({ onBack }) => (
       <IconButton
         color="inherit"
         onClick={onBack}
-        sx={{ 
-          mr: 2, 
+        sx={{
+          mr: 2,
           color: 'white',
           backgroundColor: 'rgba(255, 255, 255, 0.1)',
           '&:hover': {
@@ -75,4 +70,4 @@ ResultsHeader.propTypes = {
   onBack: PropTypes.func.isRequired,
 };
 
-export default ResultsHeader; 
+export default ResultsHeader;

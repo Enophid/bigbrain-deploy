@@ -48,4 +48,4 @@ Background.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-export default Background; 
+export default Background;

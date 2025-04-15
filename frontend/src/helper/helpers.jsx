@@ -1,3 +1,5 @@
+import ApiCall from '../components/apiCall';
+
 /**
  * Given a js file object representing a jpg or png image, such as one taken
  * from a html file input element, return a promise which resolves to the file
@@ -13,7 +15,7 @@
  * @param {File} file The file to be read.
  * @return {Promise<string>} Promise which resolves to the file as a data url.
  */
-export default function FileToDataUrl(file) {
+export function FileToDataUrl(file) {
   const validFileTypes = ['image/jpeg', 'image/png', 'image/jpg'];
   const valid = validFileTypes.find((type) => type === file.type);
   // Bad data, let's walk away.
@@ -28,4 +30,16 @@ export default function FileToDataUrl(file) {
   });
   reader.readAsDataURL(file);
   return dataUrlPromise;
+}
+
+export async function findGame(gameId) {
+  const data = await ApiCall('/admin/games', {}, 'GET');
+  return data.games.find((g) => g.id.toString() === gameId);
+}
+
+export async function findQuestion(gameId, questionId) {
+  const data = await ApiCall('/admin/games', {}, 'GET');
+  return data.games
+    .find((g) => g.id.toString() === gameId)
+    .questions.find((q) => q.id.toString() === questionId);
 }

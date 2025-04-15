@@ -23,7 +23,6 @@ import CreateGameModal from './dashboard/CreateGameModal';
 import EmptyState from './dashboard/EmptyState';
 import SessionModal from './dashboard/SessionModal';
 
-
 // Helper function
 const generateRandomID = () => Math.floor(Math.random() * 10 ** 8);
 
@@ -148,7 +147,7 @@ function Dashboard() {
       const response = await ApiCall(
         '/admin/games',
         { games: updatedGames },
-        'PUT',
+        'PUT'
       );
 
       if (response.error) {
@@ -210,7 +209,7 @@ function Dashboard() {
       // Check if the game is active
       if (gameToDelete.active) {
         throw new Error(
-          'Cannot delete a game with an active session. End the session first.',
+          'Cannot delete a game with an active session. End the session first.'
         );
       }
 
@@ -234,7 +233,7 @@ function Dashboard() {
       const response = await ApiCall(
         '/admin/games',
         { games: gamesWithOwner },
-        'PUT',
+        'PUT'
       );
 
       if (response.error) {
@@ -287,7 +286,7 @@ function Dashboard() {
       const response = await ApiCall(
         `/admin/game/${gameId}/mutate`,
         { mutationType: 'START' },
-        'POST',
+        'POST'
       );
 
       if (response.error) {
@@ -311,7 +310,7 @@ function Dashboard() {
 
       console.log(
         'Game started successfully, session:',
-        response.data.sessionId,
+        response.data.sessionId
       );
     } catch (err) {
       console.error('Failed to start game:', err.message);
@@ -329,7 +328,7 @@ function Dashboard() {
       const response = await ApiCall(
         `/admin/game/${currentSession.gameId}/mutate`,
         { mutationType: 'END' },
-        'POST',
+        'POST'
       );
 
       if (response.error) {
@@ -405,7 +404,7 @@ function Dashboard() {
         <Header onCreateGame={handleOpenModal} />
 
         <Container
-          maxWidth='xl'
+          maxWidth="xl"
           sx={{
             flexGrow: 1,
             mb: 5,
@@ -423,7 +422,7 @@ function Dashboard() {
             }}
           >
             <Typography
-              variant='h3'
+              variant="h3"
               sx={{
                 color: '#fff',
                 fontWeight: 700,
@@ -460,7 +459,7 @@ function Dashboard() {
                 .slice() // Create a shallow copy to avoid mutating the original array
                 .sort(
                   (a, b) =>
-                    new Date(b.createAt || 0) - new Date(a.createAt || 0),
+                    new Date(b.createAt || 0) - new Date(a.createAt || 0)
                 ) // Sort by creation date (newest first)
                 .map((game, index) => (
                   <GameCard
@@ -504,7 +503,7 @@ function Dashboard() {
         autoHideDuration={5000}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <Alert severity={alertSeverity} variant='filled' sx={{ width: '100%' }}>
+        <Alert severity={alertSeverity} variant="filled" sx={{ width: '100%' }}>
           {alertMessage}
         </Alert>
       </Snackbar>

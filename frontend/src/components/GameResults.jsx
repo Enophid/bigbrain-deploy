@@ -14,13 +14,7 @@ import {
   Paper,
   CircularProgress,
 } from '@mui/material';
-import {
-  Edit as EditIcon,
-  ArrowBack as ArrowBackIcon,
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  Save as SaveIcon,
-} from '@mui/icons-material';
+import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import bigBrainTheme from '../theme/bigBrainTheme';
 import GlobalStyles from '../theme/globalStyles';
 import ApiCall from './apiCall';
@@ -186,10 +180,10 @@ const GameResult = () => {
                                 index === 0
                                   ? 'gold'
                                   : index === 1
-                                  ? 'silver'
-                                  : index === 2
-                                  ? 'brown'
-                                  : 'text.primary',
+                                    ? 'silver'
+                                    : index === 2
+                                      ? 'brown'
+                                      : 'text.primary',
                             }}
                           >
                             {index + 1}️⃣

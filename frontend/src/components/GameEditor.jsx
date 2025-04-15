@@ -75,7 +75,7 @@ function GameEditor() {
     updateData,
     closeModalFunction,
     successMessage,
-    shouldRefetch = false
+    shouldRefetch = false,
   ) => {
     return async (data) => {
       // Prepare update payload based on the type of data
@@ -322,7 +322,7 @@ function GameEditor() {
           onSave={createSaveHandler(
             (updatedQuestions) => ({ questions: updatedQuestions }),
             setQuestionModalOpen,
-            'Question saved successfully'
+            'Question saved successfully',
           )}
           error={error}
           displayAlert={displayAlert}
@@ -340,7 +340,7 @@ function GameEditor() {
             }),
             setMetadataModalOpen,
             'Game details updated successfully',
-            true
+            true,
           )}
         />
       </Box>

@@ -27,7 +27,11 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
+<<<<<<< HEAD
 // Common styles 
+=======
+// Common styles
+>>>>>>> ceb28f90d40900d018430d73a975a633ae06dbb2
 const styles = {
   button: {
     borderRadius: 2,
@@ -126,9 +130,13 @@ const DefaultSessionActions = ({
   handleCopyLink,
   initialFocusRef,
 }) => (
+<<<<<<< HEAD
   <Box
     sx={styles.actionContainer}
   >
+=======
+  <Box sx={styles.actionContainer}>
+>>>>>>> ceb28f90d40900d018430d73a975a633ae06dbb2
     {!isNewSession && (
       <Button
         variant="outlined"
@@ -263,11 +271,15 @@ const SessionEndedActions = ({
       justifyContent: 'space-between',
     }}
   >
+<<<<<<< HEAD
     <Button 
       variant="outlined" 
       onClick={onClose} 
       sx={styles.button}
     >
+=======
+    <Button variant="outlined" onClick={onClose} sx={styles.button}>
+>>>>>>> ceb28f90d40900d018430d73a975a633ae06dbb2
       No, Close
     </Button>
     <Button
@@ -433,8 +445,13 @@ const SessionModal = ({
         content: <EndingSessionContent />,
         actions: null,
       };
+<<<<<<< HEAD
     } 
     
+=======
+    }
+
+>>>>>>> ceb28f90d40900d018430d73a975a633ae06dbb2
     if (showEndConfirm) {
       return {
         title: 'End Game Session?',
@@ -450,8 +467,13 @@ const SessionModal = ({
           />
         ),
       };
+<<<<<<< HEAD
     } 
     
+=======
+    }
+
+>>>>>>> ceb28f90d40900d018430d73a975a633ae06dbb2
     if (sessionEnded) {
       return {
         title: 'Session Ended',
@@ -468,7 +490,11 @@ const SessionModal = ({
         ),
       };
     }
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> ceb28f90d40900d018430d73a975a633ae06dbb2
     // Default (active or new session)
     return {
       title: isNewSession ? 'Game Session Started!' : 'Active Game Session',

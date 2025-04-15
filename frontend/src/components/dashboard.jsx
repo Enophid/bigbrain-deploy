@@ -11,9 +11,12 @@ import {
   Grid,
   Alert,
   Snackbar,
+  Alert,
+  Snackbar,
 } from '@mui/material';
 import bigBrainTheme from '../theme/bigBrainTheme';
 import GlobalStyles from '../theme/globalStyles';
+import useAlert from '../hooks/useAlert';
 import useAlert from '../hooks/useAlert';
 
 // Component imports
@@ -21,6 +24,7 @@ import Header from './dashboard/Header';
 import GameCard from './dashboard/GameCard';
 import CreateGameModal from './dashboard/CreateGameModal';
 import EmptyState from './dashboard/EmptyState';
+import SessionModal from './dashboard/SessionModal';
 import SessionModal from './dashboard/SessionModal';
 
 // Helper function
@@ -43,6 +47,7 @@ function Dashboard() {
     id: 0,
     owner: '',
     questions: [],
+    active: null,
     active: null,
     createAt: '',
     name: '',
@@ -89,10 +94,23 @@ function Dashboard() {
         console.error('Failed to convert file to data URL:', err);
       }
     }
+    try {
+      const dataUrl = await FileToDataUrl(file);
+      setNewGameDetails({
+        ...newGameDetails,
+        thumbnail: dataUrl,
+      });
+    } catch (err) {
+      console.error('Failed to convert file to data URL:', err);
+    }
   };
 
   // Input handlers
   const handleInputChange = (e) => {
+    setNewGameDetails({
+      ...newGameDetails,
+      [e.target.name]: e.target.value,
+    });
     setNewGameDetails({
       ...newGameDetails,
       [e.target.name]: e.target.value,
@@ -116,17 +134,26 @@ function Dashboard() {
         owner: userEmail, // Set the owner to the current user's email
         questions: [],
         active: null,
+        id: gameId,
+        owner: userEmail, // Set the owner to the current user's email
+        questions: [],
+        active: null,
         createAt: new Date().toISOString(),
       };
 
       // Update local state
+
+      // Update local state
       const updatedGames = [...games, newGame];
+
+      // Reset form and close modal
 
       // Reset form and close modal
       setNewGameDetails({
         id: 0,
         owner: '',
         questions: [],
+        active: null,
         active: null,
         createAt: '',
         name: '',
@@ -156,6 +183,15 @@ function Dashboard() {
       console.log('New game created successfully');
     } catch (err) {
       console.error('Failed to save game:', err.message);
+      // Revert local state if backend failed - but still fetch fresh data
+      try {
+        const refreshData = await ApiCall('/admin/games', {}, 'GET');
+        if (!refreshData.error) {
+          setGames(refreshData.games);
+        }
+      } catch (refreshErr) {
+        console.error('Failed to refresh game data:', refreshErr.message);
+      }
       // Revert local state if backend failed - but still fetch fresh data
       try {
         const refreshData = await ApiCall('/admin/games', {}, 'GET');
@@ -208,6 +244,8 @@ function Dashboard() {
       // Update local state
       setGames(gamesWithOwner);
 
+      setGames(gamesWithOwner);
+
       console.log('Deleting game ID:', gameId);
 
       // Save to backend
@@ -224,6 +262,8 @@ function Dashboard() {
       console.log('Game deleted successfully');
     } catch (err) {
       console.error('Failed to delete game:', err.message);
+      // Show an alert to the user
+      alert(`Failed to delete game: ${err.message}`);
       // Show an alert to the user
       alert(`Failed to delete game: ${err.message}`);
     }
@@ -371,6 +411,11 @@ function Dashboard() {
             '0%': { backgroundPosition: '0% 50%' },
             '50%': { backgroundPosition: '100% 50%' },
             '100%': { backgroundPosition: '0% 50%' },
+          },
+          '@keyframes pulse': {
+            '0%': { boxShadow: '0 0 0 0 rgba(76, 175, 80, 0.4)' },
+            '70%': { boxShadow: '0 0 0 10px rgba(76, 175, 80, 0)' },
+            '100%': { boxShadow: '0 0 0 0 rgba(76, 175, 80, 0)' },
           },
           '@keyframes pulse': {
             '0%': { boxShadow: '0 0 0 0 rgba(76, 175, 80, 0.4)' },

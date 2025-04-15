@@ -27,7 +27,7 @@ import ApiCall from './apiCall';
 import ResultBarChart from './GameEditor/ResultBarChat';
 import ResultLineChart from './GameEditor/ResultLineChart';
 
-const gameResult = () => {
+const GameResult = () => {
   const { sessionId } = useParams();
   const navigate = useNavigate();
   const hasFetched = useRef(false);
@@ -228,4 +228,4 @@ const gameResult = () => {
   );
 };
 
-export default gameResult;
+export default GameResult;

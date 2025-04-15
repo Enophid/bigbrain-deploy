@@ -90,9 +90,7 @@ export default function Logout() {
               outline: `2px solid ${theme.palette.error.main}`,
               outlineOffset: '2px',
             },
-            background: isMobile
-              ? 'transparent'
-              : 'linear-gradient(45deg, #d32f2f 30%, #f44336 90%)',
+            background: 'linear-gradient(45deg, #d32f2f 30%, #f44336 90%)',
           }}
         >
           {buttonLabel}
@@ -104,26 +102,30 @@ export default function Logout() {
         onClose={handleCloseDialog}
         aria-describedby="logout-confirmation-dialog"
         TransitionComponent={Fade}
-        TransitionProps={{
-          timeout: 300,
-        }}
-        PaperProps={{
-          style: {
-            borderRadius: '12px',
-            width: '85%',
-            maxWidth: '400px',
-            margin: '0 auto',
-            padding: '4px 8px',
-            boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.25)',
-            border: '2px solid',
-            borderColor: theme.palette.secondary.main,
-            backgroundColor: 'white',
+        slotProps={{
+          transition: {
+            style: {
+              timeout: 300,
+            },
           },
-        }}
-        BackdropProps={{
-          style: {
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            backdropFilter: 'blur(6px)',
+          paper: {
+            style: {
+              borderRadius: '12px',
+              width: '85%',
+              maxWidth: '400px',
+              margin: '0 auto',
+              padding: '4px 8px',
+              boxShadow: '0px 8px 24px rgba(0, 0, 0, 0.25)',
+              border: '2px solid',
+              borderColor: theme.palette.secondary.main,
+              backgroundColor: 'white',
+            },
+            backdrop: {
+              style: {
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                backdropFilter: 'blur(6px)',
+              },
+            },
           },
         }}
       >

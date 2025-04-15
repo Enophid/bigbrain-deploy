@@ -16,7 +16,7 @@ export default function BasicLineChart() {
         textAlign: 'center',
       }}
     >
-      <Typography variant='h4' sx={{ mb: 3 }}>
+      <Typography variant="h4" sx={{ mb: 3 }}>
         🎉 Average response/answer time for each question 🎉
       </Typography>
       <Box sx={{ height: 400 }}>

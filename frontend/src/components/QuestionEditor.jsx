@@ -12,7 +12,6 @@ import {
   Grid,
 } from '@mui/material';
 import {
-  Edit as EditIcon,
   ArrowBack as ArrowBackIcon,
   Add as AddIcon,
   Delete as DeleteIcon,
@@ -42,8 +41,10 @@ function QuestionEditor() {
     answers: [{ id: 1, text: '', isCorrect: true }],
   });
   const { alertMessage, showAlert, displayAlert } = useAlert();
-  const { game, question, error, updateQuestionData, getQuestionData } =
-    useQuestionData(gameId, questionId);
+  const { game, question, updateQuestionData } = useQuestionData(
+    gameId,
+    questionId
+  );
   const currentQuestion = question;
 
   // Update form when current question changes
@@ -53,11 +54,11 @@ function QuestionEditor() {
         ...currentQuestion,
         answers: currentQuestion.answers
           ? currentQuestion.answers.map((ans, idx) => ({
-              // Generate unique IDs to avoid collisions
-              id: Date.now() + idx,
-              text: ans.text || '',
-              isCorrect: ans.isCorrect || false,
-            }))
+            // Generate unique IDs to avoid collisions
+            id: Date.now() + idx,
+            text: ans.text || '',
+            isCorrect: ans.isCorrect || false,
+          }))
           : [{ id: Date.now(), text: '', isCorrect: true }],
       });
     } else {
@@ -83,7 +84,7 @@ function QuestionEditor() {
       if (currentQuestion) {
         // Update existing question
         const questionIndex = updatedQuestions.findIndex(
-          (q) => q.id === currentQuestion.id,
+          (q) => q.id === currentQuestion.id
         );
         if (questionIndex !== -1) {
           updatedQuestions[questionIndex] = {
@@ -129,8 +130,7 @@ function QuestionEditor() {
           display: 'flex',
           flexDirection: 'column',
           backgroundColor: bigBrainTheme.palette.background.default,
-          backgroundImage:
-            'linear-gradient(135deg, #2D3047 0%, #00B4D8 50%, #06D6A0 100%)',
+
           backgroundSize: '400% 400%',
           backgroundAttachment: 'fixed',
           animation: 'gradient 15s ease infinite',
@@ -161,6 +161,8 @@ function QuestionEditor() {
           {/* Header */}
           <Box
             sx={{
+              backgroundImage:
+                'linear-gradient(135deg, #2D3047 0%, #00B4D8 50%, #06D6A0 100%)',
               backgroundColor: 'rgba(0, 0, 0, 0.3)',
               backdropFilter: 'blur(8px)',
               borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
@@ -174,14 +176,14 @@ function QuestionEditor() {
           >
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <IconButton
-                color='inherit'
+                color="inherit"
                 onClick={handleBackToGameEditor}
                 sx={{ mr: 2, color: 'white' }}
               >
                 <ArrowBackIcon />
               </IconButton>
               <Typography
-                variant='h4'
+                variant="h4"
                 sx={{
                   color: '#fff',
                   fontWeight: 700,
@@ -196,7 +198,7 @@ function QuestionEditor() {
 
           <Box sx={{ p: 3, overflow: 'auto' }}>
             <TextField
-              label='Question Text'
+              label="Question Text"
               multiline
               rows={2}
               value={newQuestion.text}
@@ -207,13 +209,13 @@ function QuestionEditor() {
             <Grid container spacing={3} sx={{ mb: 3 }}>
               <Grid sx={{ width: { xs: '100%', sm: '50%' } }}>
                 <TextField
-                  label='Time Limit (seconds)'
-                  type='number'
+                  label="Time Limit (seconds)"
+                  type="number"
                   value={newQuestion.timeLimit || ''}
                   onChange={(e) =>
                     handleQuestionChange(
                       'timeLimit',
-                      parseInt(e.target.value) || 0,
+                      parseInt(e.target.value) || 0
                     )
                   }
                   fullWidth
@@ -222,13 +224,13 @@ function QuestionEditor() {
               </Grid>
               <Grid sx={{ width: { xs: '100%', sm: '50%' } }}>
                 <TextField
-                  label='Points'
-                  type='number'
+                  label="Points"
+                  type="number"
                   value={newQuestion.points || ''}
                   onChange={(e) =>
                     handleQuestionChange(
                       'points',
-                      parseInt(e.target.value) || 0,
+                      parseInt(e.target.value) || 0
                     )
                   }
                   fullWidth
@@ -236,7 +238,7 @@ function QuestionEditor() {
                 />
               </Grid>
             </Grid>
-            <Typography variant='h6' sx={{ mb: 2 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
               Answer Options
             </Typography>
             {newQuestion.answers.map((answer, index) => (
@@ -274,10 +276,10 @@ function QuestionEditor() {
                 </Button>
                 {newQuestion.answers.length > 1 && (
                   <IconButton
-                    color='error'
+                    color="error"
                     onClick={() => {
                       const updatedAnswers = newQuestion.answers.filter(
-                        (_, i) => i !== index,
+                        (_, i) => i !== index
                       );
                       handleQuestionChange('answers', updatedAnswers);
                     }}
@@ -288,7 +290,7 @@ function QuestionEditor() {
               </Box>
             ))}
             <Button
-              variant='outlined'
+              variant="outlined"
               startIcon={<AddIcon />}
               onClick={() => {
                 if (newQuestion.answers.length > 5) {
@@ -306,7 +308,7 @@ function QuestionEditor() {
             >
               Add Option
             </Button>
-            <Typography variant='h6' sx={{ mb: 2 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
               URL Youtube Video/ Upload Photo (Optional)
             </Typography>
             <InputSwitcher
@@ -327,8 +329,8 @@ function QuestionEditor() {
             sx={{ p: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}
           >
             <Button
-              variant='contained'
-              color='primary'
+              variant="contained"
+              color="primary"
               startIcon={<SaveIcon />}
               onClick={handleSaveQuestion}
               sx={{

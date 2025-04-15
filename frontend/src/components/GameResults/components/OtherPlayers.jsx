@@ -12,9 +12,9 @@ import bigBrainTheme from '../../../theme/bigBrainTheme';
 // Other players table component
 const OtherPlayers = ({ players }) => (
   <TableContainer sx={{ p: 3 }}>
-    <Typography 
-      variant="h6" 
-      fontWeight={600} 
+    <Typography
+      variant="h6"
+      fontWeight={600}
       sx={{ mb: 2, color: 'rgba(0, 0, 0, 0.7)' }}
     >
       Other Top Players
@@ -22,7 +22,7 @@ const OtherPlayers = ({ players }) => (
     <Table>
       <TableBody>
         {players.map((player, index) => (
-          <TableRow 
+          <TableRow
             key={player.id || index}
             sx={{
               '&:hover': {
@@ -44,8 +44,8 @@ const OtherPlayers = ({ players }) => (
             </TableCell>
             <TableCell
               align="left"
-              sx={{ 
-                fontSize: 16, 
+              sx={{
+                fontSize: 16,
                 fontWeight: 500,
                 width: '60%',
               }}
@@ -54,8 +54,8 @@ const OtherPlayers = ({ players }) => (
             </TableCell>
             <TableCell
               align="right"
-              sx={{ 
-                fontSize: 16, 
+              sx={{
+                fontSize: 16,
                 fontWeight: 700,
                 color: bigBrainTheme.palette.primary.main,
                 width: '25%',
@@ -80,4 +80,4 @@ OtherPlayers.propTypes = {
   ).isRequired,
 };
 
-export default OtherPlayers; 
+export default OtherPlayers;

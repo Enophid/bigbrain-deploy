@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ApiCall from './apiCall';
-import FileToDataUrl from '../helper/helpers';
+import { FileToDataUrl } from '../helper/helpers';
 import {
   ThemeProvider,
   CssBaseline,
@@ -11,9 +11,12 @@ import {
   Grid,
   Alert,
   Snackbar,
+  Alert,
+  Snackbar,
 } from '@mui/material';
 import bigBrainTheme from '../theme/bigBrainTheme';
 import GlobalStyles from '../theme/globalStyles';
+import useAlert from '../hooks/useAlert';
 import useAlert from '../hooks/useAlert';
 
 // Component imports
@@ -21,6 +24,7 @@ import Header from './dashboard/Header';
 import GameCard from './dashboard/GameCard';
 import CreateGameModal from './dashboard/CreateGameModal';
 import EmptyState from './dashboard/EmptyState';
+import SessionModal from './dashboard/SessionModal';
 import SessionModal from './dashboard/SessionModal';
 
 // Helper function
@@ -43,6 +47,7 @@ function Dashboard() {
     id: 0,
     owner: '',
     questions: [],
+    active: null,
     active: null,
     createAt: '',
     name: '',
@@ -89,10 +94,23 @@ function Dashboard() {
         console.error('Failed to convert file to data URL:', err);
       }
     }
+    try {
+      const dataUrl = await FileToDataUrl(file);
+      setNewGameDetails({
+        ...newGameDetails,
+        thumbnail: dataUrl,
+      });
+    } catch (err) {
+      console.error('Failed to convert file to data URL:', err);
+    }
   };
 
   // Input handlers
   const handleInputChange = (e) => {
+    setNewGameDetails({
+      ...newGameDetails,
+      [e.target.name]: e.target.value,
+    });
     setNewGameDetails({
       ...newGameDetails,
       [e.target.name]: e.target.value,
@@ -116,17 +134,26 @@ function Dashboard() {
         owner: userEmail, // Set the owner to the current user's email
         questions: [],
         active: null,
+        id: gameId,
+        owner: userEmail, // Set the owner to the current user's email
+        questions: [],
+        active: null,
         createAt: new Date().toISOString(),
       };
 
       // Update local state
+
+      // Update local state
       const updatedGames = [...games, newGame];
+
+      // Reset form and close modal
 
       // Reset form and close modal
       setNewGameDetails({
         id: 0,
         owner: '',
         questions: [],
+        active: null,
         active: null,
         createAt: '',
         name: '',
@@ -139,7 +166,7 @@ function Dashboard() {
       const response = await ApiCall(
         '/admin/games',
         { games: updatedGames },
-        'PUT'
+        'PUT',
       );
 
       if (response.error) {
@@ -156,6 +183,15 @@ function Dashboard() {
       console.log('New game created successfully');
     } catch (err) {
       console.error('Failed to save game:', err.message);
+      // Revert local state if backend failed - but still fetch fresh data
+      try {
+        const refreshData = await ApiCall('/admin/games', {}, 'GET');
+        if (!refreshData.error) {
+          setGames(refreshData.games);
+        }
+      } catch (refreshErr) {
+        console.error('Failed to refresh game data:', refreshErr.message);
+      }
       // Revert local state if backend failed - but still fetch fresh data
       try {
         const refreshData = await ApiCall('/admin/games', {}, 'GET');
@@ -192,7 +228,7 @@ function Dashboard() {
       // Check if the game is active
       if (gameToDelete.active) {
         throw new Error(
-          'Cannot delete a game with an active session. End the session first.'
+          'Cannot delete a game with an active session. End the session first.',
         );
       }
 
@@ -208,13 +244,15 @@ function Dashboard() {
       // Update local state
       setGames(gamesWithOwner);
 
+      setGames(gamesWithOwner);
+
       console.log('Deleting game ID:', gameId);
 
       // Save to backend
       const response = await ApiCall(
         '/admin/games',
         { games: gamesWithOwner },
-        'PUT'
+        'PUT',
       );
 
       if (response.error) {
@@ -224,6 +262,8 @@ function Dashboard() {
       console.log('Game deleted successfully');
     } catch (err) {
       console.error('Failed to delete game:', err.message);
+      // Show an alert to the user
+      alert(`Failed to delete game: ${err.message}`);
       // Show an alert to the user
       alert(`Failed to delete game: ${err.message}`);
     }
@@ -265,7 +305,7 @@ function Dashboard() {
       const response = await ApiCall(
         `/admin/game/${gameId}/mutate`,
         { mutationType: 'START' },
-        'POST'
+        'POST',
       );
 
       if (response.error) {
@@ -289,7 +329,7 @@ function Dashboard() {
 
       console.log(
         'Game started successfully, session:',
-        response.data.sessionId
+        response.data.sessionId,
       );
     } catch (err) {
       console.error('Failed to start game:', err.message);
@@ -307,7 +347,7 @@ function Dashboard() {
       const response = await ApiCall(
         `/admin/game/${currentSession.gameId}/mutate`,
         { mutationType: 'END' },
-        'POST'
+        'POST',
       );
 
       if (response.error) {
@@ -377,13 +417,18 @@ function Dashboard() {
             '70%': { boxShadow: '0 0 0 10px rgba(76, 175, 80, 0)' },
             '100%': { boxShadow: '0 0 0 0 rgba(76, 175, 80, 0)' },
           },
+          '@keyframes pulse': {
+            '0%': { boxShadow: '0 0 0 0 rgba(76, 175, 80, 0.4)' },
+            '70%': { boxShadow: '0 0 0 10px rgba(76, 175, 80, 0)' },
+            '100%': { boxShadow: '0 0 0 0 rgba(76, 175, 80, 0)' },
+          },
         }}
       >
         {/* Header Section */}
         <Header onCreateGame={handleOpenModal} />
 
         <Container
-          maxWidth="xl"
+          maxWidth='xl'
           sx={{
             flexGrow: 1,
             mb: 5,
@@ -401,7 +446,7 @@ function Dashboard() {
             }}
           >
             <Typography
-              variant="h3"
+              variant='h3'
               sx={{
                 color: '#fff',
                 fontWeight: 700,
@@ -438,7 +483,7 @@ function Dashboard() {
                 .slice() // Create a shallow copy to avoid mutating the original array
                 .sort(
                   (a, b) =>
-                    new Date(b.createAt || 0) - new Date(a.createAt || 0)
+                    new Date(b.createAt || 0) - new Date(a.createAt || 0),
                 ) // Sort by creation date (newest first)
                 .map((game, index) => (
                   <GameCard
@@ -482,7 +527,7 @@ function Dashboard() {
         autoHideDuration={5000}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <Alert severity={alertSeverity} variant="filled" sx={{ width: '100%' }}>
+        <Alert severity={alertSeverity} variant='filled' sx={{ width: '100%' }}>
           {alertMessage}
         </Alert>
       </Snackbar>

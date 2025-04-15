@@ -64,8 +64,10 @@ function GameEditor() {
 
   // Open question modal to edit existing question
   const handleEditQuestion = (question) => {
-    setCurrentQuestion(question);
-    setQuestionModalOpen(true);
+    console.log(question);
+    navigate(`/game/${gameId}/question/${question.id}`);
+    // setCurrentQuestion(question);
+    // setQuestionModalOpen(true);
   };
 
   // Create a reusable handler for saving game updates
@@ -73,7 +75,7 @@ function GameEditor() {
     updateData,
     closeModalFunction,
     successMessage,
-    shouldRefetch = false
+    shouldRefetch = false,
   ) => {
     return async (data) => {
       // Prepare update payload based on the type of data
@@ -114,7 +116,7 @@ function GameEditor() {
             backgroundColor: bigBrainTheme.palette.background.default,
           }}
         >
-          <Typography variant="h5">Loading game...</Typography>
+          <Typography variant='h5'>Loading game...</Typography>
         </Box>
       </ThemeProvider>
     );
@@ -135,7 +137,7 @@ function GameEditor() {
             backgroundColor: bigBrainTheme.palette.background.default,
           }}
         >
-          <Typography variant="h5" color="error">
+          <Typography variant='h5' color='error'>
             Error: {error}
           </Typography>
         </Box>
@@ -201,14 +203,14 @@ function GameEditor() {
         >
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <IconButton
-              color="inherit"
+              color='inherit'
               onClick={handleBackToDashboard}
               sx={{ mr: 2, color: 'white' }}
             >
               <ArrowBackIcon />
             </IconButton>
             <Typography
-              variant="h4"
+              variant='h4'
               sx={{
                 color: '#fff',
                 fontWeight: 700,
@@ -220,7 +222,7 @@ function GameEditor() {
             </Typography>
           </Box>
 
-          <Button
+          {/* <Button
             variant="contained"
             color="primary"
             startIcon={<EditIcon />}
@@ -232,11 +234,11 @@ function GameEditor() {
             }}
           >
             Edit Game
-          </Button>
+          </Button> */}
         </Box>
 
         <Container
-          maxWidth="xl"
+          maxWidth='xl'
           sx={{
             flexGrow: 1,
             position: 'relative',
@@ -262,7 +264,7 @@ function GameEditor() {
               }}
             >
               <Tab
-                label="Questions"
+                label='Questions'
                 sx={{
                   color: 'white',
                   textTransform: 'none',
@@ -272,7 +274,7 @@ function GameEditor() {
                 }}
               />
               <Tab
-                label="Game Info"
+                label='Game Info'
                 sx={{
                   color: 'white',
                   textTransform: 'none',
@@ -320,7 +322,7 @@ function GameEditor() {
           onSave={createSaveHandler(
             (updatedQuestions) => ({ questions: updatedQuestions }),
             setQuestionModalOpen,
-            'Question saved successfully'
+            'Question saved successfully',
           )}
           error={error}
           displayAlert={displayAlert}
@@ -338,7 +340,7 @@ function GameEditor() {
             }),
             setMetadataModalOpen,
             'Game details updated successfully',
-            true
+            true,
           )}
         />
       </Box>

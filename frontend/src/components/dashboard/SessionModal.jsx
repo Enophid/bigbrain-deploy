@@ -27,7 +27,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
-// Common styles 
+// Common styles
 const styles = {
   button: {
     borderRadius: 2,
@@ -126,9 +126,7 @@ const DefaultSessionActions = ({
   handleCopyLink,
   initialFocusRef,
 }) => (
-  <Box
-    sx={styles.actionContainer}
-  >
+  <Box sx={styles.actionContainer}>
     {!isNewSession && (
       <Button
         variant="outlined"
@@ -263,11 +261,7 @@ const SessionEndedActions = ({
       justifyContent: 'space-between',
     }}
   >
-    <Button 
-      variant="outlined" 
-      onClick={onClose} 
-      sx={styles.button}
-    >
+    <Button variant="outlined" onClick={onClose} sx={styles.button}>
       No, Close
     </Button>
     <Button
@@ -433,8 +427,8 @@ const SessionModal = ({
         content: <EndingSessionContent />,
         actions: null,
       };
-    } 
-    
+    }
+
     if (showEndConfirm) {
       return {
         title: 'End Game Session?',
@@ -450,8 +444,8 @@ const SessionModal = ({
           />
         ),
       };
-    } 
-    
+    }
+
     if (sessionEnded) {
       return {
         title: 'Session Ended',
@@ -468,7 +462,7 @@ const SessionModal = ({
         ),
       };
     }
-    
+
     // Default (active or new session)
     return {
       title: isNewSession ? 'Game Session Started!' : 'Active Game Session',

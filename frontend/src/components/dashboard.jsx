@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ApiCall from './apiCall';
-import FileToDataUrl from '../helper/helpers';
+import { FileToDataUrl } from '../helper/helpers';
 import {
   ThemeProvider,
   CssBaseline,
@@ -94,29 +94,33 @@ function Dashboard() {
       const gameId = generateRandomID();
       const newGame = {
         ...newGameDetails,
-        id: gameId,  // Make sure this is an integer
+        id: gameId, // Make sure this is an integer
         owner: localStorage.getItem('admin'), // Use 'admin' key which stores the email
         questions: [], // Start with empty questions array
         createAt: new Date().toISOString(),
         name: newGameDetails.name || 'Untitled Game', // Ensure name is set
       };
-      
+
       console.log('New game data:', newGame);
-      
+
       // Add to local state
       const updatedGames = [...games, newGame];
       setGames(updatedGames);
-      
+
       console.log('Saving games to backend:', updatedGames);
-      
+
       // Save to backend - note we're sending all games
-      const response = await ApiCall('/admin/games', { games: updatedGames }, 'PUT');
+      const response = await ApiCall(
+        '/admin/games',
+        { games: updatedGames },
+        'PUT',
+      );
       console.log('Backend response:', response);
-      
+
       if (response.error) {
         throw new Error(response.error);
       }
-      
+
       // Reset form
       setModalOpen(false);
       setNewGameDetails({
@@ -144,21 +148,25 @@ function Dashboard() {
   const handleDeleteGame = async (gameId) => {
     try {
       // Filter out the game to delete
-      const updatedGames = games.filter(game => game.id !== gameId);
-      
+      const updatedGames = games.filter((game) => game.id !== gameId);
+
       // Update local state
       setGames(updatedGames);
-      
+
       console.log('Deleting game ID:', gameId);
       console.log('Updated games list:', updatedGames);
-      
+
       // Save to backend
-      const response = await ApiCall('/admin/games', { games: updatedGames }, 'PUT');
-      
+      const response = await ApiCall(
+        '/admin/games',
+        { games: updatedGames },
+        'PUT',
+      );
+
       if (response.error) {
         throw new Error(response.error);
       }
-      
+
       console.log('Game deleted successfully');
     } catch (err) {
       console.error('Failed to delete game:', err.message);
@@ -170,7 +178,7 @@ function Dashboard() {
       const response = await ApiCall(
         `/admin/games/${gameId}/start`,
         {},
-        'POST'
+        'POST',
       );
       if (response.error) {
         throw new Error(response.error);
@@ -178,8 +186,8 @@ function Dashboard() {
 
       setGames((prevGames) =>
         prevGames.map((game) =>
-          game.id === gameId ? { ...game, active: true } : game
-        )
+          game.id === gameId ? { ...game, active: true } : game,
+        ),
       );
 
       console.log('Game started successfully, session:', response);
@@ -214,7 +222,7 @@ function Dashboard() {
         <Header onCreateGame={handleOpenModal} />
 
         <Container
-          maxWidth="xl"
+          maxWidth='xl'
           sx={{
             flexGrow: 1,
             mb: 5,
@@ -232,7 +240,7 @@ function Dashboard() {
             }}
           >
             <Typography
-              variant="h3"
+              variant='h3'
               sx={{
                 color: '#fff',
                 fontWeight: 700,

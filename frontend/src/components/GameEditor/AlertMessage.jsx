@@ -13,7 +13,7 @@ const AlertMessage = ({ message, show }) => {
         zIndex: 9999,
         width: { xs: '90%', sm: '60%', md: '50%' },
         maxWidth: 600,
-        backgroundColor: 'error.main',
+        backgroundColor: 'success.main',
         color: 'white',
         padding: 2,
         borderRadius: 2,
@@ -21,7 +21,7 @@ const AlertMessage = ({ message, show }) => {
         textAlign: 'center',
       }}
     >
-      <Typography variant="body1">{message}</Typography>
+      <Typography variant='body1'>{message}</Typography>
     </Box>
   );
 };

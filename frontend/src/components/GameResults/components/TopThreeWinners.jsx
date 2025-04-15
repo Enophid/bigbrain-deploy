@@ -17,10 +17,10 @@ const TopThreeWinners = ({ players }) => (
   >
     {/* Second Place */}
     {players.length > 1 && (
-      <PlayerPodium 
-        player={players[1]} 
-        rank={2} 
-        color="#C0C0C0" 
+      <PlayerPodium
+        player={players[1]}
+        rank={2}
+        color="#C0C0C0"
         size={{
           width: { xs: 80, md: 100 },
           height: { xs: 80, md: 100 },
@@ -33,10 +33,10 @@ const TopThreeWinners = ({ players }) => (
 
     {/* First Place */}
     {players.length > 0 && (
-      <PlayerPodium 
-        player={players[0]} 
-        rank={1} 
-        color="#FFD700" 
+      <PlayerPodium
+        player={players[0]}
+        rank={1}
+        color="#FFD700"
         size={{
           width: { xs: 100, md: 130 },
           height: { xs: 100, md: 130 },
@@ -49,10 +49,10 @@ const TopThreeWinners = ({ players }) => (
 
     {/* Third Place */}
     {players.length > 2 && (
-      <PlayerPodium 
-        player={players[2]} 
-        rank={3} 
-        color="#CD7F32" 
+      <PlayerPodium
+        player={players[2]}
+        rank={3}
+        color="#CD7F32"
         size={{
           width: { xs: 70, md: 90 },
           height: { xs: 70, md: 90 },
@@ -75,4 +75,4 @@ TopThreeWinners.propTypes = {
   ).isRequired,
 };
 
-export default TopThreeWinners; 
+export default TopThreeWinners;

@@ -1,9 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Box,
-  Typography,
-} from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import bigBrainTheme from '../../../theme/bigBrainTheme';
 
 // Header for leaderboard and statistics sections
@@ -17,10 +14,10 @@ const SectionHeader = ({ title, icon }) => (
     }}
   >
     {icon}
-    <Typography 
+    <Typography
       variant="h4"
-      fontWeight={700} 
-      sx={{ 
+      fontWeight={700}
+      sx={{
         color: 'white',
         textShadow: '0 2px 4px rgba(0,0,0,0.2)',
       }}
@@ -43,4 +40,4 @@ SectionHeader.propTypes = {
   icon: PropTypes.element,
 };
 
-export default SectionHeader; 
+export default SectionHeader;

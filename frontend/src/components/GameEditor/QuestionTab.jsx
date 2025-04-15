@@ -140,10 +140,10 @@ const QuestionTab = ({
                       >
                         {question.answers
                           ? `${
-                              question.answers.filter((a) => a.isCorrect).length
-                            } correct answer(s) • ${
-                              question.answers.length
-                            } total options`
+                            question.answers.filter((a) => a.isCorrect).length
+                          } correct answer(s) • ${
+                            question.answers.length
+                          } total options`
                           : 'No answer options defined'}
                       </Typography>
                     </>

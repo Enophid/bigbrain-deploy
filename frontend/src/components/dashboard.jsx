@@ -11,12 +11,9 @@ import {
   Grid,
   Alert,
   Snackbar,
-  Alert,
-  Snackbar,
 } from '@mui/material';
 import bigBrainTheme from '../theme/bigBrainTheme';
 import GlobalStyles from '../theme/globalStyles';
-import useAlert from '../hooks/useAlert';
 import useAlert from '../hooks/useAlert';
 
 // Component imports
@@ -25,7 +22,7 @@ import GameCard from './dashboard/GameCard';
 import CreateGameModal from './dashboard/CreateGameModal';
 import EmptyState from './dashboard/EmptyState';
 import SessionModal from './dashboard/SessionModal';
-import SessionModal from './dashboard/SessionModal';
+
 
 // Helper function
 const generateRandomID = () => Math.floor(Math.random() * 10 ** 8);
@@ -47,7 +44,6 @@ function Dashboard() {
     id: 0,
     owner: '',
     questions: [],
-    active: null,
     active: null,
     createAt: '',
     name: '',
@@ -94,15 +90,6 @@ function Dashboard() {
         console.error('Failed to convert file to data URL:', err);
       }
     }
-    try {
-      const dataUrl = await FileToDataUrl(file);
-      setNewGameDetails({
-        ...newGameDetails,
-        thumbnail: dataUrl,
-      });
-    } catch (err) {
-      console.error('Failed to convert file to data URL:', err);
-    }
   };
 
   // Input handlers
@@ -134,10 +121,6 @@ function Dashboard() {
         owner: userEmail, // Set the owner to the current user's email
         questions: [],
         active: null,
-        id: gameId,
-        owner: userEmail, // Set the owner to the current user's email
-        questions: [],
-        active: null,
         createAt: new Date().toISOString(),
       };
 
@@ -153,7 +136,6 @@ function Dashboard() {
         id: 0,
         owner: '',
         questions: [],
-        active: null,
         active: null,
         createAt: '',
         name: '',
@@ -411,11 +393,6 @@ function Dashboard() {
             '0%': { backgroundPosition: '0% 50%' },
             '50%': { backgroundPosition: '100% 50%' },
             '100%': { backgroundPosition: '0% 50%' },
-          },
-          '@keyframes pulse': {
-            '0%': { boxShadow: '0 0 0 0 rgba(76, 175, 80, 0.4)' },
-            '70%': { boxShadow: '0 0 0 10px rgba(76, 175, 80, 0)' },
-            '100%': { boxShadow: '0 0 0 0 rgba(76, 175, 80, 0)' },
           },
           '@keyframes pulse': {
             '0%': { boxShadow: '0 0 0 0 rgba(76, 175, 80, 0.4)' },

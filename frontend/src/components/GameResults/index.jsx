@@ -81,4 +81,4 @@ const GameResult = () => {
   );
 };
 
-export default GameResult; 
+export default GameResult;

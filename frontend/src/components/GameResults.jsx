@@ -232,7 +232,192 @@ const GameResult = () => {
             </Paper>
           </Box>
 
+          {loading ? (
+            <Box
+              sx={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexDirection: 'column',
+                gap: 2,
+              }}
+            >
+              <CircularProgress size={60} sx={{ color: 'white' }} />
+              <Typography
+                variant="h6"
+                sx={{
+                  color: 'white',
+                  textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                  fontWeight: 500,
+                }}
+              >
+                Loading results...
+              </Typography>
+            </Box>
+          ) : (
+            <Fade in={true} timeout={800}>
+              <Box sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
+                {!showStats && (
+                  <Box
+                    sx={{
+                      width: '100%',
+                      maxWidth: 700,
+                      mx: 'auto',
+                      borderRadius: 4,
+                      bgcolor: 'rgba(255, 255, 255, 0.95)',
+                      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.15)',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        p: 3,
+                        textAlign: 'center',
+                        backgroundColor: bigBrainTheme.palette.primary.main,
+                        position: 'relative',
+                      }}
+                    >
+                      <TrophyIcon
+                        sx={{
+                          fontSize: 40,
+                          color: '#FFD700',
+                          position: 'absolute',
+                          left: '15%',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          display: { xs: 'none', sm: 'block' },
+                        }}
+                      />
+                      <Typography
+                        variant="h4"
+                        fontWeight={700}
+                        sx={{
+                          color: 'white',
+                          textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                        }}
+                      >
+                        Leaderboard
+                      </Typography>
+                      <TrophyIcon
+                        sx={{
+                          fontSize: 40,
+                          color: '#FFD700',
+                          position: 'absolute',
+                          right: '15%',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          display: { xs: 'none', sm: 'block' },
+                        }}
+                      />
+                    </Box>
+
+                    <Divider />
+
+                    {result.slice(0, 5).length !== 0 ? (
+                      <>
+                        {/* Top 3 Winners */}
+                        {result.slice(0, 3).length > 0 && (
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'center',
+                              flexWrap: 'wrap',
+                              gap: { xs: 2, md: 4 },
+                              p: 3,
+                              pb: 4,
+                              backgroundColor: 'rgba(245, 248, 255, 0.8)',
+                            }}
+                          >
+                            {/* Second Place */}
+                            {result.length > 1 && (
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  alignItems: 'center',
+                                  mt: { xs: 3, md: 6 },
+                                  order: { xs: 2, md: 1 },
+                                }}
+                              >
+                                <Avatar
+                                  sx={{
+                                    width: { xs: 80, md: 100 },
+                                    height: { xs: 80, md: 100 },
+                                    bgcolor: '#C0C0C0',
+                                    border: '4px solid white',
+                                    boxShadow: '0 5px 15px rgba(0,0,0,0.1)',
+                                    fontSize: '2rem',
+                                    mb: 1,
+                                  }}
+                                >
+                                  🥈
+                                </Avatar>
+                                <Typography
+                                  variant="h6"
+                                  fontWeight={600}
+                                  sx={{ mb: 0.5 }}
+                                >
+                                  {result[1]?.name || 'Player 2'}
+                                </Typography>
+                                <Chip
+                                  label={`${result[1]?.score || 0} pts`}
+                                  sx={{
+                                    backgroundColor: '#C0C0C0',
+                                    color: 'white',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.9rem',
+                                  }}
+                                />
+                              </Box>
+                            )}
+
+                            {/* First Place */}
+                            {result.length > 0 && (
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  alignItems: 'center',
+                                  order: { xs: 1, md: 2 },
+                                }}
+                              >
+                                <Avatar
+                                  sx={{
+                                    width: { xs: 100, md: 130 },
+                                    height: { xs: 100, md: 130 },
+                                    bgcolor: '#FFD700',
+                                    border: '4px solid white',
+                                    boxShadow: '0 5px 15px rgba(0,0,0,0.1)',
+                                    fontSize: '2.5rem',
+                                    mb: 1,
+                                  }}
+                                >
+                                  🥇
+                                </Avatar>
+                                <Typography
+                                  variant="h5"
+                                  fontWeight={700}
+                                  sx={{ mb: 0.5 }}
+                                >
+                                  {result[0]?.name || 'Player 1'}
+                                </Typography>
+                                <Chip
+                                  label={`${result[0]?.score || 0} pts`}
+                                  sx={{
+                                    backgroundColor: '#FFD700',
+                                    color: 'white',
+                                    fontWeight: 'bold',
+                                    fontSize: '1rem',
+                                    px: 1,
+                                  }}
+                                />
+                              </Box>
+                            )}
+
  
+      </Box>
+    </ThemeProvider>
   );
 };
 

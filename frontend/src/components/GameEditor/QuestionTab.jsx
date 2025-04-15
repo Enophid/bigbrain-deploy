@@ -35,7 +35,7 @@ const QuestionTab = ({
         }}
       >
         <Typography
-          variant='h5'
+          variant="h5"
           sx={{
             color: '#fff',
             fontWeight: 700,
@@ -45,8 +45,8 @@ const QuestionTab = ({
           Questions
         </Typography>
         <Button
-          variant='contained'
-          color='primary'
+          variant="contained"
+          color="primary"
           startIcon={<AddIcon />}
           onClick={onAddQuestion}
           sx={{
@@ -62,12 +62,12 @@ const QuestionTab = ({
       {game?.questions.length === 0 ? (
         <Card sx={{ borderRadius: 3, bgcolor: 'rgba(255, 255, 255, 0.9)' }}>
           <CardContent sx={{ textAlign: 'center', py: 5 }}>
-            <Typography variant='h6' sx={{ mb: 2 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
               No questions added yet
             </Typography>
             <Button
-              variant='contained'
-              color='primary'
+              variant="contained"
+              color="primary"
               startIcon={<AddIcon />}
               onClick={onAddQuestion}
               sx={{
@@ -94,19 +94,19 @@ const QuestionTab = ({
                 }}
                 secondaryAction={
                   <Box sx={{ display: 'flex' }}>
-                    <Tooltip title='Edit Question'>
+                    <Tooltip title="Edit Question">
                       <IconButton
-                        edge='end'
+                        edge="end"
                         onClick={() => onEditQuestion(question)}
                         sx={{ mr: 1 }}
                       >
                         <EditIcon />
                       </IconButton>
                     </Tooltip>
-                    <Tooltip title='Delete Question'>
+                    <Tooltip title="Delete Question">
                       <IconButton
-                        edge='end'
-                        color='error'
+                        edge="end"
+                        color="error"
                         onClick={() => onDeleteQuestion(question.id)}
                       >
                         <DeleteIcon />
@@ -117,26 +117,26 @@ const QuestionTab = ({
               >
                 <ListItemText
                   primary={
-                    <Typography variant='subtitle1' fontWeight={600}>
+                    <Typography variant="subtitle1" fontWeight={600}>
                       {index + 1}. {question.text}
                     </Typography>
                   }
                   secondary={
                     <>
                       <Typography
-                        variant='body2'
-                        component='span'
-                        color='text.secondary'
-                        display='block'
+                        variant="body2"
+                        component="span"
+                        color="text.secondary"
+                        display="block"
                       >
                         Time limit: {question.timeLimit || 0}s •{' '}
                         {question.points || 0} points
                       </Typography>
                       <Typography
-                        variant='body2'
-                        component='span'
-                        color='text.secondary'
-                        display='block'
+                        variant="body2"
+                        component="span"
+                        color="text.secondary"
+                        display="block"
                       >
                         {question.answers
                           ? `${
@@ -167,10 +167,10 @@ const QuestionTab = ({
                         height: '400px',
                       }}
                       src={question.videoUrl}
-                      title='YouTube video player'
-                      frameBorder='0'
-                      allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
-                      referrerPolicy='strict-origin-when-cross-origin'
+                      title="YouTube video player"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      referrerPolicy="strict-origin-when-cross-origin"
                       allowFullScreen
                     ></iframe>
                   </Box>
@@ -188,7 +188,7 @@ const QuestionTab = ({
                   >
                     <img
                       src={question.imageUrl}
-                      alt='Question-related content'
+                      alt="Question-related content"
                       style={{
                         width: '100%', // Stretches to fit the box width
                         height: '400px', // Keeps the aspect ratio intact

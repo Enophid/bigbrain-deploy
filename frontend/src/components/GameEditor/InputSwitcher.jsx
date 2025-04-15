@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import PropTypes from 'prop-types';
 import {
   Box,
   TextField,
@@ -36,7 +37,7 @@ const InputSwitcher = ({ onChange }) => {
 
   return (
     <Box sx={{ maxWidth: 400, margin: '0 auto', textAlign: 'center' }}>
-      <Typography variant='h6' sx={{ mb: 3 }}>
+      <Typography variant="h6" sx={{ mb: 3 }}>
         Choose Input Type
       </Typography>
 
@@ -47,28 +48,32 @@ const InputSwitcher = ({ onChange }) => {
         fullWidth
         sx={{ mb: 3 }}
       >
-        <MenuItem value='url'>YouTube URL</MenuItem>
-        <MenuItem value='photo'>Upload Photo</MenuItem>
+        <MenuItem value="url">YouTube URL</MenuItem>
+        <MenuItem value="photo">Upload Photo</MenuItem>
       </Select>
 
       {/* Conditional rendering for input */}
       {inputType === 'url' ? (
         <TextField
-          label='YouTube Embedded URL'
-          variant='outlined'
+          label="YouTube Embedded URL"
+          variant="outlined"
           fullWidth
           value={url}
           onChange={handleUrlChange}
-          placeholder='Enter YouTube URL'
+          placeholder="Enter YouTube URL"
           sx={{ mb: 2 }}
         />
       ) : (
-        <Button variant='contained' component='label' sx={{ mb: 2 }}>
-          Upload Photo
+        <Button 
+          variant="contained" 
+          component="label" 
+          sx={{ mb: 2 }}
+        >
+          Upload Photo{' '}
           <input
-            type='file'
+            type="file"
             hidden
-            accept='image/*'
+            accept="image/*"
             onChange={handlePhotoChange}
           />
         </Button>
@@ -77,18 +82,22 @@ const InputSwitcher = ({ onChange }) => {
       {/* Display uploaded photo or URL */}
       <Box sx={{ mt: 2 }}>
         {photo && (
-          <Typography variant='body2' color='text.secondary'>
+          <Typography variant="body2" color="text.secondary">
             Uploaded: {photo.name}
           </Typography>
         )}
         {url && (
-          <Typography variant='body2' color='text.secondary'>
+          <Typography variant="body2" color="text.secondary">
             URL: {url}
           </Typography>
         )}
       </Box>
     </Box>
   );
+};
+
+InputSwitcher.propTypes = {
+  onChange: PropTypes.func.isRequired
 };
 
 export default InputSwitcher;

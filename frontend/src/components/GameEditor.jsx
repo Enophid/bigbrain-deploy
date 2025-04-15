@@ -4,7 +4,6 @@ import {
   Box,
   Container,
   Typography,
-  Button,
   IconButton,
   ThemeProvider,
   CssBaseline,
@@ -12,7 +11,6 @@ import {
   Tab,
 } from '@mui/material';
 import {
-  Edit as EditIcon,
   ArrowBack as ArrowBackIcon,
 } from '@mui/icons-material';
 
@@ -64,10 +62,7 @@ function GameEditor() {
 
   // Open question modal to edit existing question
   const handleEditQuestion = (question) => {
-    console.log(question);
     navigate(`/game/${gameId}/question/${question.id}`);
-    // setCurrentQuestion(question);
-    // setQuestionModalOpen(true);
   };
 
   // Create a reusable handler for saving game updates

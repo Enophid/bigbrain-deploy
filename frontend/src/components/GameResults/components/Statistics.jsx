@@ -18,12 +18,12 @@ const Statistics = () => (
     }}
   >
     <SectionHeader title="Game Statistics" />
-    
+
     <Box sx={{ p: 4 }}>
       <ChartSection title="Performance by Question">
         <ResultBarChart />
       </ChartSection>
-      
+
       <ChartSection title="Score Distribution">
         <ResultLineChart />
       </ChartSection>
@@ -31,4 +31,4 @@ const Statistics = () => (
   </Box>
 );
 
-export default Statistics; 
+export default Statistics;

@@ -27,7 +27,23 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
-// Helper function for rendering the default modal content
+// Common styles 
+const styles = {
+  button: {
+    borderRadius: 2,
+    width: { xs: '100%', sm: 'auto' },
+    mb: { xs: 1, sm: 0 },
+  },
+  actionContainer: {
+    display: 'flex',
+    flexDirection: { xs: 'column', sm: 'row' },
+    width: '100%',
+  },
+};
+
+/**
+ * Component that displays the modal content for active or new game sessions
+ */
 const DefaultSessionContent = ({
   gameName,
   isNewSession,
@@ -99,7 +115,9 @@ const DefaultSessionContent = ({
   </>
 );
 
-// Helper function for rendering the default modal actions
+/**
+ * Component that displays the action buttons for active or new game sessions
+ */
 const DefaultSessionActions = ({
   isNewSession,
   copied,
@@ -109,11 +127,7 @@ const DefaultSessionActions = ({
   initialFocusRef,
 }) => (
   <Box
-    sx={{
-      display: 'flex',
-      flexDirection: { xs: 'column', sm: 'row' },
-      width: '100%',
-    }}
+    sx={styles.actionContainer}
   >
     {!isNewSession && (
       <Button
@@ -122,33 +136,28 @@ const DefaultSessionActions = ({
         onClick={handleShowEndConfirm}
         startIcon={<StopIcon />}
         sx={{
-          borderRadius: 2,
-          mb: { xs: 1, sm: 0 },
+          ...styles.button,
           mr: { sm: 2 },
-          width: { xs: '100%', sm: 'auto' },
         }}
         ref={initialFocusRef}
       >
         End Session
       </Button>
     )}
-
     <Box
       sx={{
         display: 'flex',
         flexDirection: { xs: 'column', sm: 'row' },
-        width: { xs: '100%', sm: '100%' },
-        justifyContent: { sm: 'space-between' },
+        width: { xs: '100%', sm: 'auto' },
+        ml: { sm: isNewSession ? 'auto' : 0 },
       }}
     >
       <Button
         variant="outlined"
         onClick={onClose}
         sx={{
-          borderRadius: 2,
-          mb: { xs: 1, sm: 0 },
+          ...styles.button,
           mr: { sm: 2 },
-          width: { xs: '100%', sm: 'auto' },
         }}
       >
         Close
@@ -158,7 +167,7 @@ const DefaultSessionActions = ({
         color={isNewSession ? 'primary' : 'success'}
         onClick={handleCopyLink}
         startIcon={copied ? <CheckIcon /> : <CopyIcon />}
-        sx={{ borderRadius: 2, width: { xs: '100%', sm: 'auto' } }}
+        sx={styles.button}
         ref={isNewSession ? initialFocusRef : null}
       >
         {copied ? 'Copied!' : 'Copy Link'}
@@ -167,7 +176,9 @@ const DefaultSessionActions = ({
   </Box>
 );
 
-// Helper function for rendering the end confirmation content
+/**
+ * Component that displays the confirmation content for ending a session
+ */
 const ConfirmEndContent = () => (
   <>
     <Typography variant="h6" sx={{ mb: 2 }}>
@@ -190,7 +201,9 @@ const ConfirmEndContent = () => (
   </>
 );
 
-// Helper function for rendering the end confirmation actions
+/**
+ * Component that displays the action buttons for ending session confirmation
+ */
 const ConfirmEndActions = ({
   handleCancelEndSession,
   handleConfirmEndSession,
@@ -198,20 +211,14 @@ const ConfirmEndActions = ({
 }) => (
   <Box
     sx={{
-      display: 'flex',
-      flexDirection: { xs: 'column', sm: 'row' },
-      width: '100%',
+      ...styles.actionContainer,
       justifyContent: 'space-between',
     }}
   >
     <Button
       variant="outlined"
       onClick={handleCancelEndSession}
-      sx={{
-        borderRadius: 2,
-        mb: { xs: 1, sm: 0 },
-        width: { xs: '100%', sm: 'auto' },
-      }}
+      sx={styles.button}
     >
       Cancel
     </Button>
@@ -220,7 +227,7 @@ const ConfirmEndActions = ({
       color="error"
       onClick={handleConfirmEndSession}
       startIcon={<StopIcon />}
-      sx={{ borderRadius: 2, width: { xs: '100%', sm: 'auto' } }}
+      sx={styles.button}
       ref={initialFocusRef}
     >
       End Session
@@ -228,7 +235,9 @@ const ConfirmEndActions = ({
   </Box>
 );
 
-// Helper function for rendering the session ended content
+/**
+ * Component that displays the content after a session has ended
+ */
 const SessionEndedContent = ({ gameName }) => (
   <>
     <Typography variant="h6" sx={{ mb: 2 }}>
@@ -240,48 +249,43 @@ const SessionEndedContent = ({ gameName }) => (
   </>
 );
 
-// Helper function for rendering the session ended actions
+/**
+ * Component that displays the action buttons after a session has ended
+ */
 const SessionEndedActions = ({
   onClose,
   handleViewResults,
   initialFocusRef,
-}) => {
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: { xs: 'column', sm: 'row' },
-        width: '100%',
-        justifyContent: 'space-between',
-      }}
+}) => (
+  <Box
+    sx={{
+      ...styles.actionContainer,
+      justifyContent: 'space-between',
+    }}
+  >
+    <Button 
+      variant="outlined" 
+      onClick={onClose} 
+      sx={styles.button}
     >
-      <Button
-        variant="outlined"
-        onClick={onClose}
-        sx={{
-          borderRadius: 2,
-          mb: { xs: 1, sm: 0 },
-          mr: { sm: 2 },
-          width: { xs: '100%', sm: 'auto' },
-        }}
-      >
-        No, Close
-      </Button>
-      <Button
-        variant="contained"
-        color="info"
-        onClick={handleViewResults}
-        startIcon={<AssessmentIcon />}
-        sx={{ borderRadius: 2, width: { xs: '100%', sm: 'auto' } }}
-        ref={initialFocusRef}
-      >
-        Yes, View Results
-      </Button>
-    </Box>
-  );
-};
+      No, Close
+    </Button>
+    <Button
+      variant="contained"
+      color="info"
+      onClick={handleViewResults}
+      startIcon={<AssessmentIcon />}
+      sx={styles.button}
+      ref={initialFocusRef}
+    >
+      Yes, View Results
+    </Button>
+  </Box>
+);
 
-// Helper function for rendering the ending session content
+/**
+ * Component that displays the content while a session is ending
+ */
 const EndingSessionContent = () => (
   <Box sx={{ py: 4, textAlign: 'center' }}>
     <CircularProgress color="warning" size={60} sx={{ mb: 3 }} />
@@ -292,6 +296,10 @@ const EndingSessionContent = () => (
   </Box>
 );
 
+/**
+ * Main SessionModal component
+ * Displays different content based on the session state
+ */
 const SessionModal = ({
   open,
   onClose,
@@ -306,13 +314,14 @@ const SessionModal = ({
   const [sessionEnded, setSessionEnded] = useState(false);
   const [endingSession, setEndingSession] = useState(false);
   const navigate = useNavigate();
-
-  // Ref for managing focus
   const initialFocusRef = useRef(null);
 
   // Generate the play URL with the session ID
   const playUrl = `${window.location.origin}/play?session=${sessionId}`;
 
+  /**
+   * Copies the session link to clipboard
+   */
   const handleCopyLink = () => {
     navigator.clipboard
       .writeText(playUrl)
@@ -339,6 +348,9 @@ const SessionModal = ({
     setShowEndConfirm(false);
   };
 
+  /**
+   * Handles the confirmation to end a session
+   */
   const handleConfirmEndSession = async () => {
     setShowEndConfirm(false);
     try {
@@ -364,6 +376,9 @@ const SessionModal = ({
     }
   };
 
+  /**
+   * Navigates to the results page for the session
+   */
   const handleViewResults = () => {
     onClose();
     if (sessionId) {
@@ -387,15 +402,12 @@ const SessionModal = ({
     setShowEndConfirm(false);
     setCopied(false);
 
-    // Don't reset sessionEnded here - we want it to persist
-
     // Call the parent's close handler
     onClose();
   };
 
   // Special handler for "No, Close" in Session Ended view
   const handleCloseAfterEnd = () => {
-    // No need to call onEndSession again, it was already called
     onClose();
   };
 
@@ -408,74 +420,87 @@ const SessionModal = ({
     setCopied(false);
   };
 
-  // Determine modal content based on current state
-  let modalContent;
-  let modalActions;
-  let modalTitle;
-  let modalTitleColor;
-  let modalIcon;
-  let modalIconLabel;
+  /**
+   * Determine modal configuration based on current state
+   */
+  const getModalConfig = () => {
+    if (endingSession) {
+      return {
+        title: 'Ending Session...',
+        titleColor: (theme) => theme.palette.warning.main,
+        icon: <StopIcon />,
+        iconLabel: 'Processing',
+        content: <EndingSessionContent />,
+        actions: null,
+      };
+    } 
+    
+    if (showEndConfirm) {
+      return {
+        title: 'End Game Session?',
+        titleColor: (theme) => theme.palette.warning.main,
+        icon: <StopIcon />,
+        iconLabel: 'Confirm',
+        content: <ConfirmEndContent />,
+        actions: (
+          <ConfirmEndActions
+            handleCancelEndSession={handleCancelEndSession}
+            handleConfirmEndSession={handleConfirmEndSession}
+            initialFocusRef={initialFocusRef}
+          />
+        ),
+      };
+    } 
+    
+    if (sessionEnded) {
+      return {
+        title: 'Session Ended',
+        titleColor: (theme) => theme.palette.info.main,
+        icon: <AssessmentIcon />,
+        iconLabel: 'Ended',
+        content: <SessionEndedContent gameName={gameName} />,
+        actions: (
+          <SessionEndedActions
+            onClose={handleCloseAfterEnd}
+            handleViewResults={handleViewResults}
+            initialFocusRef={initialFocusRef}
+          />
+        ),
+      };
+    }
+    
+    // Default (active or new session)
+    return {
+      title: isNewSession ? 'Game Session Started!' : 'Active Game Session',
+      titleColor: (theme) =>
+        isNewSession ? theme.palette.primary.main : theme.palette.success.main,
+      icon: isNewSession ? <PlayArrowIcon /> : <TimerIcon />,
+      iconLabel: isNewSession ? 'New' : 'Live',
+      content: (
+        <DefaultSessionContent
+          gameName={gameName}
+          isNewSession={isNewSession}
+          sessionId={sessionId}
+          playUrl={playUrl}
+          copied={copied}
+          handleCopyLink={handleCopyLink}
+        />
+      ),
+      actions: (
+        <DefaultSessionActions
+          isNewSession={isNewSession}
+          copied={copied}
+          handleShowEndConfirm={handleShowEndConfirm}
+          onClose={handleClose}
+          handleCopyLink={handleCopyLink}
+          initialFocusRef={initialFocusRef}
+        />
+      ),
+    };
+  };
 
-  if (endingSession) {
-    modalTitle = 'Ending Session...';
-    modalTitleColor = (theme) => theme.palette.warning.main;
-    modalIcon = <StopIcon />;
-    modalIconLabel = 'Processing';
-    modalContent = <EndingSessionContent />;
-    modalActions = null;
-  } else if (showEndConfirm) {
-    modalTitle = 'End Game Session?';
-    modalTitleColor = (theme) => theme.palette.warning.main;
-    modalIcon = <StopIcon />;
-    modalIconLabel = 'Confirm';
-    modalContent = <ConfirmEndContent />;
-    modalActions = (
-      <ConfirmEndActions
-        handleCancelEndSession={handleCancelEndSession}
-        handleConfirmEndSession={handleConfirmEndSession}
-        initialFocusRef={initialFocusRef}
-      />
-    );
-  } else if (sessionEnded) {
-    modalTitle = 'Session Ended';
-    modalTitleColor = (theme) => theme.palette.info.main;
-    modalIcon = <AssessmentIcon />;
-    modalIconLabel = 'Ended';
-    modalContent = <SessionEndedContent gameName={gameName} />;
-    modalActions = (
-      <SessionEndedActions
-        onClose={handleCloseAfterEnd}
-        handleViewResults={handleViewResults}
-        initialFocusRef={initialFocusRef}
-      />
-    );
-  } else {
-    modalTitle = isNewSession ? 'Game Session Started!' : 'Active Game Session';
-    modalTitleColor = (theme) =>
-      isNewSession ? theme.palette.primary.main : theme.palette.success.main;
-    modalIcon = isNewSession ? <PlayArrowIcon /> : <TimerIcon />;
-    modalIconLabel = isNewSession ? 'New' : 'Live';
-    modalContent = (
-      <DefaultSessionContent
-        gameName={gameName}
-        isNewSession={isNewSession}
-        sessionId={sessionId}
-        playUrl={playUrl}
-        copied={copied}
-        handleCopyLink={handleCopyLink}
-      />
-    );
-    modalActions = (
-      <DefaultSessionActions
-        isNewSession={isNewSession}
-        copied={copied}
-        handleShowEndConfirm={handleShowEndConfirm}
-        onClose={handleClose}
-        handleCopyLink={handleCopyLink}
-        initialFocusRef={initialFocusRef}
-      />
-    );
-  }
+  // Get modal configuration based on current state
+  const modalConfig = getModalConfig();
 
   return (
     <>
@@ -507,7 +532,7 @@ const SessionModal = ({
           sx={{
             pb: 1,
             fontWeight: 600,
-            backgroundColor: modalTitleColor,
+            backgroundColor: modalConfig.titleColor,
             color: 'white',
             display: 'flex',
             alignItems: 'center',
@@ -517,11 +542,11 @@ const SessionModal = ({
             fontSize: { xs: '1.1rem', sm: '1.25rem' },
           }}
         >
-          {modalTitle}
+          {modalConfig.title}
 
           <Chip
-            icon={modalIcon}
-            label={modalIconLabel}
+            icon={modalConfig.icon}
+            label={modalConfig.iconLabel}
             size="small"
             sx={{
               color: 'white',
@@ -536,9 +561,9 @@ const SessionModal = ({
           />
         </DialogTitle>
         <DialogContent sx={{ pt: 3, pb: 2, px: { xs: 2, sm: 3 } }}>
-          {modalContent}
+          {modalConfig.content}
         </DialogContent>
-        {modalActions && (
+        {modalConfig.actions && (
           <DialogActions
             sx={{
               px: { xs: 2, sm: 3 },
@@ -548,7 +573,7 @@ const SessionModal = ({
               flexDirection: { xs: 'column', sm: 'row' },
             }}
           >
-            {modalActions}
+            {modalConfig.actions}
           </DialogActions>
         )}
       </Dialog>

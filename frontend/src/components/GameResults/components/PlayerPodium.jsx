@@ -1,17 +1,12 @@
 import PropTypes from 'prop-types';
-import {
-  Box,
-  Typography,
-  Avatar,
-  Chip,
-} from '@mui/material';
+import { Box, Typography, Avatar, Chip } from '@mui/material';
 
 // Player podium component (1st, 2nd, 3rd places)
 const PlayerPodium = ({ player, rank, color, size, order, marginTop }) => {
   const medalEmoji = {
     1: '🥇',
     2: '🥈',
-    3: '🥉'
+    3: '🥉',
   };
 
   return (
@@ -74,4 +69,4 @@ PlayerPodium.propTypes = {
   marginTop: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
 };
 
-export default PlayerPodium; 
+export default PlayerPodium;

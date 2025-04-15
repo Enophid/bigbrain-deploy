@@ -285,41 +285,28 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart, displayAlert }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isActive = Boolean(game.active);
 
-  const cardStyle = {
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    borderRadius: 3,
-    overflow: 'hidden',
-    boxShadow: isActive
-      ? `0 10px 30px ${theme.palette.success.main}40`
-      : '0 10px 30px rgba(0,0,0,0.15)',
-    transition: 'all 0.3s ease',
-    backgroundColor: 'rgba(255,255,255,0.97)',
-    border: isActive ? `2px solid ${theme.palette.success.main}` : 'none',
-    position: 'relative',
-    '&:hover': {
-      transform: 'translateY(-8px)',
-      boxShadow: isActive
-        ? `0 20px 40px ${theme.palette.success.main}50`
-        : '0 20px 40px rgba(0,0,0,0.2)',
-    },
-  };
-
   return (
-    <Grid
-      sx={{
-        width: {
-          xs: '100%',
-          sm: '50%',
-          md: '33.33%',
-          lg: '33.33%',
-        },
-        p: 1.5,
-      }}
-    >
+    <Grid item xs={12} sm={6} md={6} lg={4} xl={4}>
       <Fade in timeout={300 + index * 100}>
-        <Card sx={cardStyle}>
+        <Card
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            borderRadius: 3,
+            overflow: 'hidden',
+            position: 'relative',
+            transition: 'all 0.3s ease-in-out',
+            boxShadow: theme.shadows[3],
+            minWidth: { xs: '100%', md: '350px' },
+            maxWidth: { xs: '100%', md: '500px' },
+            mx: 'auto', // Center the card
+            '&:hover': {
+              transform: 'translateY(-5px)',
+              boxShadow: theme.shadows[10],
+            },
+          }}
+        >
           <GameCardMedia game={game} isActive={isActive} theme={theme} />
           <GameCardActions
             game={game}

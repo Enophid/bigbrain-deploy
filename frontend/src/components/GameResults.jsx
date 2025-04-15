@@ -30,8 +30,8 @@ import {
 import bigBrainTheme from '../theme/bigBrainTheme';
 import GlobalStyles from '../theme/globalStyles';
 import ApiCall from './apiCall';
-import ResultBarChart from './GameEditor/ResultBarChat';
-import ResultLineChart from './GameEditor/ResultLineChart';
+import ResultBarChart from './Result/ResultBarChat';
+import ResultLineChart from './Result/ResultLineChart';
 
 const GameResult = () => {
   const { sessionId } = useParams();

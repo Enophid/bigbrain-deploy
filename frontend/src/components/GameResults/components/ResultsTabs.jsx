@@ -1,12 +1,7 @@
 import PropTypes from 'prop-types';
+import { Box, Paper, Tabs, Tab } from '@mui/material';
 import {
-  Box,
-  Paper,
-  Tabs,
-  Tab,
-} from '@mui/material';
-import { 
-  BarChart as BarChartIcon, 
+  BarChart as BarChartIcon,
   People as PeopleIcon,
 } from '@mui/icons-material';
 import bigBrainTheme from '../../../theme/bigBrainTheme';
@@ -74,4 +69,4 @@ ResultsTabs.propTypes = {
   onChange: PropTypes.func.isRequired,
 };
 
-export default ResultsTabs; 
+export default ResultsTabs;

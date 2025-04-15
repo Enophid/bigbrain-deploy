@@ -55,8 +55,8 @@ const MetadataModal = ({ open, onClose, game, onSave }) => {
       open={open}
       onClose={onClose}
       closeAfterTransition
-      aria-labelledby='metadata-modal-title'
-      aria-describedby='metadata-modal-description'
+      aria-labelledby="metadata-modal-title"
+      aria-describedby="metadata-modal-description"
       disableRestoreFocus
     >
       <Fade in={open}>
@@ -87,8 +87,8 @@ const MetadataModal = ({ open, onClose, game, onSave }) => {
             }}
           >
             <Typography
-              id='metadata-modal-title'
-              variant='h5'
+              id="metadata-modal-title"
+              variant="h5"
               sx={{
                 color: 'white',
                 fontWeight: 700,
@@ -102,17 +102,17 @@ const MetadataModal = ({ open, onClose, game, onSave }) => {
 
           <Box sx={{ p: 3 }}>
             <TextField
-              label='Game Name'
+              label="Game Name"
               value={gameMetadata.name}
               onChange={(e) =>
                 setGameMetadata((prev) => ({ ...prev, name: e.target.value }))
               }
               fullWidth
-              variant='outlined'
+              variant="outlined"
               sx={{ mb: 3 }}
             />
 
-            <Typography variant='subtitle1' sx={{ mb: 1, fontWeight: 500 }}>
+            <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500 }}>
               Game Thumbnail
             </Typography>
 
@@ -147,7 +147,7 @@ const MetadataModal = ({ open, onClose, game, onSave }) => {
                 {gameMetadata.thumbnail ? (
                   <img
                     src={gameMetadata.thumbnail}
-                    alt='Thumbnail preview'
+                    alt="Thumbnail preview"
                     style={{
                       width: '100%',
                       height: '100%',
@@ -161,8 +161,8 @@ const MetadataModal = ({ open, onClose, game, onSave }) => {
 
               <Box sx={{ flexGrow: 1 }}>
                 <Button
-                  variant='outlined'
-                  component='label'
+                  variant="outlined"
+                  component="label"
                   startIcon={<ImageIcon />}
                   sx={{
                     mb: 1,
@@ -172,18 +172,18 @@ const MetadataModal = ({ open, onClose, game, onSave }) => {
                 >
                   Select Image{' '}
                   <input
-                    type='file'
+                    type="file"
                     hidden
-                    accept='image/*'
+                    accept="image/*"
                     onChange={handleFileChange}
                   />
                 </Button>
-                <Typography variant='body2' color='text.secondary'>
+                <Typography variant="body2" color="text.secondary">
                   {fileName}
                 </Typography>
                 <Typography
-                  variant='caption'
-                  color='text.secondary'
+                  variant="caption"
+                  color="text.secondary"
                   sx={{ display: 'block', mt: 0.5 }}
                 >
                   Recommended: 16:9 ratio, PNG or JPG
@@ -198,7 +198,7 @@ const MetadataModal = ({ open, onClose, game, onSave }) => {
             sx={{ p: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}
           >
             <Button
-              variant='outlined'
+              variant="outlined"
               onClick={onClose}
               sx={{
                 borderRadius: 2,
@@ -209,8 +209,8 @@ const MetadataModal = ({ open, onClose, game, onSave }) => {
               Cancel
             </Button>
             <Button
-              variant='contained'
-              color='primary'
+              variant="contained"
+              color="primary"
               startIcon={<SaveIcon />}
               onClick={handleSaveMetadata}
               disabled={!gameMetadata.name}

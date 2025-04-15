@@ -16,7 +16,7 @@ export default function ResultBarChart() {
         textAlign: 'center',
       }}
     >
-      <Typography variant='h4' sx={{ mb: 3 }}>
+      <Typography variant="h4" sx={{ mb: 3 }}>
         🎉 Question Breakdown 🎉
       </Typography>
       <Box sx={{ height: 400 }}>

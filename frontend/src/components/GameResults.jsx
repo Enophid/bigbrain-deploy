@@ -415,7 +415,205 @@ const GameResult = () => {
                               </Box>
                             )}
 
- 
+                            {/* Third Place */}
+                            {result.length > 2 && (
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  alignItems: 'center',
+                                  mt: { xs: 3, md: 7 },
+                                  order: { xs: 3, md: 3 },
+                                }}
+                              >
+                                <Avatar
+                                  sx={{
+                                    width: { xs: 70, md: 90 },
+                                    height: { xs: 70, md: 90 },
+                                    bgcolor: '#CD7F32',
+                                    border: '4px solid white',
+                                    boxShadow: '0 5px 15px rgba(0,0,0,0.1)',
+                                    fontSize: '1.8rem',
+                                    mb: 1,
+                                  }}
+                                >
+                                  🥉
+                                </Avatar>
+                                <Typography
+                                  variant="h6"
+                                  fontWeight={600}
+                                  sx={{ mb: 0.5 }}
+                                >
+                                  {result[2]?.name || 'Player 3'}
+                                </Typography>
+                                <Chip
+                                  label={`${result[2]?.score || 0} pts`}
+                                  sx={{
+                                    backgroundColor: '#CD7F32',
+                                    color: 'white',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.9rem',
+                                  }}
+                                />
+                              </Box>
+                            )}
+                          </Box>
+                        )}
+
+                        {/* Other Players */}
+                        {result.slice(3, 10).length > 0 && (
+                          <TableContainer sx={{ p: 3 }}>
+                            <Typography
+                              variant="h6"
+                              fontWeight={600}
+                              sx={{ mb: 2, color: 'rgba(0, 0, 0, 0.7)' }}
+                            >
+                              Other Top Players
+                            </Typography>
+                            <Table>
+                              <TableBody>
+                                {result.slice(3, 10).map((player, index) => (
+                                  <TableRow
+                                    key={player.id || index}
+                                    sx={{
+                                      '&:hover': {
+                                        backgroundColor: 'rgba(0, 0, 0, 0.03)',
+                                      },
+                                      transition: 'background-color 0.2s',
+                                    }}
+                                  >
+                                    <TableCell
+                                      align="center"
+                                      sx={{
+                                        fontSize: 18,
+                                        fontWeight: 600,
+                                        color: 'rgba(0, 0, 0, 0.6)',
+                                        width: '15%',
+                                      }}
+                                    >
+                                      {index + 4}
+                                    </TableCell>
+                                    <TableCell
+                                      align="left"
+                                      sx={{
+                                        fontSize: 16,
+                                        fontWeight: 500,
+                                        width: '60%',
+                                      }}
+                                    >
+                                      {player.name || `Player ${index + 4}`}
+                                    </TableCell>
+                                    <TableCell
+                                      align="right"
+                                      sx={{
+                                        fontSize: 16,
+                                        fontWeight: 700,
+                                        color:
+                                          bigBrainTheme.palette.primary.main,
+                                        width: '25%',
+                                      }}
+                                    >
+                                      {player.score || 0} pts
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </TableContainer>
+                        )}
+                      </>
+                    ) : (
+                      <Box sx={{ p: 5, textAlign: 'center' }}>
+                        <Typography variant="h6" color="text.secondary">
+                          No players to display! 🛑
+                        </Typography>
+                        <Typography sx={{ mt: 1, color: 'text.secondary' }}>
+                          Results will appear once players have completed the
+                          game.
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
+                )}
+
+                {showStats && (
+                  <Box
+                    sx={{
+                      width: '100%',
+                      maxWidth: 900,
+                      mx: 'auto',
+                      borderRadius: 4,
+                      bgcolor: 'rgba(255, 255, 255, 0.95)',
+                      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.15)',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        p: 3,
+                        textAlign: 'center',
+                        backgroundColor: bigBrainTheme.palette.primary.main,
+                      }}
+                    >
+                      <Typography
+                        variant="h4"
+                        fontWeight={700}
+                        sx={{
+                          color: 'white',
+                          textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                        }}
+                      >
+                        Game Statistics
+                      </Typography>
+                    </Box>
+
+                    <Box sx={{ p: 4 }}>
+                      <Box sx={{ mb: 6 }}>
+                        <Typography
+                          variant="h6"
+                          fontWeight={600}
+                          sx={{ mb: 3, color: 'rgba(0, 0, 0, 0.7)' }}
+                        >
+                          Performance by Question
+                        </Typography>
+                        <Paper
+                          elevation={2}
+                          sx={{
+                            p: 3,
+                            borderRadius: 2,
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                          }}
+                        >
+                          <ResultBarChart />
+                        </Paper>
+                      </Box>
+
+                      <Box>
+                        <Typography
+                          variant="h6"
+                          fontWeight={600}
+                          sx={{ mb: 3, color: 'rgba(0, 0, 0, 0.7)' }}
+                        >
+                          Score Distribution
+                        </Typography>
+                        <Paper
+                          elevation={2}
+                          sx={{
+                            p: 3,
+                            borderRadius: 2,
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                          }}
+                        >
+                          <ResultLineChart />
+                        </Paper>
+                      </Box>
+                    </Box>
+                  </Box>
+                )}
+              </Box>
+            </Fade>
+          )}
+        </Box>
       </Box>
     </ThemeProvider>
   );

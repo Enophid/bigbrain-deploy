@@ -86,7 +86,6 @@ const QuestionModal = ({
     try {
       // If we already have an error state set, the game likely doesn't exist
       if (error && error.includes('not found')) {
-        console.error('Cannot save question: Game not found');
         displayAlert(
           'Cannot save question because the game does not exist. Please return to dashboard and try again.'
         );

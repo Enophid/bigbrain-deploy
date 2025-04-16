@@ -1,6 +1,6 @@
 import { Box } from '@mui/material';
-import ResultBarChart from '../../Result/ResultBarChat';
-import ResultLineChart from '../../Result/ResultLineChart';
+import ResultBarChart from '../../ResultChart/ResultBarChat';
+import ResultLineChart from '../../ResultChart/ResultLineChart';
 import SectionHeader from './SectionHeader';
 import ChartSection from './ChartSection';
 

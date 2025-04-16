@@ -352,26 +352,26 @@ function Dashboard() {
     setSessionModalOpen(false);
   };
 
-  // Add this function to refresh games data periodically
-  useEffect(() => {
-    // Function to refresh games data
-    const refreshGames = async () => {
-      try {
-        const data = await ApiCall('/admin/games', {}, 'GET');
-        if (!data.error) {
-          setGames(data.games);
-        }
-      } catch (error) {
-        console.error('Failed to refresh games data:', error);
-      }
-    };
+  // // Add this function to refresh games data periodically
+  // useEffect(() => {
+  //   // Function to refresh games data
+  //   const refreshGames = async () => {
+  //     try {
+  //       const data = await ApiCall('/admin/games', {}, 'GET');
+  //       if (!data.error) {
+  //         setGames(data.games);
+  //       }
+  //     } catch (error) {
+  //       console.error('Failed to refresh games data:', error);
+  //     }
+  //   };
 
-    // Set up periodic refresh every 15 seconds
-    const intervalId = setInterval(refreshGames, 15000);
+  //   // Set up periodic refresh every 15 seconds
+  //   const intervalId = setInterval(refreshGames, 15000);
 
-    // Clean up interval on component unmount
-    return () => clearInterval(intervalId);
-  }, []);
+  //   // Clean up interval on component unmount
+  //   return () => clearInterval(intervalId);
+  // }, []);
 
   return (
     <ThemeProvider theme={bigBrainTheme}>

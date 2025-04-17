@@ -47,7 +47,7 @@ const styles = {
 const DefaultSessionContent = ({
   gameName,
   isNewSession,
-  sessionId,
+  sessionId = '',
   playUrl,
   copied,
   handleCopyLink,
@@ -70,7 +70,7 @@ const DefaultSessionContent = ({
       <TextField
         fullWidth
         variant="outlined"
-        value={sessionId}
+        value={sessionId || ''}
         slotProps={{
           input: {
             readOnly: true,
@@ -82,7 +82,7 @@ const DefaultSessionContent = ({
 
     <Box>
       <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
-        Direct link:
+        Share this link with players:
       </Typography>
       <TextField
         fullWidth
@@ -302,36 +302,37 @@ const SessionModal = ({
   isNewSession = true,
   onEndSession,
 }) => {
-  const [copied, setCopied] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [showEndConfirm, setShowEndConfirm] = useState(false);
-  const [sessionEnded, setSessionEnded] = useState(false);
-  const [endingSession, setEndingSession] = useState(false);
   const navigate = useNavigate();
   const initialFocusRef = useRef(null);
 
-  // Generate the play URL with the session ID
-  const playUrl = `${window.location.origin}/play?session=${sessionId}`;
+  // UI states
+  const [showEndConfirm, setShowEndConfirm] = useState(false);
+  const [isEnding, setIsEnding] = useState(false);
+  const [isEnded, setIsEnded] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [error, setError] = useState(null);
 
-  /**
-   * Copies the session link to clipboard
-   */
+  // URLs
+  const baseAppUrl = window.location.origin;
+  const playUrl = sessionId
+    ? `${baseAppUrl}/play?session=${sessionId}`
+    : `${baseAppUrl}/play`;
+
+  // Copy play URL
   const handleCopyLink = () => {
     navigator.clipboard
       .writeText(playUrl)
       .then(() => {
         setCopied(true);
-        setShowAlert(true);
-        // Reset copy icon after 2 seconds
         setTimeout(() => setCopied(false), 2000);
       })
-      .catch((err) => {
-        console.error('Failed to copy: ', err);
+      .catch(() => {
+        setError('Failed to copy to clipboard. Please try again.');
       });
   };
 
   const handleCloseAlert = () => {
-    setShowAlert(false);
+    setError(null);
   };
 
   const handleShowEndConfirm = () => {
@@ -348,7 +349,7 @@ const SessionModal = ({
   const handleConfirmEndSession = async () => {
     setShowEndConfirm(false);
     try {
-      setEndingSession(true);
+      setIsEnding(true);
 
       // Call the onEndSession function from props
       if (onEndSession) {
@@ -356,7 +357,7 @@ const SessionModal = ({
 
         if (success) {
           // Show the Session Ended view
-          setSessionEnded(true);
+          setIsEnded(true);
         } else {
           // If session ending failed, just close the modal
           onClose();
@@ -366,7 +367,7 @@ const SessionModal = ({
       console.error('Error ending session:', error);
       onClose(); // Close on error
     } finally {
-      setEndingSession(false);
+      setIsEnding(false);
     }
   };
 
@@ -386,7 +387,7 @@ const SessionModal = ({
   const handleClose = (event, reason) => {
     // Prevent closing with backdrop or escape key during loading
     if (
-      endingSession &&
+      isEnding &&
       (reason === 'backdropClick' || reason === 'escapeKeyDown')
     ) {
       return;
@@ -408,9 +409,9 @@ const SessionModal = ({
   // Reset session ended state when the modal is closed or reopened
   const handleModalOnExited = () => {
     // Reset all local state after the closing animation completes
-    setSessionEnded(false);
+    setIsEnded(false);
     setShowEndConfirm(false);
-    setEndingSession(false);
+    setIsEnding(false);
     setCopied(false);
   };
 
@@ -418,7 +419,24 @@ const SessionModal = ({
    * Determine modal configuration based on current state
    */
   const getModalConfig = () => {
-    if (endingSession) {
+    if (isEnded) {
+      return {
+        title: 'Session Ended',
+        titleColor: (theme) => theme.palette.info.main,
+        icon: <AssessmentIcon />,
+        iconLabel: 'Ended',
+        content: <SessionEndedContent gameName={gameName} />,
+        actions: (
+          <SessionEndedActions
+            onClose={handleCloseAfterEnd}
+            handleViewResults={handleViewResults}
+            initialFocusRef={initialFocusRef}
+          />
+        ),
+      };
+    }
+
+    if (isEnding) {
       return {
         title: 'Ending Session...',
         titleColor: (theme) => theme.palette.warning.main,
@@ -446,23 +464,6 @@ const SessionModal = ({
       };
     }
 
-    if (sessionEnded) {
-      return {
-        title: 'Session Ended',
-        titleColor: (theme) => theme.palette.info.main,
-        icon: <AssessmentIcon />,
-        iconLabel: 'Ended',
-        content: <SessionEndedContent gameName={gameName} />,
-        actions: (
-          <SessionEndedActions
-            onClose={handleCloseAfterEnd}
-            handleViewResults={handleViewResults}
-            initialFocusRef={initialFocusRef}
-          />
-        ),
-      };
-    }
-    // Default (active or new session)
     return {
       title: isNewSession ? 'Game Session Started!' : 'Active Game Session',
       titleColor: (theme) =>
@@ -484,7 +485,7 @@ const SessionModal = ({
           isNewSession={isNewSession}
           copied={copied}
           handleShowEndConfirm={handleShowEndConfirm}
-          onClose={handleClose}
+          onClose={onClose}
           handleCopyLink={handleCopyLink}
           initialFocusRef={initialFocusRef}
         />
@@ -516,7 +517,7 @@ const SessionModal = ({
             onExited: handleModalOnExited, // Reset state when modal is fully closed
           },
         }}
-        disableEscapeKeyDown={endingSession}
+        disableEscapeKeyDown={isEnding}
         keepMounted={false}
         aria-labelledby="session-modal-title"
       >
@@ -537,21 +538,23 @@ const SessionModal = ({
         >
           {modalConfig.title}
 
-          <Chip
-            icon={modalConfig.icon}
-            label={modalConfig.iconLabel}
-            size="small"
-            sx={{
-              color: 'white',
-              borderColor: 'white',
-              '& .MuiChip-icon': {
+          {modalConfig.iconLabel && (
+            <Chip
+              icon={modalConfig.icon}
+              label={modalConfig.iconLabel}
+              size="small"
+              sx={{
                 color: 'white',
-              },
-              fontSize: { xs: '0.7rem', sm: '0.8rem' },
-              height: { xs: 24, sm: 32 },
-            }}
-            variant="outlined"
-          />
+                borderColor: 'white',
+                '& .MuiChip-icon': {
+                  color: 'white',
+                },
+                fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                height: { xs: 24, sm: 32 },
+              }}
+              variant="outlined"
+            />
+          )}
         </DialogTitle>
         <DialogContent sx={{ pt: 3, pb: 2, px: { xs: 2, sm: 3 } }}>
           {modalConfig.content}
@@ -572,18 +575,18 @@ const SessionModal = ({
       </Dialog>
 
       <Snackbar
-        open={showAlert}
+        open={error !== null}
         autoHideDuration={3000}
         onClose={handleCloseAlert}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert
           onClose={handleCloseAlert}
-          severity="success"
+          severity="error"
           variant="filled"
           sx={{ width: '100%' }}
         >
-          Link copied to clipboard!
+          {error}
         </Alert>
       </Snackbar>
     </>
@@ -592,12 +595,12 @@ const SessionModal = ({
 
 // PropTypes for helper components
 DefaultSessionContent.propTypes = {
-  gameName: PropTypes.string,
-  isNewSession: PropTypes.bool,
+  gameName: PropTypes.string.isRequired,
+  isNewSession: PropTypes.bool.isRequired,
   sessionId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  playUrl: PropTypes.string,
-  copied: PropTypes.bool,
-  handleCopyLink: PropTypes.func,
+  playUrl: PropTypes.string.isRequired,
+  copied: PropTypes.bool.isRequired,
+  handleCopyLink: PropTypes.func.isRequired,
 };
 
 DefaultSessionActions.propTypes = {

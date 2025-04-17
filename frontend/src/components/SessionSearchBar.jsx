@@ -190,8 +190,54 @@ const SessionSearchBar = () => {
         </IconButton>
       </Tooltip>
 
+      {/* Session Search Dialog */}
+      <Dialog
+        open={openDialog}
+        onClose={handleClose}
+        fullWidth
+        maxWidth="xs"
+        PaperProps={{ sx: styles.dialogPaper }}
+        aria-labelledby="session-search-dialog-title"
+      >
+        <DialogTitle sx={{ pb: 1, px: 1 }} id="session-search-dialog-title">
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            Join a Game Session
+          </Typography>
+        </DialogTitle>
 
+        <DialogContent sx={{ pt: 2, px: 1 }}>
+          <SearchField
+            sessionId={sessionId}
+            handleInputChange={handleInputChange}
+            handleKeyPress={handleKeyPress}
+            showTooltip={showTooltip}
+            setSessionId={setSessionId}
+            handleJoinSession={handleJoinSession}
+          />
+        </DialogContent>
+
+        <DialogActions sx={{ px: 1, pb: 1, justifyContent: 'space-between' }}>
+          <ActionButtons
+            handleClose={handleClose}
+            handleJoinSession={handleJoinSession}
+          />
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 
 export default SessionSearchBar;
+SearchField.propTypes = {
+  sessionId: PropTypes.string.isRequired,
+  handleInputChange: PropTypes.func.isRequired,
+  handleKeyPress: PropTypes.func.isRequired,
+  showTooltip: PropTypes.bool.isRequired,
+  setSessionId: PropTypes.func.isRequired,
+  handleJoinSession: PropTypes.func.isRequired,
+};
+
+ActionButtons.propTypes = {
+  handleClose: PropTypes.func.isRequired,
+  handleJoinSession: PropTypes.func.isRequired,
+};

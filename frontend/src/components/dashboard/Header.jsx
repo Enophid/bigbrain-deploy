@@ -1,6 +1,7 @@
 import { Box, Container, Typography, Button } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import Logout from '../logout';
+import SessionSearchBar from '../SessionSearchBar';
 import bigBrainTheme from '../../theme/bigBrainTheme';
 import PropTypes from 'prop-types';
 
@@ -38,7 +39,8 @@ const Header = ({ onCreateGame }) => {
             BigBrain Games
           </Typography>
 
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+            <SessionSearchBar />
             <Button
               variant="contained"
               color="primary"

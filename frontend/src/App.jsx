@@ -20,6 +20,7 @@ function App() {
           <Route path='/register' element={<Register />} />
           <Route path='/login' element={<Login />} />
           <Route path='/play' element={<Play />} />
+          <Route path='/play/:sessionId' element={<Play />} />
           <Route path='/gameplay/:playerId' element={<GamePlay />} />
 
           {/* Admin routes */}

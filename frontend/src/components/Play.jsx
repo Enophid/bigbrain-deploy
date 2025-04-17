@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -21,13 +21,26 @@ import GlobalStyles from '../theme/globalStyles';
 function Play() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [sessionId, setSessionId] = useState(searchParams.get('session') || '');
+  const params = useParams();
+
+  // Get session ID from URL params or query params
+  const sessionId = params.sessionId || searchParams.get('session') || '';
   const [playerName, setPlayerName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [joined, setJoined] = useState(false);
   const [playerId, setPlayerId] = useState(null);
   const [gameStarted, setGameStarted] = useState(false);
+
+  useEffect(() => {
+    // If there's no session ID in the URL, show an error
+    if (!sessionId) {
+      setError(
+        'No game session ID found. Please use a valid game invitation link.'
+      );
+    }
+  }, [sessionId]);
+
   useEffect(() => {
     let intervalId;
 
@@ -56,7 +69,9 @@ function Play() {
     setError('');
 
     if (!sessionId) {
-      setError('Please enter a session ID');
+      setError(
+        'No game session ID found. Please use a valid game invitation link.'
+      );
       return;
     }
 
@@ -135,21 +150,21 @@ function Play() {
               Join Game Session
             </Typography>
 
+            {sessionId && (
+              <Typography
+                variant="subtitle1"
+                align="center"
+                sx={{ mb: 3, fontWeight: 500 }}
+              >
+                Session ID:{' '}
+                <Box component="span" sx={{ fontWeight: 700 }}>
+                  {sessionId}
+                </Box>
+              </Typography>
+            )}
+
             {!joined ? (
               <Box component="form" onSubmit={handleJoinGame} sx={{ mt: 3 }}>
-                <TextField
-                  label="Session ID"
-                  variant="outlined"
-                  fullWidth
-                  margin="normal"
-                  value={sessionId}
-                  onChange={(e) => setSessionId(e.target.value)}
-                  disabled={loading}
-                  InputProps={{
-                    sx: { borderRadius: 2 },
-                  }}
-                />
-
                 <TextField
                   label="Your Name"
                   variant="outlined"
@@ -158,6 +173,8 @@ function Play() {
                   value={playerName}
                   onChange={(e) => setPlayerName(e.target.value)}
                   disabled={loading}
+                  placeholder="Enter your name to join the game"
+                  autoFocus
                   InputProps={{
                     sx: { borderRadius: 2 },
                   }}
@@ -175,7 +192,7 @@ function Play() {
                   variant="contained"
                   color="primary"
                   size="large"
-                  disabled={loading}
+                  disabled={loading || !sessionId}
                   sx={{ mt: 3, mb: 2, borderRadius: 2, py: 1.2 }}
                 >
                   {loading ? (
@@ -191,7 +208,7 @@ function Play() {
                   <Typography variant="h6" align="center" gutterBottom>
                     You&apos;ve joined the game!
                   </Typography>
-                  <Typography variant="body1" align="center" paragraph>
+                  <Typography variant="body1" align="center" component="p">
                     Waiting for the host to start the game...
                   </Typography>
                   <Box

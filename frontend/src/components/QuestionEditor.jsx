@@ -77,7 +77,7 @@ function QuestionEditor() {
       });
     }
   }, [currentQuestion]);
-  
+
   // Effect to handle question type changes
   useEffect(() => {
     if (newQuestion.type === 'judgement') {
@@ -86,7 +86,10 @@ function QuestionEditor() {
         { id: 1, text: 'True', isCorrect: true },
         { id: 2, text: 'False', isCorrect: false },
       ]);
-    } else if (newQuestion.type === 'single' && newQuestion.answers.length === 2) {
+    } else if (
+      newQuestion.type === 'single' &&
+      newQuestion.answers.length === 2
+    ) {
       // If switching from judgement to single, and only has True/False options,
       // reset to default single choice format with some initial text
       if (
@@ -236,16 +239,22 @@ function QuestionEditor() {
             <Grid container spacing={3} sx={{ mb: 3 }}>
               <Grid item xs={12} sm={4}>
                 <FormControl fullWidth>
-                  <InputLabel id="question-type-label">Question Type</InputLabel>
+                  <InputLabel id="question-type-label">
+                    Question Type
+                  </InputLabel>
                   <Select
                     labelId="question-type-label"
                     id="question-type"
                     value={newQuestion.type}
                     label="Question Type"
-                    onChange={(e) => handleQuestionChange('type', e.target.value)}
+                    onChange={(e) =>
+                      handleQuestionChange('type', e.target.value)
+                    }
                   >
                     <MenuItem value="single">Single Choice</MenuItem>
-                    <MenuItem value="judgement">Judgement (True/False)</MenuItem>
+                    <MenuItem value="judgement">
+                      Judgement (True/False)
+                    </MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -283,12 +292,13 @@ function QuestionEditor() {
             <Typography variant="h6" sx={{ mb: 2 }}>
               Answer Options
             </Typography>
-            
+
             {newQuestion.type === 'judgement' ? (
               // Judgement (True/False) question type
               <Box sx={{ mb: 3 }}>
                 <Typography variant="body2" sx={{ mb: 2 }}>
-                  This is a true/false question. Select which option is the correct answer:
+                  This is a true/false question. Select which option is the
+                  correct answer:
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 2 }}>
                   <Button
@@ -403,7 +413,9 @@ function QuestionEditor() {
                   startIcon={<AddIcon />}
                   onClick={() => {
                     if (newQuestion.answers.length > 5) {
-                      displayAlert('Each question have a maximum of 6 answers.');
+                      displayAlert(
+                        'Each question have a maximum of 6 answers.'
+                      );
                     } else {
                       // Use timestamp-based ID for new answers
                       const newId = Date.now();
@@ -419,7 +431,7 @@ function QuestionEditor() {
                 </Button>
               </>
             )}
-            
+
             <Typography variant="h6" sx={{ mb: 2 }}>
               URL Youtube Video/ Upload Photo (Optional)
             </Typography>

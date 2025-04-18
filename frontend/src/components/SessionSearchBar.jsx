@@ -105,7 +105,12 @@ const SearchField = ({
  */
 const ActionButtons = ({ handleClose, handleJoinSession }) => (
   <Box sx={styles.buttonsContainer}>
-    <Button variant="text" onClick={handleClose} size="small">
+    <Button
+      variant="text"
+      onClick={handleClose}
+      size="small"
+      sx={{ backgroundColor: 'red' }}
+    >
       Cancel
     </Button>
     <Button

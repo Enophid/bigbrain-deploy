@@ -11,6 +11,10 @@ import {
   Paper,
   Grid,
   Fade,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -80,6 +84,29 @@ const QuestionModal = ({
       [field]: value,
     }));
   };
+
+  // Effect to handle question type changes
+  useEffect(() => {
+    if (newQuestion.type === 'judgement') {
+      // Set up True/False options for judgement questions
+      handleQuestionChange('answers', [
+        { id: 1, text: 'True', isCorrect: true },
+        { id: 2, text: 'False', isCorrect: false },
+      ]);
+    } else if (newQuestion.type === 'single' && newQuestion.answers.length === 2) {
+      // If switching from judgement to single, and only has True/False options,
+      // reset to default single choice format with some initial text
+      if (
+        newQuestion.answers[0].text === 'True' &&
+        newQuestion.answers[1].text === 'False'
+      ) {
+        handleQuestionChange('answers', [
+          { id: Date.now(), text: 'Option 1', isCorrect: true },
+          { id: Date.now() + 1, text: 'Option 2', isCorrect: false },
+        ]);
+      }
+    }
+  }, [newQuestion.type]);
 
   // Handle save
   const handleSaveQuestion = async () => {
@@ -183,7 +210,22 @@ const QuestionModal = ({
             />
 
             <Grid container spacing={3} sx={{ mb: 3 }}>
-              <Grid sx={{ width: { xs: '100%', sm: '50%' } }}>
+              <Grid item xs={12} sm={4}>
+                <FormControl fullWidth>
+                  <InputLabel id="question-type-label">Question Type</InputLabel>
+                  <Select
+                    labelId="question-type-label"
+                    id="question-type"
+                    value={newQuestion.type}
+                    label="Question Type"
+                    onChange={(e) => handleQuestionChange('type', e.target.value)}
+                  >
+                    <MenuItem value="single">Single Choice</MenuItem>
+                    <MenuItem value="judgement">Judgement (True/False)</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={4}>
                 <TextField
                   label="Time Limit (seconds)"
                   type="number"
@@ -198,7 +240,7 @@ const QuestionModal = ({
                   slotProps={{ input: { min: 5, max: 300 } }}
                 />
               </Grid>
-              <Grid sx={{ width: { xs: '100%', sm: '50%' } }}>
+              <Grid item xs={12} sm={4}>
                 <TextField
                   label="Points"
                   type="number"
@@ -219,70 +261,142 @@ const QuestionModal = ({
               Answer Options
             </Typography>
 
-            {newQuestion.answers.map((answer, index) => (
-              <Box
-                key={answer.id}
-                sx={{
-                  mb: 2,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 2,
-                }}
-              >
-                <TextField
-                  label={`Option ${index + 1}`}
-                  value={answer.text}
-                  onChange={(e) => {
-                    const updatedAnswers = [...newQuestion.answers];
-                    updatedAnswers[index].text = e.target.value;
-                    handleQuestionChange('answers', updatedAnswers);
-                  }}
-                  fullWidth
-                />
-                <Button
-                  variant={answer.isCorrect ? 'contained' : 'outlined'}
-                  color={answer.isCorrect ? 'success' : 'primary'}
-                  onClick={() => {
-                    const updatedAnswers = [...newQuestion.answers];
-                    updatedAnswers[index].isCorrect =
-                      !updatedAnswers[index].isCorrect;
-                    handleQuestionChange('answers', updatedAnswers);
-                  }}
-                  sx={{ minWidth: '80px', textTransform: 'none' }}
-                >
-                  {answer.isCorrect ? 'Correct' : 'Wrong'}
-                </Button>
-                {newQuestion.answers.length > 2 && (
-                  <IconButton
-                    color="error"
+            {newQuestion.type === 'judgement' ? (
+              // Judgement (True/False) question type
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="body2" sx={{ mb: 2 }}>
+                  This is a true/false question. Select which option is the correct answer:
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  <Button
+                    variant={
+                      newQuestion.answers.some(
+                        (a) => a.text === 'True' && a.isCorrect
+                      )
+                        ? 'contained'
+                        : 'outlined'
+                    }
+                    color={
+                      newQuestion.answers.some(
+                        (a) => a.text === 'True' && a.isCorrect
+                      )
+                        ? 'success'
+                        : 'primary'
+                    }
                     onClick={() => {
-                      const updatedAnswers = newQuestion.answers.filter(
-                        (_, i) => i !== index
-                      );
+                      // Set "True" as the correct answer
+                      const updatedAnswers = [
+                        { id: 1, text: 'True', isCorrect: true },
+                        { id: 2, text: 'False', isCorrect: false },
+                      ];
                       handleQuestionChange('answers', updatedAnswers);
                     }}
+                    sx={{ minWidth: '100px', textTransform: 'none' }}
                   >
-                    <DeleteIcon />
-                  </IconButton>
-                )}
+                    True
+                  </Button>
+                  <Button
+                    variant={
+                      newQuestion.answers.some(
+                        (a) => a.text === 'False' && a.isCorrect
+                      )
+                        ? 'contained'
+                        : 'outlined'
+                    }
+                    color={
+                      newQuestion.answers.some(
+                        (a) => a.text === 'False' && a.isCorrect
+                      )
+                        ? 'success'
+                        : 'primary'
+                    }
+                    onClick={() => {
+                      // Set "False" as the correct answer
+                      const updatedAnswers = [
+                        { id: 1, text: 'True', isCorrect: false },
+                        { id: 2, text: 'False', isCorrect: true },
+                      ];
+                      handleQuestionChange('answers', updatedAnswers);
+                    }}
+                    sx={{ minWidth: '100px', textTransform: 'none' }}
+                  >
+                    False
+                  </Button>
+                </Box>
               </Box>
-            ))}
+            ) : (
+              // Single choice question type
+              <>
+                {newQuestion.answers.map((answer, index) => (
+                  <Box
+                    key={answer.id}
+                    sx={{
+                      mb: 2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 2,
+                    }}
+                  >
+                    <TextField
+                      label={`Option ${index + 1}`}
+                      value={answer.text}
+                      onChange={(e) => {
+                        const updatedAnswers = [...newQuestion.answers];
+                        updatedAnswers[index].text = e.target.value;
+                        handleQuestionChange('answers', updatedAnswers);
+                      }}
+                      fullWidth
+                    />
+                    <Button
+                      variant={answer.isCorrect ? 'contained' : 'outlined'}
+                      color={answer.isCorrect ? 'success' : 'primary'}
+                      onClick={() => {
+                        const updatedAnswers = [...newQuestion.answers];
+                        updatedAnswers[index].isCorrect =
+                          !updatedAnswers[index].isCorrect;
+                        handleQuestionChange('answers', updatedAnswers);
+                      }}
+                      sx={{ minWidth: '80px', textTransform: 'none' }}
+                    >
+                      {answer.isCorrect ? 'Correct' : 'Wrong'}
+                    </Button>
+                    {newQuestion.answers.length > 2 && (
+                      <IconButton
+                        color="error"
+                        onClick={() => {
+                          const updatedAnswers = newQuestion.answers.filter(
+                            (_, i) => i !== index
+                          );
+                          handleQuestionChange('answers', updatedAnswers);
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    )}
+                  </Box>
+                ))}
 
-            <Button
-              variant="outlined"
-              startIcon={<AddIcon />}
-              onClick={() => {
-                // Use timestamp-based ID for new answers
-                const newId = Date.now();
-                handleQuestionChange('answers', [
-                  ...newQuestion.answers,
-                  { id: newId, text: '', isCorrect: false },
-                ]);
-              }}
-              sx={{ mb: 3, textTransform: 'none' }}
-            >
-              Add Option
-            </Button>
+                <Button
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={() => {
+                    if (newQuestion.answers.length > 5) {
+                      displayAlert('Each question can have a maximum of 6 answers.');
+                    } else {
+                      // Use timestamp-based ID for new answers
+                      const newId = Date.now();
+                      handleQuestionChange('answers', [
+                        ...newQuestion.answers,
+                        { id: newId, text: '', isCorrect: false },
+                      ]);
+                    }
+                  }}
+                  sx={{ mb: 3, textTransform: 'none' }}
+                >
+                  Add Option
+                </Button>
+              </>
+            )}
           </Box>
 
           <Divider />

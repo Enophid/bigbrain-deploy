@@ -43,7 +43,13 @@ const styles = {
 };
 
 const handleAdvanceToFirstQuestion = async (gameId) => {
+  if (!gameId) {
+    console.error('Cannot advance: Game ID is missing');
+    return;
+  }
+  
   try {
+    console.log('Advancing to first question for game:', gameId);
     const data = await ApiCall(
       `/admin/game/${gameId}/mutate`,
       {
@@ -52,9 +58,11 @@ const handleAdvanceToFirstQuestion = async (gameId) => {
       'POST'
     );
 
-    console.log(data);
+    console.log('Game advanced successfully:', data);
+    // The server will handle making the question available to players,
+    // players' clients will automatically detect the new question.
   } catch (e) {
-    console.error(e);
+    console.error('Error advancing to question:', e);
   }
 };
 
@@ -128,7 +136,7 @@ const DefaultSessionContent = ({
         color="info"
         onClick={() => handleAdvanceToFirstQuestion(gameId)}
       >
-        Advance to first question 🚀
+        Advance to the question 🚀
       </Button>
     </Box>
 
@@ -632,6 +640,7 @@ DefaultSessionContent.propTypes = {
   playUrl: PropTypes.string.isRequired,
   copied: PropTypes.bool.isRequired,
   handleCopyLink: PropTypes.func.isRequired,
+  gameId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 DefaultSessionActions.propTypes = {
@@ -667,6 +676,7 @@ SessionModal.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   sessionId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  gameId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   gameName: PropTypes.string,
   isNewSession: PropTypes.bool,
   onEndSession: PropTypes.func,

@@ -18,20 +18,20 @@ const GameInfoTab = ({ game, onEditMetadata }) => {
       >
         <Card sx={{ borderRadius: 3, bgcolor: 'rgba(255, 255, 255, 0.9)' }}>
           <CardContent>
-            <Typography variant='h6' sx={{ mb: 3, fontWeight: 600 }}>
+            <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
               Game Details
             </Typography>
 
             <Box sx={{ mb: 2 }}>
-              <Typography variant='subtitle2' color='text.secondary'>
+              <Typography variant="subtitle2" color="text.secondary">
                 Name
               </Typography>
-              <Typography variant='body1' fontWeight={500}>
+              <Typography variant="body1" fontWeight={500}>
                 {game?.name}
               </Typography>
             </Box>
 
-            <Typography variant='subtitle2' color='text.secondary'>
+            <Typography variant="subtitle2" color="text.secondary">
               Thumbnail
             </Typography>
             {game?.thumbnail ? (
@@ -67,42 +67,42 @@ const GameInfoTab = ({ game, onEditMetadata }) => {
                   justifyContent: 'center',
                 }}
               >
-                <Typography variant='body1' color='text.secondary'>
+                <Typography variant="body1" color="text.secondary">
                   No thumbnail
                 </Typography>
               </Box>
             )}
 
             <Box sx={{ mb: 2 }}>
-              <Typography variant='subtitle2' color='text.secondary'>
+              <Typography variant="subtitle2" color="text.secondary">
                 Number of Questions
               </Typography>
-              <Typography variant='body1' fontWeight={500}>
+              <Typography variant="body1" fontWeight={500}>
                 {game?.questions.length}
               </Typography>
             </Box>
 
             <Box sx={{ mb: 2 }}>
-              <Typography variant='subtitle2' color='text.secondary'>
+              <Typography variant="subtitle2" color="text.secondary">
                 Total Duration
               </Typography>
-              <Typography variant='body1' fontWeight={500}>
+              <Typography variant="body1" fontWeight={500}>
                 {game?.questions?.reduce(
                   (acc, q) => acc + (q.timeLimit / 60 || 0),
-                  0,
+                  0
                 ) || 0}{' '}
                 minutes
               </Typography>
             </Box>
 
             <Box sx={{ mb: 2 }}>
-              <Typography variant='subtitle2' color='text.secondary'>
+              <Typography variant="subtitle2" color="text.secondary">
                 Total Points
               </Typography>
-              <Typography variant='body1' fontWeight={500}>
+              <Typography variant="body1" fontWeight={500}>
                 {game?.questions?.reduce(
                   (acc, q) => acc + (q.points || 0),
-                  0,
+                  0
                 ) || 0}{' '}
                 points
               </Typography>
@@ -110,8 +110,8 @@ const GameInfoTab = ({ game, onEditMetadata }) => {
 
             <Box sx={{ mt: 4 }}>
               <Button
-                variant='contained'
-                color='primary'
+                variant="contained"
+                color="primary"
                 startIcon={<EditIcon />}
                 onClick={onEditMetadata}
                 fullWidth

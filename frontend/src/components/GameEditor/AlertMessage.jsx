@@ -21,7 +21,7 @@ const AlertMessage = ({ message, show }) => {
         textAlign: 'center',
       }}
     >
-      <Typography variant='body1'>{message}</Typography>
+      <Typography variant="body1">{message}</Typography>
     </Box>
   );
 };

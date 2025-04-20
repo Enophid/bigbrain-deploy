@@ -109,8 +109,8 @@ function GamePlay() {
             background: bigBrainTheme.palette.background.default,
           }}
         >
-          <Container maxWidth='sm'>
-            <Alert severity='error' sx={{ borderRadius: 2 }}>
+          <Container maxWidth="sm">
+            <Alert severity="error" sx={{ borderRadius: 2 }}>
               {error}
             </Alert>
           </Container>
@@ -129,7 +129,7 @@ function GamePlay() {
       const data = await ApiCall(
         `/play/${playerId}/answer`,
         { answers },
-        'PUT',
+        'PUT'
       );
       console.log(data);
     } catch (e) {
@@ -187,14 +187,14 @@ function GamePlay() {
                 flexDirection: 'column',
               }}
             >
-              <Typography variant='h5' sx={{ fontWeight: 'bold', mb: 2 }}>
+              <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>
                 {currentQuestion.text || 'Default Question Text'}
               </Typography>
 
               {currentQuestion.imageUrl && (
                 <img
                   src={currentQuestion.imageUrl}
-                  alt='Question-related content'
+                  alt="Question-related content"
                   style={{
                     width: '100%', // Stretches to fit the box width
                     height: '400px', // Keeps the aspect ratio intact
@@ -209,10 +209,10 @@ function GamePlay() {
                     height: '400px',
                   }}
                   src={currentQuestion.videoUrl}
-                  title='YouTube video player'
-                  frameBorder='0'
-                  allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
-                  referrerPolicy='strict-origin-when-cross-origin'
+                  title="YouTube video player"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
                   allowFullScreen
                 ></iframe>
               )}
@@ -246,7 +246,7 @@ function GamePlay() {
 
               {/* LinearProgress for remaining time, rendered as plain purple */}
               <LinearProgress
-                variant='determinate'
+                variant="determinate"
                 value={(timeLeft / currentQuestion?.timeLimit) * 100}
                 sx={{
                   flex: 1,
@@ -261,7 +261,7 @@ function GamePlay() {
 
               {/* Remaining time text displayed on top */}
               <Typography
-                variant='body1'
+                variant="body1"
                 sx={{
                   position: 'absolute',
                   width: '100%',
@@ -288,8 +288,8 @@ function GamePlay() {
               {currentQuestion.answers.map((answer, index) => (
                 <Button
                   key={index}
-                  variant='contained'
-                  color='primary'
+                  variant="contained"
+                  color="primary"
                   sx={{
                     flex: '1 1 calc(50% - 8px)',
                     height: 64,

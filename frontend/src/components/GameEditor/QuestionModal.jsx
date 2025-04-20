@@ -38,6 +38,7 @@ const QuestionModal = ({
     type: 'single',
     timeLimit: 30,
     points: 10,
+    correctAnswers: [],
     answers: [
       { id: 1, text: '', isCorrect: true },
       { id: 2, text: '', isCorrect: false },
@@ -51,15 +52,15 @@ const QuestionModal = ({
         ...currentQuestion,
         answers: currentQuestion.answers
           ? currentQuestion.answers.map((ans, idx) => ({
-            // Generate unique IDs to avoid collisions
-            id: Date.now() + idx,
-            text: ans.text || '',
-            isCorrect: ans.isCorrect || false,
-          }))
+              // Generate unique IDs to avoid collisions
+              id: Date.now() + idx,
+              text: ans.text || '',
+              isCorrect: ans.isCorrect || false,
+            }))
           : [
-            { id: Date.now(), text: '', isCorrect: true },
-            { id: Date.now() + 1, text: '', isCorrect: false },
-          ],
+              { id: Date.now(), text: '', isCorrect: true },
+              { id: Date.now() + 1, text: '', isCorrect: false },
+            ],
       });
     } else {
       // Reset form for new question
@@ -69,6 +70,7 @@ const QuestionModal = ({
         type: 'single',
         timeLimit: 30,
         points: 10,
+        correctAnswers: [],
         answers: [
           { id: now, text: '', isCorrect: true },
           { id: now + 1, text: '', isCorrect: false },
@@ -113,11 +115,16 @@ const QuestionModal = ({
 
   // Handle save
   const handleSaveQuestion = async () => {
+    newQuestion.correctAnswers = [
+      ...newQuestion.answers
+        .filter((ans) => ans.isCorrect === true)
+        .map((ans) => ans.text),
+    ];
     try {
       // If we already have an error state set, the game likely doesn't exist
       if (error && error.includes('not found')) {
         displayAlert(
-          'Cannot save question because the game does not exist. Please return to dashboard and try again.'
+          'Cannot save question because the game does not exist. Please return to dashboard and try again.',
         );
         onClose();
         return;
@@ -129,7 +136,7 @@ const QuestionModal = ({
       if (currentQuestion) {
         // Update existing question
         const questionIndex = updatedQuestions.findIndex(
-          (q) => q.id === currentQuestion.id
+          (q) => q.id === currentQuestion.id,
         );
         if (questionIndex !== -1) {
           updatedQuestions[questionIndex] = {
@@ -156,8 +163,8 @@ const QuestionModal = ({
       open={open}
       onClose={onClose}
       closeAfterTransition
-      aria-labelledby="question-modal-title"
-      aria-describedby="question-modal-description"
+      aria-labelledby='question-modal-title'
+      aria-describedby='question-modal-description'
       disableRestoreFocus
     >
       <Fade in={open}>
@@ -188,8 +195,8 @@ const QuestionModal = ({
             }}
           >
             <Typography
-              id="question-modal-title"
-              variant="h5"
+              id='question-modal-title'
+              variant='h5'
               sx={{
                 color: 'white',
                 fontWeight: 700,
@@ -203,7 +210,7 @@ const QuestionModal = ({
 
           <Box sx={{ p: 3 }}>
             <TextField
-              label="Question Text"
+              label='Question Text'
               multiline
               rows={2}
               value={newQuestion.text}
@@ -215,20 +222,20 @@ const QuestionModal = ({
             <Grid container spacing={3} sx={{ mb: 3 }}>
               <Grid item xs={12} sm={4}>
                 <FormControl fullWidth>
-                  <InputLabel id="question-type-label">
+                  <InputLabel id='question-type-label'>
                     Question Type
                   </InputLabel>
                   <Select
-                    labelId="question-type-label"
-                    id="question-type"
+                    labelId='question-type-label'
+                    id='question-type'
                     value={newQuestion.type}
-                    label="Question Type"
+                    label='Question Type'
                     onChange={(e) =>
                       handleQuestionChange('type', e.target.value)
                     }
                   >
-                    <MenuItem value="single">Single Choice</MenuItem>
-                    <MenuItem value="judgement">
+                    <MenuItem value='single'>Single Choice</MenuItem>
+                    <MenuItem value='judgement'>
                       Judgement (True/False)
                     </MenuItem>
                   </Select>
@@ -236,13 +243,13 @@ const QuestionModal = ({
               </Grid>
               <Grid item xs={12} sm={4}>
                 <TextField
-                  label="Time Limit (seconds)"
-                  type="number"
+                  label='Time Limit (seconds)'
+                  type='number'
                   value={newQuestion.timeLimit || ''}
                   onChange={(e) =>
                     handleQuestionChange(
                       'timeLimit',
-                      parseInt(e.target.value) || 0
+                      parseInt(e.target.value) || 0,
                     )
                   }
                   fullWidth
@@ -251,13 +258,13 @@ const QuestionModal = ({
               </Grid>
               <Grid item xs={12} sm={4}>
                 <TextField
-                  label="Points"
-                  type="number"
+                  label='Points'
+                  type='number'
                   value={newQuestion.points || ''}
                   onChange={(e) =>
                     handleQuestionChange(
                       'points',
-                      parseInt(e.target.value) || 0
+                      parseInt(e.target.value) || 0,
                     )
                   }
                   fullWidth
@@ -266,14 +273,14 @@ const QuestionModal = ({
               </Grid>
             </Grid>
 
-            <Typography variant="h6" sx={{ mb: 2 }}>
+            <Typography variant='h6' sx={{ mb: 2 }}>
               Answer Options
             </Typography>
 
             {newQuestion.type === 'judgement' ? (
               // Judgement (True/False) question type
               <Box sx={{ mb: 3 }}>
-                <Typography variant="body2" sx={{ mb: 2 }}>
+                <Typography variant='body2' sx={{ mb: 2 }}>
                   This is a true/false question. Select which option is the
                   correct answer:
                 </Typography>
@@ -281,14 +288,14 @@ const QuestionModal = ({
                   <Button
                     variant={
                       newQuestion.answers.some(
-                        (a) => a.text === 'True' && a.isCorrect
+                        (a) => a.text === 'True' && a.isCorrect,
                       )
                         ? 'contained'
                         : 'outlined'
                     }
                     color={
                       newQuestion.answers.some(
-                        (a) => a.text === 'True' && a.isCorrect
+                        (a) => a.text === 'True' && a.isCorrect,
                       )
                         ? 'success'
                         : 'primary'
@@ -308,14 +315,14 @@ const QuestionModal = ({
                   <Button
                     variant={
                       newQuestion.answers.some(
-                        (a) => a.text === 'False' && a.isCorrect
+                        (a) => a.text === 'False' && a.isCorrect,
                       )
                         ? 'contained'
                         : 'outlined'
                     }
                     color={
                       newQuestion.answers.some(
-                        (a) => a.text === 'False' && a.isCorrect
+                        (a) => a.text === 'False' && a.isCorrect,
                       )
                         ? 'success'
                         : 'primary'
@@ -372,10 +379,10 @@ const QuestionModal = ({
                     </Button>
                     {newQuestion.answers.length > 2 && (
                       <IconButton
-                        color="error"
+                        color='error'
                         onClick={() => {
                           const updatedAnswers = newQuestion.answers.filter(
-                            (_, i) => i !== index
+                            (_, i) => i !== index,
                           );
                           handleQuestionChange('answers', updatedAnswers);
                         }}
@@ -387,12 +394,12 @@ const QuestionModal = ({
                 ))}
 
                 <Button
-                  variant="outlined"
+                  variant='outlined'
                   startIcon={<AddIcon />}
                   onClick={() => {
                     if (newQuestion.answers.length > 5) {
                       displayAlert(
-                        'Each question can have a maximum of 6 answers.'
+                        'Each question can have a maximum of 6 answers.',
                       );
                     } else {
                       // Use timestamp-based ID for new answers
@@ -417,7 +424,7 @@ const QuestionModal = ({
             sx={{ p: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}
           >
             <Button
-              variant="outlined"
+              variant='outlined'
               onClick={onClose}
               sx={{
                 borderRadius: 2,
@@ -428,8 +435,8 @@ const QuestionModal = ({
               Cancel
             </Button>
             <Button
-              variant="contained"
-              color="primary"
+              variant='contained'
+              color='primary'
               startIcon={<SaveIcon />}
               onClick={handleSaveQuestion}
               sx={{

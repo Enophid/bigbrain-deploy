@@ -16,8 +16,6 @@ import ApiCall from './apiCall';
 import bigBrainTheme from '../theme/bigBrainTheme';
 import GlobalStyles from '../theme/globalStyles';
 
-const handleSubmitAnswer = () => {};
-
 /**
  * GamePlay component where players interact with the active game
  * This is a placeholder and would need to be implemented with the actual game logic
@@ -27,7 +25,9 @@ function GamePlay() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentQuestion, setCurrentQuestion] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(-1);
+  const [submitAnswer, setSubmitAnswer] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(null);
 
   useEffect(() => {
     const fetchQuestionData = async () => {
@@ -49,6 +49,24 @@ function GamePlay() {
 
     fetchQuestionData();
   }, [playerId]);
+
+  useEffect(() => {
+    const getActualResult = async () => {
+      try {
+        const data = await ApiCall(`/play/${playerId}/answer`, {}, 'GET');
+
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        console.log(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    if (timeLeft === 0) getActualResult();
+  }, [timeLeft]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -100,6 +118,24 @@ function GamePlay() {
       </ThemeProvider>
     );
   }
+
+  const handleSubmitAnswer = async (index) => {
+    setSubmitAnswer(true);
+    setSelectedIndex(index);
+
+    const answers = ['A Shark wearing Nike'];
+
+    try {
+      const data = await ApiCall(
+        `/play/${playerId}/answer`,
+        { answers },
+        'PUT',
+      );
+      console.log(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   return (
     <ThemeProvider theme={bigBrainTheme}>
@@ -158,19 +194,27 @@ function GamePlay() {
               {currentQuestion.imageUrl && (
                 <img
                   src={currentQuestion.imageUrl}
-                  alt='Question Visual'
-                  style={{ maxWidth: '100%', borderRadius: '8px' }}
+                  alt='Question-related content'
+                  style={{
+                    width: '100%', // Stretches to fit the box width
+                    height: '400px', // Keeps the aspect ratio intact
+                    borderRadius: '8px', // Optional: Adds rounded corners
+                  }}
                 />
               )}
               {currentQuestion.videoUrl && (
                 <iframe
+                  style={{
+                    width: '100%',
+                    height: '400px',
+                  }}
                   src={currentQuestion.videoUrl}
-                  title='Question Video'
-                  style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
+                  title='YouTube video player'
                   frameBorder='0'
-                  allow='autoplay; encrypted-media'
+                  allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
+                  referrerPolicy='strict-origin-when-cross-origin'
                   allowFullScreen
-                />
+                ></iframe>
               )}
             </Box>
 
@@ -250,8 +294,10 @@ function GamePlay() {
                     flex: '1 1 calc(50% - 8px)',
                     height: 64,
                     fontWeight: 'bold',
+                    border: selectedIndex === index ? '3px solid #000' : 'none',
                   }}
-                  onClick={handleSubmitAnswer}
+                  onClick={() => handleSubmitAnswer(index)}
+                  disabled={submitAnswer}
                 >
                   {answer.text}
                 </Button>

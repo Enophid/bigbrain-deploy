@@ -36,7 +36,7 @@ function Play() {
     // If there's no session ID in the URL, show an error
     if (!sessionId) {
       setError(
-        'No game session ID found. Please use a valid game invitation link.'
+        'No game session ID found. Please use a valid game invitation link.',
       );
     }
   }, [sessionId]);
@@ -70,7 +70,7 @@ function Play() {
 
     if (!sessionId) {
       setError(
-        'No game session ID found. Please use a valid game invitation link.'
+        'No game session ID found. Please use a valid game invitation link.',
       );
       return;
     }
@@ -86,7 +86,7 @@ function Play() {
       const response = await ApiCall(
         `/play/join/${sessionId}`,
         { name: playerName },
-        'POST'
+        'POST',
       );
 
       if (response.error) {
@@ -98,7 +98,7 @@ function Play() {
       setLoading(false);
     } catch (err) {
       setError(
-        err.message || 'Failed to join game. Please check the session ID.'
+        err.message || 'Failed to join game. Please check the session ID.',
       );
       setLoading(false);
     }
@@ -126,7 +126,7 @@ function Play() {
           },
         }}
       >
-        <Container maxWidth="sm">
+        <Container maxWidth='sm'>
           <Paper
             elevation={10}
             sx={{
@@ -138,10 +138,10 @@ function Play() {
             }}
           >
             <Typography
-              variant="h4"
-              component="h1"
+              variant='h4'
+              component='h1'
               gutterBottom
-              align="center"
+              align='center'
               sx={{
                 fontWeight: 700,
                 color: bigBrainTheme.palette.primary.main,
@@ -152,28 +152,28 @@ function Play() {
 
             {sessionId && (
               <Typography
-                variant="subtitle1"
-                align="center"
+                variant='subtitle1'
+                align='center'
                 sx={{ mb: 3, fontWeight: 500 }}
               >
                 Session ID:{' '}
-                <Box component="span" sx={{ fontWeight: 700 }}>
+                <Box component='span' sx={{ fontWeight: 700 }}>
                   {sessionId}
                 </Box>
               </Typography>
             )}
 
             {!joined ? (
-              <Box component="form" onSubmit={handleJoinGame} sx={{ mt: 3 }}>
+              <Box component='form' onSubmit={handleJoinGame} sx={{ mt: 3 }}>
                 <TextField
-                  label="Your Name"
-                  variant="outlined"
+                  label='Your Name'
+                  variant='outlined'
                   fullWidth
-                  margin="normal"
+                  margin='normal'
                   value={playerName}
                   onChange={(e) => setPlayerName(e.target.value)}
                   disabled={loading}
-                  placeholder="Enter your name to join the game"
+                  placeholder='Enter your name to join the game'
                   autoFocus
                   InputProps={{
                     sx: { borderRadius: 2 },
@@ -181,22 +181,22 @@ function Play() {
                 />
 
                 {error && (
-                  <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>
+                  <Alert severity='error' sx={{ mt: 2, borderRadius: 2 }}>
                     {error}
                   </Alert>
                 )}
 
                 <Button
-                  type="submit"
+                  type='submit'
                   fullWidth
-                  variant="contained"
-                  color="primary"
-                  size="large"
+                  variant='contained'
+                  color='primary'
+                  size='large'
                   disabled={loading || !sessionId}
                   sx={{ mt: 3, mb: 2, borderRadius: 2, py: 1.2 }}
                 >
                   {loading ? (
-                    <CircularProgress size={24} color="inherit" />
+                    <CircularProgress size={24} color='inherit' />
                   ) : (
                     'Join Game'
                   )}
@@ -205,10 +205,10 @@ function Play() {
             ) : (
               <Card sx={{ mt: 3, borderRadius: 2, backgroundColor: '#f8f9fa' }}>
                 <CardContent>
-                  <Typography variant="h6" align="center" gutterBottom>
+                  <Typography variant='h6' align='center' gutterBottom>
                     You&apos;ve joined the game!
                   </Typography>
-                  <Typography variant="body1" align="center" component="p">
+                  <Typography variant='body1' align='center' component='p'>
                     Waiting for the host to start the game...
                   </Typography>
                   <Box

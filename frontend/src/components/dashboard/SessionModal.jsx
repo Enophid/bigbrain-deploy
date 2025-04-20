@@ -26,6 +26,7 @@ import {
   Assessment as AssessmentIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import ApiCall from '../apiCall';
 
 // Common styles
 const styles = {
@@ -41,6 +42,22 @@ const styles = {
   },
 };
 
+const handleAdvanceToFirstQuestion = async (gameId) => {
+  try {
+    const data = await ApiCall(
+      `/admin/game/${gameId}/mutate`,
+      {
+        mutationType: 'ADVANCE',
+      },
+      'POST',
+    );
+
+    console.log(data);
+  } catch (e) {
+    console.error(e);
+  }
+};
+
 /**
  * Component that displays the modal content for active or new game sessions
  */
@@ -48,28 +65,29 @@ const DefaultSessionContent = ({
   gameName,
   isNewSession,
   sessionId = '',
+  gameId = '',
   playUrl,
   copied,
   handleCopyLink,
 }) => (
   <>
-    <Typography variant="h6" sx={{ mb: 2 }}>
+    <Typography variant='h6' sx={{ mb: 2 }}>
       {gameName} {isNewSession ? 'is now ready to play' : 'is currently active'}
     </Typography>
 
-    <Typography variant="body1" sx={{ mb: 3 }}>
+    <Typography variant='body1' sx={{ mb: 3 }}>
       {isNewSession
         ? 'Share this session with your players so they can join:'
         : 'Players can continue to join this active session:'}
     </Typography>
 
     <Box sx={{ mb: 3 }}>
-      <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+      <Typography variant='body2' sx={{ mb: 1, fontWeight: 500 }}>
         Session ID:
       </Typography>
       <TextField
         fullWidth
-        variant="outlined"
+        variant='outlined'
         value={sessionId || ''}
         slotProps={{
           input: {
@@ -81,20 +99,20 @@ const DefaultSessionContent = ({
     </Box>
 
     <Box>
-      <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+      <Typography variant='body2' sx={{ mb: 1, fontWeight: 500 }}>
         Share this link with players:
       </Typography>
       <TextField
         fullWidth
-        variant="outlined"
+        variant='outlined'
         value={playUrl}
         slotProps={{
           input: {
             readOnly: true,
             endAdornment: (
               <Tooltip title={copied ? 'Copied!' : 'Copy to clipboard'}>
-                <IconButton onClick={handleCopyLink} edge="end">
-                  {copied ? <CheckIcon color="success" /> : <CopyIcon />}
+                <IconButton onClick={handleCopyLink} edge='end'>
+                  {copied ? <CheckIcon color='success' /> : <CopyIcon />}
                 </IconButton>
               </Tooltip>
             ),
@@ -103,10 +121,21 @@ const DefaultSessionContent = ({
       />
     </Box>
 
+    <Box sx={{ mt: 3, mb: 3 }}>
+      <Button
+        fullWidth
+        variant='contained'
+        color='info'
+        onClick={() => handleAdvanceToFirstQuestion(gameId)}
+      >
+        Advance to first question 🚀
+      </Button>
+    </Box>
+
     {!isNewSession && (
       <Box sx={{ mt: 4, mb: 2 }}>
         <Divider sx={{ mb: 3 }} />
-        <Typography variant="body2" color="error.main" fontWeight="medium">
+        <Typography variant='body2' color='error.main' fontWeight='medium'>
           Only one session of a game can be active at a time. To start a new
           session, you must first end the current one.
         </Typography>
@@ -129,8 +158,8 @@ const DefaultSessionActions = ({
   <Box sx={styles.actionContainer}>
     {!isNewSession && (
       <Button
-        variant="outlined"
-        color="error"
+        variant='outlined'
+        color='error'
         onClick={handleShowEndConfirm}
         startIcon={<StopIcon />}
         sx={{
@@ -151,7 +180,7 @@ const DefaultSessionActions = ({
       }}
     >
       <Button
-        variant="outlined"
+        variant='outlined'
         onClick={onClose}
         sx={{
           ...styles.button,
@@ -161,7 +190,7 @@ const DefaultSessionActions = ({
         Close
       </Button>
       <Button
-        variant="contained"
+        variant='contained'
         color={isNewSession ? 'primary' : 'success'}
         onClick={handleCopyLink}
         startIcon={copied ? <CheckIcon /> : <CopyIcon />}
@@ -179,20 +208,20 @@ const DefaultSessionActions = ({
  */
 const ConfirmEndContent = () => (
   <>
-    <Typography variant="h6" sx={{ mb: 2 }}>
+    <Typography variant='h6' sx={{ mb: 2 }}>
       Are you sure you want to end this session?
     </Typography>
-    <Typography variant="body1" sx={{ mb: 1 }}>
+    <Typography variant='body1' sx={{ mb: 1 }}>
       Ending this session will:
     </Typography>
     <Box sx={{ pl: 2, mb: 3 }}>
-      <Typography variant="body2" component="p">
+      <Typography variant='body2' component='p'>
         • Send all active players to the results screen
       </Typography>
-      <Typography variant="body2" component="p">
+      <Typography variant='body2' component='p'>
         • Stop the session permanently (it cannot be restarted)
       </Typography>
-      <Typography variant="body2" component="p">
+      <Typography variant='body2' component='p'>
         • Allow you to view the final results
       </Typography>
     </Box>
@@ -214,15 +243,15 @@ const ConfirmEndActions = ({
     }}
   >
     <Button
-      variant="outlined"
+      variant='outlined'
       onClick={handleCancelEndSession}
       sx={styles.button}
     >
       Cancel
     </Button>
     <Button
-      variant="contained"
-      color="error"
+      variant='contained'
+      color='error'
       onClick={handleConfirmEndSession}
       startIcon={<StopIcon />}
       sx={styles.button}
@@ -238,10 +267,10 @@ const ConfirmEndActions = ({
  */
 const SessionEndedContent = ({ gameName }) => (
   <>
-    <Typography variant="h6" sx={{ mb: 2 }}>
+    <Typography variant='h6' sx={{ mb: 2 }}>
       Session for {gameName} has ended
     </Typography>
-    <Typography variant="body1" sx={{ mb: 3 }}>
+    <Typography variant='body1' sx={{ mb: 3 }}>
       Would you like to view the results for this session?
     </Typography>
   </>
@@ -261,12 +290,12 @@ const SessionEndedActions = ({
       justifyContent: 'space-between',
     }}
   >
-    <Button variant="outlined" onClick={onClose} sx={styles.button}>
+    <Button variant='outlined' onClick={onClose} sx={styles.button}>
       No, Close
     </Button>
     <Button
-      variant="contained"
-      color="info"
+      variant='contained'
+      color='info'
       onClick={handleViewResults}
       startIcon={<AssessmentIcon />}
       sx={styles.button}
@@ -282,9 +311,9 @@ const SessionEndedActions = ({
  */
 const EndingSessionContent = () => (
   <Box sx={{ py: 4, textAlign: 'center' }}>
-    <CircularProgress color="warning" size={60} sx={{ mb: 3 }} />
-    <Typography variant="h6">Ending the game session...</Typography>
-    <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
+    <CircularProgress color='warning' size={60} sx={{ mb: 3 }} />
+    <Typography variant='h6'>Ending the game session...</Typography>
+    <Typography variant='body1' color='text.secondary' sx={{ mt: 1 }}>
       Please wait while we process your request
     </Typography>
   </Box>
@@ -298,6 +327,7 @@ const SessionModal = ({
   open,
   onClose,
   sessionId,
+  gameId,
   gameName,
   isNewSession = true,
   onEndSession,
@@ -475,6 +505,7 @@ const SessionModal = ({
           gameName={gameName}
           isNewSession={isNewSession}
           sessionId={sessionId}
+          gameId={gameId}
           playUrl={playUrl}
           copied={copied}
           handleCopyLink={handleCopyLink}
@@ -501,7 +532,7 @@ const SessionModal = ({
       <Dialog
         open={open}
         onClose={handleClose}
-        maxWidth="sm"
+        maxWidth='sm'
         fullWidth
         slotProps={{
           paper: {
@@ -519,10 +550,10 @@ const SessionModal = ({
         }}
         disableEscapeKeyDown={isEnding}
         keepMounted={false}
-        aria-labelledby="session-modal-title"
+        aria-labelledby='session-modal-title'
       >
         <DialogTitle
-          id="session-modal-title"
+          id='session-modal-title'
           sx={{
             pb: 1,
             fontWeight: 600,
@@ -542,7 +573,7 @@ const SessionModal = ({
             <Chip
               icon={modalConfig.icon}
               label={modalConfig.iconLabel}
-              size="small"
+              size='small'
               sx={{
                 color: 'white',
                 borderColor: 'white',
@@ -552,7 +583,7 @@ const SessionModal = ({
                 fontSize: { xs: '0.7rem', sm: '0.8rem' },
                 height: { xs: 24, sm: 32 },
               }}
-              variant="outlined"
+              variant='outlined'
             />
           )}
         </DialogTitle>
@@ -582,8 +613,8 @@ const SessionModal = ({
       >
         <Alert
           onClose={handleCloseAlert}
-          severity="error"
-          variant="filled"
+          severity='error'
+          variant='filled'
           sx={{ width: '100%' }}
         >
           {error}

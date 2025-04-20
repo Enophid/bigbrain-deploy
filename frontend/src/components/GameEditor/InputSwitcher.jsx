@@ -64,11 +64,7 @@ const InputSwitcher = ({ onChange }) => {
           sx={{ mb: 2 }}
         />
       ) : (
-        <Button 
-          variant="contained" 
-          component="label" 
-          sx={{ mb: 2 }}
-        >
+        <Button variant="contained" component="label" sx={{ mb: 2 }}>
           Upload Photo{' '}
           <input
             type="file"
@@ -97,7 +93,7 @@ const InputSwitcher = ({ onChange }) => {
 };
 
 InputSwitcher.propTypes = {
-  onChange: PropTypes.func.isRequired
+  onChange: PropTypes.func.isRequired,
 };
 
 export default InputSwitcher;

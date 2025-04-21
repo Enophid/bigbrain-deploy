@@ -23,6 +23,10 @@ import PointsSystemExplanation from './components/PointsSystemExplanation';
 import ResultsTable from './components/ResultsTable';
 import MobileResultsList from './components/MobileResultsList';
 import ActionButtons from './components/ActionButtons';
+
+/**
+ * Main component to display player game results
+ */
 const PlayerGameResults = () => {
   const { playerId } = useParams();
   const navigate = useNavigate();
@@ -49,6 +53,7 @@ const PlayerGameResults = () => {
         answeredCount++;
       }
     });
+
     return {
       totalScore: totalPoints,
       avgTime:
@@ -57,6 +62,7 @@ const PlayerGameResults = () => {
           : 0,
     };
   };
+
   // Load results from localStorage on mount
   useEffect(() => {
     try {
@@ -70,11 +76,13 @@ const PlayerGameResults = () => {
       const storedResults = localStorage.getItem(
         `bigbrain_player_${playerId}_results`
       );
+
       if (storedResults) {
         const parsedResults = JSON.parse(storedResults);
         console.log('Loaded results from localStorage:', parsedResults);
 
         setResults(parsedResults);
+
         // Calculate totals
         const { totalScore, avgTime } = calculateTotals(parsedResults);
         setTotalScore(totalScore);
@@ -89,14 +97,17 @@ const PlayerGameResults = () => {
       setLoading(false);
     }
   }, [playerId]);
+
   // Handle navigation back to home
   const handlePlayAgain = () => {
     navigate('/');
   };
+
   // Handle navigation back to the game
   const handleReturnToGame = () => {
     navigate(`/gameplay/${playerId}`);
   };
+
   if (loading) {
     return (
       <ThemeProvider theme={bigBrainTheme}>
@@ -106,6 +117,7 @@ const PlayerGameResults = () => {
       </ThemeProvider>
     );
   }
+
   return (
     <ThemeProvider theme={bigBrainTheme}>
       <CssBaseline />
@@ -153,6 +165,7 @@ const PlayerGameResults = () => {
                     avgTime={avgTime} 
                     isMobile={isMobile} 
                   />
+
                   <Divider sx={{ mb: { xs: 3, sm: 4 } }} />
 
                   <PointsSystemExplanation />
@@ -183,6 +196,7 @@ const PlayerGameResults = () => {
                       </Typography>
                     </Box>
                   )}
+
                   <ActionButtons 
                     onReturnToGame={handleReturnToGame}
                     onPlayAgain={handlePlayAgain}
@@ -197,4 +211,5 @@ const PlayerGameResults = () => {
     </ThemeProvider>
   );
 };
+
 export default PlayerGameResults; 

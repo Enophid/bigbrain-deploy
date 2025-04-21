@@ -6,7 +6,7 @@ import GameEditor from './components/GameEditor';
 import Play from './components/Play';
 import GamePlay from './components/GamePlay';
 import GameResults from './components/GameResults/index.jsx';
-import PlayerGameResults from './components/PlayerGameResults';
+import PlayerGameResults from './components/PlayerGameResults/index.jsx';
 import QuestionEditor from './components/QuestionEditor';
 import GlobalStyles from './theme/globalStyles';
 import { Box } from '@mui/material';

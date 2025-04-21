@@ -1,0 +1,43 @@
+{
+  "name": "Science Quiz",
+  "thumbnail": "https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
+  "questions": [
+    {
+      "text": "What is the chemical symbol for water?",
+      "type": "single",
+      "timeLimit": 30,
+      "points": 10,
+      "answers": [
+        { "text": "H2O", "isCorrect": true },
+        { "text": "CO2", "isCorrect": false },
+        { "text": "NaCl", "isCorrect": false },
+        { "text": "CH4", "isCorrect": false }
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1580237072353-751e9e739532?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1169&q=80"
+    },
+    {
+      "text": "Which of the following are planets in our solar system?",
+      "type": "multiple",
+      "timeLimit": 60,
+      "points": 20,
+      "answers": [
+        { "text": "Mercury", "isCorrect": true },
+        { "text": "Venus", "isCorrect": true },
+        { "text": "Moon", "isCorrect": false },
+        { "text": "Jupiter", "isCorrect": true },
+        { "text": "Pluto", "isCorrect": false }
+      ],
+      "videoUrl": "https://www.youtube.com/embed/libKVRa01L8"
+    },
+    {
+      "text": "Is the Earth flat?",
+      "type": "judgement",
+      "timeLimit": 20,
+      "points": 5,
+      "answers": [
+        { "text": "True", "isCorrect": false },
+        { "text": "False", "isCorrect": true }
+      ]
+    }
+  ]
+} 

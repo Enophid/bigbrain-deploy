@@ -31,4 +31,4 @@ RegisterLink.propTypes = {
   theme: PropTypes.object.isRequired,
 };
 
-export default RegisterLink; 
+export default RegisterLink;

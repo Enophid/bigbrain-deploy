@@ -29,4 +29,4 @@ const LoginHeader = () => (
   </Box>
 );
 
-export default LoginHeader; 
+export default LoginHeader;

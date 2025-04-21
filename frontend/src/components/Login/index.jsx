@@ -1,12 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Box,
-  Container,
-  Paper,
-  Alert,
-  ThemeProvider,
-} from '@mui/material';
+import { Box, Container, Paper, Alert, ThemeProvider } from '@mui/material';
 import bigBrainTheme from '../../theme/bigBrainTheme';
 import ApiCall from '../apiCall';
 
@@ -139,7 +133,7 @@ export default function Login() {
               </Alert>
             )}
 
-            <LoginForm 
+            <LoginForm
               formData={formData}
               handleChange={handleChange}
               handleSubmit={handleSubmit}
@@ -154,4 +148,4 @@ export default function Login() {
       </Box>
     </ThemeProvider>
   );
-} 
+}

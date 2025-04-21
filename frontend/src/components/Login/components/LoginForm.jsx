@@ -104,9 +104,7 @@ const LoginForm = ({
                   size="small"
                 >
                   {showPassword ? (
-                    <VisibilityOff
-                      sx={{ fontSize: { xs: 18, sm: 24 } }}
-                    />
+                    <VisibilityOff sx={{ fontSize: { xs: 18, sm: 24 } }} />
                   ) : (
                     <Visibility sx={{ fontSize: { xs: 18, sm: 24 } }} />
                   )}
@@ -165,4 +163,4 @@ LoginForm.propTypes = {
   isLoading: PropTypes.bool.isRequired,
 };
 
-export default LoginForm; 
+export default LoginForm;

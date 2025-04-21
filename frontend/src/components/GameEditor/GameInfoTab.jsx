@@ -107,7 +107,7 @@ const GameInfoTab = ({ game, onEditMetadata, onImportGame }) => {
               </Typography>
               <Typography variant="body1" fontWeight={500}>
                 {game?.questions?.reduce(
-                  (acc, q) => acc + (q.timeLimit / 60 || 0),
+                  (acc, q) => acc + (q.duration / 60 || 0),
                   0
                 ) || 0}{' '}
                 minutes

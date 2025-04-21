@@ -40,7 +40,7 @@ function QuestionEditor() {
   const [newQuestion, setNewQuestion] = useState({
     text: '',
     type: 'single',
-    timeLimit: 30,
+    duration: 30,
     points: 10,
     correctAnswers: [],
     answers: [{ id: 1, text: '', isCorrect: true }],
@@ -72,7 +72,7 @@ function QuestionEditor() {
       setNewQuestion({
         text: '',
         type: 'single',
-        timeLimit: 30,
+        duration: 30,
         points: 10,
         correctAnswers: [],
         answers: [{ id: now, text: '', isCorrect: true }],
@@ -269,10 +269,10 @@ function QuestionEditor() {
                 <TextField
                   label="Time Limit (seconds)"
                   type="number"
-                  value={newQuestion.timeLimit || ''}
+                  value={newQuestion.duration || ''}
                   onChange={(e) =>
                     handleQuestionChange(
-                      'timeLimit',
+                      'duration',
                       parseInt(e.target.value) || 0
                     )
                   }

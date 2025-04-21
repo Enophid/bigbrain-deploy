@@ -36,7 +36,7 @@ const QuestionModal = ({
   const [newQuestion, setNewQuestion] = useState({
     text: '',
     type: 'single',
-    timeLimit: 30,
+    duration: 30,
     points: 10,
     correctAnswers: [],
     answers: [
@@ -68,7 +68,7 @@ const QuestionModal = ({
       setNewQuestion({
         text: '',
         type: 'single',
-        timeLimit: 30,
+        duration: 30,
         points: 10,
         correctAnswers: [],
         answers: [
@@ -245,10 +245,10 @@ const QuestionModal = ({
                 <TextField
                   label="Time Limit (seconds)"
                   type="number"
-                  value={newQuestion.timeLimit || ''}
+                  value={newQuestion.duration || ''}
                   onChange={(e) =>
                     handleQuestionChange(
-                      'timeLimit',
+                      'duration',
                       parseInt(e.target.value) || 0
                     )
                   }

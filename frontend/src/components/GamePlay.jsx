@@ -63,12 +63,12 @@ function GamePlay() {
     const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
     
     // Use the question's duration property with proper fallback
-    const timeLimit = parseInt(question.duration || 30, 10);
+    const duration = parseInt(question.duration || 30, 10);
     
-    console.log(`Question duration: ${timeLimit}s, elapsed: ${elapsedSeconds}s`);
+    console.log(`Question duration: ${duration}s, elapsed: ${elapsedSeconds}s`);
     
     // Calculate remaining time WITHOUT any buffer so users see the full time
-    const remainingTime = Math.max(0, timeLimit - elapsedSeconds);
+    const remainingTime = Math.max(0, duration - elapsedSeconds);
     
     return remainingTime;
   };
@@ -424,6 +424,7 @@ function GamePlay() {
       };
       
       console.log('Submitting answer:', payload);
+      console.log('Player ID:', playerId);
       const data = await ApiCall(
         `/play/${playerId}/answer`,
         payload,

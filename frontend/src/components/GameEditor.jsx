@@ -75,14 +75,12 @@ function GameEditor() {
           text: question.text || '',
           type: question.type || 'single',
           // Handle different naming conventions in JSON
-          timeLimit: question.timeLimit || question.duration || 30,
+          duration: question.duration || 30,
           points: question.points || 10,
           // Map answers to the proper structure
           answers: Array.isArray(question.answers)
-            ? question.answers.map((answer, idx) => ({
-              id: Date.now() + index + idx,
-              text: answer.text || '',
-              isCorrect: answer.isCorrect === true,
+            ? question.answers.map((answer) => ({
+              answer: answer.text,
             }))
             : [],
           // Add correctAnswers for internal tracking

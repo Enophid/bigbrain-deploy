@@ -423,8 +423,9 @@ function Dashboard() {
           id: Date.now() + index, // Ensure ID is unique
           text: question.text || '',
           type: question.type || 'single',
-          timeLimit: question.timeLimit || question.duration || 30,
+          duration: question.duration || 30,
           points: question.points || 10,
+          correctAnswers: question.correctAnswers || [],
           answers: Array.isArray(question.answers)
             ? question.answers.map((answer, idx) => ({
               id: Date.now() + index + idx,

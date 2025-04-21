@@ -129,7 +129,7 @@ const QuestionTab = ({
                         color="text.secondary"
                         display="block"
                       >
-                        Time limit: {question.timeLimit || 0}s •{' '}
+                        Time limit: {question.duration || 0}s •{' '}
                         {question.points || 0} points
                       </Typography>
                       <Typography

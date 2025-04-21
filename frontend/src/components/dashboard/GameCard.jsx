@@ -169,7 +169,7 @@ const GameCardActions = ({
 
 const GameCardInfo = ({ game, isActive }) => {
   const totalMinutes = game.questions.reduce(
-    (acc, q) => acc + (q.timeLimit / 60 || 0),
+    (acc, q) => acc + (q.duration / 60 || 0),
     0
   );
 

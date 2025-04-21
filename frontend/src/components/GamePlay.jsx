@@ -745,6 +745,9 @@ function GamePlay() {
     );
   }
 
+  /**
+   * Render player performance results after game end
+   */
   if (gameEnded && playerResults) {
     return (
       <ThemeProvider theme={bigBrainTheme}>

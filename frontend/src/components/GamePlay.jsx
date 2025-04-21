@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   Box,
@@ -11,14 +11,25 @@ import {
   LinearProgress,
   Alert,
   Button,
+  Card,
+  CardContent,
+  Chip,
+  Zoom,
+  Fade,
+  Avatar,
+  Stack,
 } from '@mui/material';
+import {
+  CheckCircle as CheckCircleIcon,
+  Cancel as CancelIcon,
+  QuestionAnswer as QuestionIcon,
+} from '@mui/icons-material';
 import ApiCall from './apiCall';
 import bigBrainTheme from '../theme/bigBrainTheme';
 import GlobalStyles from '../theme/globalStyles';
 
 /**
  * GamePlay component where players interact with the active game
- * This is a placeholder and would need to be implemented with the actual game logic
  */
 function GamePlay() {
   const { playerId } = useParams();
@@ -26,288 +37,158 @@ function GamePlay() {
   const [error, setError] = useState('');
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [timeLeft, setTimeLeft] = useState(-1);
-  const [submitAnswer, setSubmitAnswer] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(null);
+  const [selectedAnswers, setSelectedAnswers] = useState([]);
+  const [answerSubmitted, setAnswerSubmitted] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const [correctAnswers, setCorrectAnswers] = useState([]);
+  const [waitingForNextQuestion, setWaitingForNextQuestion] = useState(false);
+  const [answerError, setAnswerError] = useState('');
+  const [answerPeriodEnded, setAnswerPeriodEnded] = useState(false);
+  const [lastSubmittedAnswer, setLastSubmittedAnswer] = useState([]);
+  const [shouldCheckAnswers, setShouldCheckAnswers] = useState(false);
+  const [lastPollTime, setLastPollTime] = useState(Date.now());
 
-  useEffect(() => {
-    const fetchQuestionData = async () => {
-      try {
-        const response = await ApiCall(`/play/${playerId}/question`, {}, 'GET');
-
-        if (response.error) {
-          throw new Error(response.error);
-        }
-
-        setCurrentQuestion(response.question);
-        setTimeLeft(response.question.timeLimit);
-        setLoading(false);
-      } catch (err) {
-        setError(err.message || 'Failed to fetch question data.');
-        setLoading(false);
-      }
-    };
-
-    fetchQuestionData();
-  }, [playerId]);
-
-  useEffect(() => {
-    const getActualResult = async () => {
-      try {
-        const data = await ApiCall(`/play/${playerId}/answer`, {}, 'GET');
-
-        if (data.error) {
-          throw new Error(data.error);
-        }
-
-        console.log(data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    if (timeLeft === 0) getActualResult();
-  }, [timeLeft]);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [currentQuestion]);
-
-  if (loading) {
-    return (
-      <ThemeProvider theme={bigBrainTheme}>
-        <CssBaseline />
-        <GlobalStyles />
-        <Box
-          sx={{
-            minHeight: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: bigBrainTheme.palette.background.default,
-          }}
-        >
-          <CircularProgress size={60} />
-        </Box>
-      </ThemeProvider>
-    );
-  }
-
-  if (error) {
-    return (
-      <ThemeProvider theme={bigBrainTheme}>
-        <CssBaseline />
-        <GlobalStyles />
-        <Box
-          sx={{
-            minHeight: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: bigBrainTheme.palette.background.default,
-          }}
-        >
-          <Container maxWidth="sm">
-            <Alert severity="error" sx={{ borderRadius: 2 }}>
-              {error}
-            </Alert>
-          </Container>
-        </Box>
-      </ThemeProvider>
-    );
-  }
-
-  const handleSubmitAnswer = async (index) => {
-    setSubmitAnswer(true);
-    setSelectedIndex(index);
-
-    const answers = ['A Shark wearing Nike'];
-
-    try {
-      const data = await ApiCall(
-        `/play/${playerId}/answer`,
-        { answers },
-        'PUT'
-      );
-      console.log(data);
-    } catch (e) {
-      console.error(e);
-    }
+  /**
+   * Calculate remaining time based on server's start time and time limit
+   */
+  const calculateRemainingTime = (question) => {
+    if (!question || !question.isoTimeLastQuestionStarted) return 30;
+    
+    // Get timestamps
+    const startTime = new Date(question.isoTimeLastQuestionStarted).getTime();
+    const currentTime = new Date().getTime();
+    const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
+    
+    // Use the question's duration property with proper fallback
+    const timeLimit = parseInt(question.duration || 30, 10);
+    
+    console.log(`Question duration: ${timeLimit}s, elapsed: ${elapsedSeconds}s`);
+    
+    // Calculate remaining time WITHOUT any buffer so users see the full time
+    const remainingTime = Math.max(0, timeLimit - elapsedSeconds);
+    
+    return remainingTime;
   };
 
-  return (
-    <ThemeProvider theme={bigBrainTheme}>
-      <CssBaseline />
-      <GlobalStyles />
-      <Box
-        sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          background: bigBrainTheme.palette.background.default,
-          backgroundImage:
-            'linear-gradient(135deg, #2D3047 0%, #00B4D8 50%, #06D6A0 100%)',
-          backgroundSize: '400% 400%',
-          animation: 'gradient 15s ease infinite',
-          '@keyframes gradient': {
-            '0%': { backgroundPosition: '0% 50%' },
-            '50%': { backgroundPosition: '100% 50%' },
-            '100%': { backgroundPosition: '0% 50%' },
-          },
-        }}
-      >
-        <Paper
-          elevation={10}
-          sx={{
-            width: '80%',
-            margin: 'auto',
-            marginTop: 15,
-            p: 4,
-            borderRadius: 3,
-            boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
-            backgroundImage: 'linear-gradient(to right, #ffffff, #f8f9fa)',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              gap: 2,
-            }}
-          >
-            <Box
-              sx={{
-                flex: '1 1 50%',
-                display: 'flex',
-                justifyContent: 'center',
-                flexDirection: 'column',
-              }}
-            >
-              <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>
-                {currentQuestion.text || 'Default Question Text'}
-              </Typography>
+  /**
+   * Checks if the question from the API is different from our current question
+   */
+  const checkForQuestionUpdate = (newQuestion) => {
+    if (!newQuestion || !currentQuestion) return true;
+    
+    // Compare key properties to determine if it's a different question
+    if (
+      newQuestion.position !== currentQuestion.position ||
+      newQuestion.text !== currentQuestion.text ||
+      newQuestion.isoTimeLastQuestionStarted !== currentQuestion.isoTimeLastQuestionStarted
+    ) {
+      console.log('New question detected', { 
+        current: currentQuestion.position, 
+        new: newQuestion.position 
+      });
+      return true;
+    }
+    
+    return false;
+  };
 
-              {currentQuestion.imageUrl && (
-                <img
-                  src={currentQuestion.imageUrl}
-                  alt="Question-related content"
-                  style={{
-                    width: '100%', // Stretches to fit the box width
-                    height: '400px', // Keeps the aspect ratio intact
-                    borderRadius: '8px', // Optional: Adds rounded corners
-                  }}
-                />
-              )}
-              {currentQuestion.videoUrl && (
-                <iframe
-                  style={{
-                    width: '100%',
-                    height: '400px',
-                  }}
-                  src={currentQuestion.videoUrl}
-                  title="YouTube video player"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  allowFullScreen
-                ></iframe>
-              )}
-            </Box>
+  /**
+   * Fetch the current question data
+   */
+  const fetchQuestionData = useCallback(async () => {
+    try {
+      const response = await ApiCall(`/play/${playerId}/question`, {}, 'GET');
 
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 16,
-                right: 16,
-                width: '300px',
-                height: '40px',
-                backgroundColor: '#333', // Container background (for any gaps)
-                borderRadius: '8px',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
-                overflow: 'hidden',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              {/* Base black layer representing time already passed */}
-              <Box
-                sx={{
-                  position: 'absolute',
-                  width: '100%',
-                  height: '100%',
-                  backgroundColor: 'black',
-                  zIndex: 1,
-                }}
-              />
+      if (response.error) {
+        throw new Error(response.error);
+      }
 
-              {/* LinearProgress for remaining time, rendered as plain purple */}
-              <LinearProgress
-                variant="determinate"
-                value={(timeLeft / currentQuestion?.timeLimit) * 100}
-                sx={{
-                  flex: 1,
-                  height: '100%',
-                  position: 'relative',
-                  zIndex: 2,
-                  '& .MuiLinearProgress-bar': {
-                    backgroundColor: '#bf77f6',
-                  },
-                }}
-              />
+      // If we got a different question than before
+      if (checkForQuestionUpdate(response.question)) {
+        // Reset states for new question
+        setSelectedAnswers([]);
+        setLastSubmittedAnswer([]);
+        setAnswerSubmitted(false);
+        setShowResults(false);
+        setCorrectAnswers([]);
+        setWaitingForNextQuestion(false);
+        setAnswerPeriodEnded(false);
+        setAnswerError('');
+        setShouldCheckAnswers(false);
 
-              {/* Remaining time text displayed on top */}
-              <Typography
-                variant="body1"
-                sx={{
-                  position: 'absolute',
-                  width: '100%',
-                  textAlign: 'center',
-                  fontWeight: 'bold',
-                  fontSize: '1rem',
-                  color: 'white',
-                  zIndex: 3,
-                }}
-              >
-                {timeLeft}s
-              </Typography>
-            </Box>
+        // Set the new question and its timer
+        setCurrentQuestion(response.question);
+        
+        // Calculate remaining time with buffer
+        const remainingTime = calculateRemainingTime(response.question);
+        console.log(`Question started, ${remainingTime}s remaining (with buffer)`);
+        
+        // If time has expired or nearly expired, mark answer period as ended
+        if (remainingTime <= 0) {
+          setAnswerPeriodEnded(true);
+          setTimeLeft(0);
+          setShouldCheckAnswers(true);
+        } else {
+          setTimeLeft(remainingTime);
+        }
+      }
 
-            <Box
-              sx={{
-                flex: '1 1 50%',
-                display: 'flex',
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                gap: 2,
-              }}
-            >
-              {currentQuestion.answers.map((answer, index) => (
-                <Button
-                  key={index}
-                  variant="contained"
-                  color="primary"
-                  sx={{
-                    flex: '1 1 calc(50% - 8px)',
-                    height: 64,
-                    fontWeight: 'bold',
-                    border: selectedIndex === index ? '3px solid #000' : 'none',
-                  }}
-                  onClick={() => handleSubmitAnswer(index)}
-                  disabled={submitAnswer}
-                >
-                  {answer.text}
-                </Button>
-              ))}
-            </Box>
-          </Box>
-        </Paper>
-      </Box>
-    </ThemeProvider>
-  );
-}
+      setLoading(false);
+      setLastPollTime(Date.now());
+    } catch (err) {
+      if (err.message === 'Session has not started yet') {
+        // Handle the case where we're waiting for the game to start
+        setWaitingForNextQuestion(true);
+      } else {
+        setError(err.message || 'Failed to fetch question data.');
+      }
+      setLoading(false);
+      setLastPollTime(Date.now());
+    }
+  }, [playerId, currentQuestion]);
 
-export default GamePlay;
+  /**
+   * Initial data load
+   */
+  useEffect(() => {
+    fetchQuestionData();
+  }, [fetchQuestionData]);
+
+  /**
+   * Effect to trigger answer checking when the flag is set
+   */
+  useEffect(() => {
+    if (shouldCheckAnswers) {
+      getAnswerResults();
+      setShouldCheckAnswers(false);
+    }
+  }, [shouldCheckAnswers]);
+
+  /**
+   * Poll for question updates (every 3 seconds)
+   */
+  useEffect(() => {
+    if (waitingForNextQuestion) {
+      const intervalId = setInterval(() => {
+        fetchQuestionData();
+      }, 3000);
+      
+      return () => clearInterval(intervalId);
+    }
+  }, [fetchQuestionData, waitingForNextQuestion]);
+
+  /**
+   * Poll for question updates to check for a new question
+   */
+  useEffect(() => {
+    // Set up polling for new questions - checks every 2 seconds
+    const pollInterval = setInterval(() => {
+      // Only poll if we haven't polled recently (minimum 1.5 seconds between polls)
+      if (Date.now() - lastPollTime > 1500) {
+        fetchQuestionData();
+      }
+    }, 2000);
+
+    // Clean up interval on unmount
+    return () => clearInterval(pollInterval);
+  }, [fetchQuestionData, lastPollTime]);

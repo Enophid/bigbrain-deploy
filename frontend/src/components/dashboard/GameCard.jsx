@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types';
 import {
-  Grid,
   Card,
   CardMedia,
   CardContent,
@@ -14,6 +13,7 @@ import {
   Fade,
   useMediaQuery,
 } from '@mui/material';
+import { Grid } from '@mui/material';
 import {
   Edit as EditIcon,
   PlayArrow as PlayArrowIcon,
@@ -21,6 +21,7 @@ import {
   QuestionAnswer as QuestionIcon,
   AccessTime as TimeIcon,
   Sensors as LiveIcon,
+  History as HistoryIcon,
 } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 
@@ -175,6 +176,9 @@ const GameCardInfo = ({ game, isActive }) => {
   const gameDate =
     new Date(game.createAt || '').toLocaleDateString() || 'No date';
 
+  // Check if game has past sessions
+  const hasPastSessions = game.oldSessions && game.oldSessions.length > 0;
+
   return (
     <CardContent sx={{ flexGrow: 1, pt: 2 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -225,6 +229,15 @@ const GameCardInfo = ({ game, isActive }) => {
           />
         )}
         <Chip label={gameDate} size="small" variant="outlined" />
+        {hasPastSessions && (
+          <Chip 
+            label={`${game.oldSessions.length} Past Session${game.oldSessions.length > 1 ? 's' : ''}`} 
+            size="small"
+            color="info"
+            variant="outlined"
+            icon={<HistoryIcon fontSize="small" />}
+          />
+        )}
       </Box>
 
       {isActive && (
@@ -250,12 +263,14 @@ const GameCardInfo = ({ game, isActive }) => {
   );
 };
 
-const GameCardFooter = ({ game, onStart }) => {
+const GameCardFooter = ({ game, onStart, onViewPastSessions }) => {
   const isActive = Boolean(game.active);
+  const hasPastSessions = game.oldSessions && game.oldSessions.length > 0;
+
   return (
     <>
       <Divider />
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ p: 2, display: 'flex', gap: 1 }}>
         <Button
           variant="contained"
           color={isActive ? 'success' : 'primary'}
@@ -275,19 +290,38 @@ const GameCardFooter = ({ game, onStart }) => {
         >
           {isActive ? 'View Active Session' : 'Start Game'}
         </Button>
+        
+        {hasPastSessions && (
+          <Button
+            variant="outlined"
+            color="info"
+            sx={{
+              borderRadius: 2,
+              py: 1,
+              textTransform: 'none',
+              fontWeight: 600,
+              minWidth: 'auto',
+              width: '48px',
+            }}
+            onClick={() => onViewPastSessions(game.id, game.name, game.oldSessions)}
+            title="View Past Sessions"
+          >
+            <HistoryIcon />
+          </Button>
+        )}
       </Box>
     </>
   );
 };
 
-const GameCard = ({ game, index, onEdit, onDelete, onStart, displayAlert }) => {
+const GameCard = ({ game, index, onEdit, onDelete, onStart, onViewPastSessions, displayAlert }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isActive = Boolean(game.active);
 
   return (
-    <Grid item xs={12} sm={6} md={6} lg={4} xl={4}>
-      <Fade in timeout={300 + index * 100}>
+    <Grid sx={{ gridColumn: { xs: 'span 1', sm: 'span 1', md: 'span 1', lg: 'span 1', xl: 'span 1' } }}>
+      <Fade in={true} timeout={300 + index * 100}>
         <Card
           sx={{
             display: 'flex',
@@ -295,19 +329,20 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart, displayAlert }) => {
             height: '100%',
             borderRadius: 3,
             overflow: 'hidden',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+            transition: 'transform 0.3s, box-shadow 0.3s',
             position: 'relative',
-            transition: 'all 0.3s ease-in-out',
-            boxShadow: theme.shadows[3],
-            minWidth: { xs: '100%', md: '350px' },
-            maxWidth: { xs: '100%', md: '500px' },
-            mx: 'auto', // Center the card
             '&:hover': {
               transform: 'translateY(-5px)',
-              boxShadow: theme.shadows[10],
+              boxShadow: '0 12px 28px rgba(0,0,0,0.2)',
             },
+            ...(isActive && {
+              border: '2px solid',
+              borderColor: 'success.main',
+            }),
           }}
+          elevation={3}
         >
-          <GameCardMedia game={game} isActive={isActive} theme={theme} />
           <GameCardActions
             game={game}
             isMobile={isMobile}
@@ -315,8 +350,13 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart, displayAlert }) => {
             onDelete={onDelete}
             displayAlert={displayAlert}
           />
+          <GameCardMedia game={game} isActive={isActive} theme={theme} />
           <GameCardInfo game={game} isActive={isActive} />
-          <GameCardFooter game={game} onStart={onStart} />
+          <GameCardFooter 
+            game={game} 
+            onStart={onStart} 
+            onViewPastSessions={onViewPastSessions}
+          />
         </Card>
       </Fade>
     </Grid>
@@ -345,6 +385,7 @@ GameCardInfo.propTypes = {
 GameCardFooter.propTypes = {
   game: PropTypes.object.isRequired,
   onStart: PropTypes.func.isRequired,
+  onViewPastSessions: PropTypes.func.isRequired,
 };
 
 GameCard.propTypes = {
@@ -353,6 +394,7 @@ GameCard.propTypes = {
   onEdit: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
   onStart: PropTypes.func.isRequired,
+  onViewPastSessions: PropTypes.func.isRequired,
   displayAlert: PropTypes.func.isRequired,
 };
 

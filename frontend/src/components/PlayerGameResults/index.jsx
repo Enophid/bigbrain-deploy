@@ -160,20 +160,20 @@ const PlayerGameResults = () => {
                 <ErrorView errorMessage={error} onPlayAgain={handlePlayAgain} />
               ) : (
                 <>
-                  <PlayerStats 
-                    totalScore={totalScore} 
-                    avgTime={avgTime} 
-                    isMobile={isMobile} 
+                  <PlayerStats
+                    totalScore={totalScore}
+                    avgTime={avgTime}
+                    isMobile={isMobile}
                   />
 
                   <Divider sx={{ mb: { xs: 3, sm: 4 } }} />
 
                   <PointsSystemExplanation />
 
-                  <Typography 
-                    variant="h6" 
-                    sx={{ 
-                      mb: { xs: 2, sm: 3 }, 
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      mb: { xs: 2, sm: 3 },
                       fontWeight: 'bold',
                       fontSize: { xs: '1.1rem', sm: '1.25rem' },
                     }}
@@ -197,7 +197,7 @@ const PlayerGameResults = () => {
                     </Box>
                   )}
 
-                  <ActionButtons 
+                  <ActionButtons
                     onReturnToGame={handleReturnToGame}
                     onPlayAgain={handlePlayAgain}
                     isMobile={isMobile}
@@ -212,4 +212,4 @@ const PlayerGameResults = () => {
   );
 };
 
-export default PlayerGameResults; 
+export default PlayerGameResults;

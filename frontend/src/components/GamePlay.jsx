@@ -420,7 +420,19 @@ function GamePlay() {
           let responseTime = null;
           if (currentQuestion.isoTimeLastQuestionStarted) {
             const startTime = new Date(currentQuestion.isoTimeLastQuestionStarted).getTime();
-            const endTime = new Date().getTime(); // Use current time as end time
+            
+            // Instead of using current time, use the time when the answer was submitted
+            // Only use current time as fallback
+            let endTime;
+            if (answerSubmitted) {
+              // Get actual submission time from when the answer was submitted
+              // This is more accurate than using the current time
+              endTime = new Date(lastSubmittedAnswer.timestamp || Date.now()).getTime();
+            } else {
+              // If no answer was submitted, use current time
+              endTime = new Date().getTime();
+            }
+            
             responseTime = (endTime - startTime) / 1000;
             
             // Store for future reference
@@ -548,7 +560,8 @@ function GamePlay() {
       return false;
     }
     
-    if (JSON.stringify(answerArray) === JSON.stringify(lastSubmittedAnswer)) {
+    if (lastSubmittedAnswer && lastSubmittedAnswer.answers && 
+        JSON.stringify(answerArray) === JSON.stringify(lastSubmittedAnswer.answers)) {
       console.log('Not submitting - same as previous submission');
       return false;
     }
@@ -558,7 +571,7 @@ function GamePlay() {
       
       // Update UI state immediately
       setSelectedAnswers(answerArray);
-      setLastSubmittedAnswer(answerArray);
+      setLastSubmittedAnswer({ answers: answerArray, timestamp: new Date().toISOString() });
       setAnswerSubmitted(true);
       
       // Use ApiCall instead of fetch directly

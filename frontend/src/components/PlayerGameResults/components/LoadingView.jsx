@@ -18,4 +18,4 @@ const LoadingView = () => (
   </Box>
 );
 
-export default LoadingView; 
+export default LoadingView;

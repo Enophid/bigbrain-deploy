@@ -31,6 +31,7 @@ function App() {
             element={<QuestionEditor />}
           />
           <Route path='/session/:sessionId' element={<GameResults />} />
+          <Route path='/results/:sessionId' element={<GameResults />} />
           {/* Add other authenticated routes here */}
 
           {/* Redirect to login for any other paths */}

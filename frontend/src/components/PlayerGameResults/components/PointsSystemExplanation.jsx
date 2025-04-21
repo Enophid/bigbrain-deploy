@@ -29,17 +29,13 @@ const PointsSystemExplanation = () => (
       Your points are calculated using a speed-based multiplier:
     </Typography>
     <Typography variant="body2" component="div" sx={{ mb: 1 }}>
-      <strong>
-        Final Points = Base Question Points × Speed Multiplier
-      </strong>
+      <strong>Final Points = Base Question Points × Speed Multiplier</strong>
     </Typography>
     <Typography variant="body2" sx={{ mb: 0.5 }}>
-      • Faster answers earn higher multipliers (up to 2x for
-      instant answers)
+      • Faster answers earn higher multipliers (up to 2x for instant answers)
     </Typography>
     <Typography variant="body2" sx={{ mb: 0.5 }}>
-      • Even the slowest answers receive at least 0.5x
-      multiplier
+      • Even the slowest answers receive at least 0.5x multiplier
     </Typography>
     <Typography variant="body2">
       • The multiplier decreases linearly as more time is used
@@ -47,4 +43,4 @@ const PointsSystemExplanation = () => (
   </Paper>
 );
 
-export default PointsSystemExplanation; 
+export default PointsSystemExplanation;

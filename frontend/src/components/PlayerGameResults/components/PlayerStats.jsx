@@ -1,7 +1,7 @@
 import { Box, Typography, Grid, Card } from '@mui/material';
-import { 
+import {
   Timer as TimerIcon,
-  EmojiEvents as TrophyIcon
+  EmojiEvents as TrophyIcon,
 } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 
@@ -12,9 +12,9 @@ const PlayerStats = ({ totalScore, avgTime, isMobile }) => (
   <Box sx={{ textAlign: 'center', mb: { xs: 3, sm: 4 } }}>
     <Typography
       variant="h4"
-      sx={{ 
-        fontWeight: 'bold', 
-        color: '#1a237e', 
+      sx={{
+        fontWeight: 'bold',
+        color: '#1a237e',
         mb: 1.5,
         fontSize: {
           xs: '1.75rem',
@@ -27,8 +27,8 @@ const PlayerStats = ({ totalScore, avgTime, isMobile }) => (
     </Typography>
     <Typography
       variant="h6"
-      sx={{ 
-        color: 'text.secondary', 
+      sx={{
+        color: 'text.secondary',
         mb: { xs: 2, sm: 3 },
         fontSize: { xs: '1rem', sm: '1.25rem' },
       }}
@@ -36,9 +36,9 @@ const PlayerStats = ({ totalScore, avgTime, isMobile }) => (
       Here&apos;s how you&apos;re performing
     </Typography>
 
-    <Grid 
-      container 
-      spacing={2} 
+    <Grid
+      container
+      spacing={2}
       justifyContent="center"
       sx={{ mb: { xs: 3, sm: 4 } }}
     >
@@ -63,13 +63,11 @@ const PlayerStats = ({ totalScore, avgTime, isMobile }) => (
               mb: 1,
             }}
           >
-            <TrophyIcon
-              fontSize={isMobile ? 'medium' : 'large'}
-            />
+            <TrophyIcon fontSize={isMobile ? 'medium' : 'large'} />
           </Box>
-          <Typography 
-            variant="h5" 
-            sx={{ 
+          <Typography
+            variant="h5"
+            sx={{
               fontWeight: 'bold',
               fontSize: { xs: '1.5rem', sm: '1.8rem' },
             }}
@@ -101,22 +99,18 @@ const PlayerStats = ({ totalScore, avgTime, isMobile }) => (
               mb: 1,
             }}
           >
-            <TimerIcon
-              fontSize={isMobile ? 'medium' : 'large'}
-            />
+            <TimerIcon fontSize={isMobile ? 'medium' : 'large'} />
           </Box>
-          <Typography 
-            variant="h5" 
-            sx={{ 
+          <Typography
+            variant="h5"
+            sx={{
               fontWeight: 'bold',
               fontSize: { xs: '1.5rem', sm: '1.8rem' },
             }}
           >
             {avgTime}s
           </Typography>
-          <Typography variant="body2">
-            Avg Response Time
-          </Typography>
+          <Typography variant="body2">Avg Response Time</Typography>
         </Card>
       </Grid>
     </Grid>
@@ -129,4 +123,4 @@ PlayerStats.propTypes = {
   isMobile: PropTypes.bool.isRequired,
 };
 
-export default PlayerStats; 
+export default PlayerStats;

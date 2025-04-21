@@ -1,8 +1,8 @@
 import { Box, Card, Typography, Chip, Grid } from '@mui/material';
-import { 
+import {
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
-  Timer as TimerIcon
+  Timer as TimerIcon,
 } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 
@@ -11,9 +11,9 @@ import PropTypes from 'prop-types';
  */
 const MobileResultRow = ({ answer, index }) => {
   const isCorrect = answer.points > 0;
-  
+
   return (
-    <Card 
+    <Card
       sx={{
         p: 2,
         mb: 2,
@@ -49,11 +49,11 @@ const MobileResultRow = ({ answer, index }) => {
           />
         )}
       </Box>
-      
+
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
         {answer.question}
       </Typography>
-      
+
       <Grid container spacing={2}>
         <Grid item xs={6}>
           <Typography variant="caption" color="text.secondary">
@@ -109,4 +109,4 @@ MobileResultRow.propTypes = {
   index: PropTypes.number.isRequired,
 };
 
-export default MobileResultRow; 
+export default MobileResultRow;

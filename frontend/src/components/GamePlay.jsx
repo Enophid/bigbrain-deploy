@@ -340,9 +340,8 @@ function GamePlay() {
               currentQuestion.finalPoints = 0;
             }
             
-            // Store question result in localStorage
-            const storedResults = JSON.parse(localStorage.getItem(`bigbrain_player_${playerId}_results`) || '[]');
-            storedResults.push({
+            // Log question result for debugging
+            console.log('Question result:', {
               question: currentQuestion.text,
               position: currentQuestion.position,
               points: finalPoints,
@@ -351,16 +350,9 @@ function GamePlay() {
               questionPoints: parseInt(currentQuestion.points || 10, 10),
               speedMultiplier: isCorrect ? currentQuestion.speedMultiplier : 0
             });
-            localStorage.setItem(`bigbrain_player_${playerId}_results`, JSON.stringify(storedResults));
             
-            // Also update total scores in localStorage
-            const currentTotal = JSON.parse(localStorage.getItem(`bigbrain_player_${playerId}_totals`) || '{"totalScore": 0, "totalTime": 0, "answeredCount": 0}');
-            currentTotal.totalScore += finalPoints;
-            if (responseTime) {
-              currentTotal.totalTime += responseTime;
-              currentTotal.answeredCount += 1;
-            }
-            localStorage.setItem(`bigbrain_player_${playerId}_totals`, JSON.stringify(currentTotal));
+            // Results are stored on the server and will be fetched via API
+            // in the PlayerGameResults component. No need to store them in localStorage.
             
           } catch (err) {
             console.error('Error calculating points:', err);

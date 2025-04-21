@@ -94,6 +94,7 @@ const GameUploadModal = ({ open, onClose, onUpload }) => {
     reader.readAsText(selectedFile);
     setFile(selectedFile);
   };
+
   // Handle form submission
   const handleSubmit = () => {
     if (!fileContent) {
@@ -105,6 +106,7 @@ const GameUploadModal = ({ open, onClose, onUpload }) => {
     onUpload(fileContent);
     handleClose();
   };
+
   return (
     <Dialog 
       open={open} 
@@ -198,3 +200,11 @@ const GameUploadModal = ({ open, onClose, onUpload }) => {
     </Dialog>
   );
 };
+
+GameUploadModal.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onUpload: PropTypes.func.isRequired,
+};
+
+export default GameUploadModal; 

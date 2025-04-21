@@ -66,12 +66,43 @@ function GameEditor() {
   // Handle import game from JSON
   const handleImportGame = async (gameData) => {
     try {
+      // Process and normalize the questions from the imported JSON
+      const normalizedQuestions = gameData.questions
+        ? gameData.questions.map((question, index) => ({
+          // Ensure ID is unique
+          id: Date.now() + index,
+          // Map the question fields with proper defaults
+          text: question.text || '',
+          type: question.type || 'single',
+          // Handle different naming conventions in JSON
+          timeLimit: question.timeLimit || question.duration || 30,
+          points: question.points || 10,
+          // Map answers to the proper structure
+          answers: Array.isArray(question.answers)
+            ? question.answers.map((answer, idx) => ({
+              id: Date.now() + index + idx,
+              text: answer.text || '',
+              isCorrect: answer.isCorrect === true,
+            }))
+            : [],
+          // Add correctAnswers for internal tracking
+          correctAnswers: Array.isArray(question.answers)
+            ? question.answers
+              .filter((ans) => ans.isCorrect === true)
+              .map((ans) => ans.text)
+            : [],
+          // Handle additional media fields if present
+          imageUrl: question.imageUrl || '',
+          videoUrl: question.videoUrl || '',
+        }))
+        : [];
+
       // We'll update the current game with the imported game data
       const updatedGame = {
         ...game,
         name: gameData.name,
         thumbnail: gameData.thumbnail || game.thumbnail,
-        questions: gameData.questions || [],
+        questions: normalizedQuestions,
       };
 
       const success = await updateGame(updatedGame);

@@ -68,9 +68,11 @@ const TopThreeWinners = ({ players }) => (
 TopThreeWinners.propTypes = {
   players: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      name: PropTypes.string,
-      score: PropTypes.number,
+      name: PropTypes.string.isRequired,
+      score: PropTypes.number.isRequired,
+      totalQuestions: PropTypes.number.isRequired,
+      scorePercentage: PropTypes.number.isRequired,
+      avgResponseTime: PropTypes.number,
     })
   ).isRequired,
 };

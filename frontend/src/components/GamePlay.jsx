@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -18,20 +18,12 @@ import {
   Fade,
   Avatar,
   Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Divider,
+
 } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
   QuestionAnswer as QuestionIcon,
-  EmojiEvents as TrophyIcon,
-  Timer as TimerIcon,
 } from '@mui/icons-material';
 import ApiCall from './apiCall';
 import bigBrainTheme from '../theme/bigBrainTheme';
@@ -42,6 +34,7 @@ import GlobalStyles from '../theme/globalStyles';
  */
 function GamePlay() {
   const { playerId } = useParams();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentQuestion, setCurrentQuestion] = useState(null);
@@ -58,8 +51,6 @@ function GamePlay() {
   const [lastPollTime, setLastPollTime] = useState(Date.now());
   const [gameEnded, setGameEnded] = useState(false);
   const [playerResults, setPlayerResults] = useState(null);
-  const [playerTotalScore, setPlayerTotalScore] = useState(0);
-  const [playerAvgTime, setPlayerAvgTime] = useState(0);
 
   /**
    * Calculate remaining time based on server's start time and time limit
@@ -164,49 +155,6 @@ function GamePlay() {
             console.log('Successfully retrieved final results:', resultsData);
             setPlayerResults(resultsData);
             
-            // Calculate total score and average time
-            let totalScore = 0;
-            let totalTime = 0;
-            let answeredCount = 0;
-            
-            resultsData.forEach(answer => {
-              if (answer.correct) {
-                const basePoints = answer.questionPoints || 10;
-                
-                // Calculate response time if available
-                let responseTime = null;
-                let speedPoints = basePoints; // Default to base points
-                
-                if (answer.answeredAt && answer.questionStartedAt) {
-                  const startTime = new Date(answer.questionStartedAt).getTime();
-                  const endTime = new Date(answer.answeredAt).getTime();
-                  responseTime = (endTime - startTime) / 1000;
-                  
-                  // Calculate speed-based points
-                  const pointsData = calculateSpeedPoints(
-                    responseTime,
-                    answer.questionDuration || 30,
-                    basePoints
-                  );
-                  
-                  speedPoints = pointsData.finalPoints;
-                  // Store calculated points in the answer object
-                  answer.speedMultiplier = pointsData.speedMultiplier;
-                  answer.calculatedPoints = speedPoints;
-                }
-                
-                totalScore += speedPoints;
-                
-                if (responseTime !== null) {
-                  totalTime += responseTime;
-                  answeredCount++;
-                }
-              }
-            });
-            
-            setPlayerTotalScore(totalScore);
-            setPlayerAvgTime(answeredCount > 0 ? Math.round((totalTime / answeredCount) * 10) / 10 : 0);
-            
             // Set game as ended and clear waiting state
             setGameEnded(true);
             setWaitingForNextQuestion(false);
@@ -284,55 +232,26 @@ function GamePlay() {
       }
       
       try {
-        // Try to fetch player results
+        // Check localStorage first before fetching from server
+        const storedResults = JSON.parse(localStorage.getItem(`bigbrain_player_${playerId}_results`) || '[]');
+        
+        if (storedResults.length > 0) {
+          console.log('Retrieved player results from localStorage:', storedResults);
+          setPlayerResults(storedResults);
+          
+          // Set game as ended
+          setGameEnded(true);
+          setWaitingForNextQuestion(false);
+          setError(''); // Clear any previous errors
+          return;
+        }
+        
+        // If nothing in localStorage, try to fetch from server
         const data = await ApiCall(`/play/${playerId}/results`, {}, 'GET');
         if (data) {
-          console.log('Game has ended! Retrieved player results:', data);
+          console.log('Game has ended! Retrieved player results from server:', data);
           // Process the results data
           setPlayerResults(data);
-          
-          // Calculate total score and average time
-          let totalScore = 0;
-          let totalTime = 0;
-          let answeredCount = 0;
-          
-          data.forEach(answer => {
-            if (answer.correct) {
-              const basePoints = answer.questionPoints || 10;
-              
-              // Calculate response time if available
-              let responseTime = null;
-              let speedPoints = basePoints; // Default to base points
-              
-              if (answer.answeredAt && answer.questionStartedAt) {
-                const startTime = new Date(answer.questionStartedAt).getTime();
-                const endTime = new Date(answer.answeredAt).getTime();
-                responseTime = (endTime - startTime) / 1000;
-                
-                // Calculate speed-based points
-                const pointsData = calculateSpeedPoints(
-                  responseTime,
-                  answer.questionDuration || 30,
-                  basePoints
-                );
-                
-                speedPoints = pointsData.finalPoints;
-                // Store calculated points in the answer object
-                answer.speedMultiplier = pointsData.speedMultiplier;
-                answer.calculatedPoints = speedPoints;
-              }
-              
-              totalScore += speedPoints;
-              
-              if (responseTime !== null) {
-                totalTime += responseTime;
-                answeredCount++;
-              }
-            }
-          });
-          
-          setPlayerTotalScore(totalScore);
-          setPlayerAvgTime(answeredCount > 0 ? Math.round((totalTime / answeredCount) * 10) / 10 : 0);
           
           // Set game as ended
           setGameEnded(true);
@@ -405,55 +324,112 @@ function GamePlay() {
             setTimeout(() => getAnswerResults(), 2000);
             return;
           }
+          setAnswerError(data.error);
           throw new Error(data.error);
         }
 
         console.log('Successfully retrieved answers:', data.answers);
+        
+        // Add null check for data.answers
+        if (!data.answers || !Array.isArray(data.answers)) {
+          console.error('No valid answers data received from server');
+          // Use empty array as fallback
+          setCorrectAnswers([]);
+          setShowResults(true);
+          setWaitingForNextQuestion(true);
+          return;
+        }
+        
         setCorrectAnswers(data.answers || []);
         
         // Calculate speed-based points for this question
         if (currentQuestion) {
-          // Get if the player got the answer correct
-          const isCorrect = data.answers.some(answer => selectedAnswers.includes(answer));
-          
-          // Calculate response time (if available)
-          let responseTime = null;
-          if (currentQuestion.isoTimeLastQuestionStarted) {
-            const startTime = new Date(currentQuestion.isoTimeLastQuestionStarted).getTime();
+          try {
+            // Get if the player got the answer correct - safely check with try/catch
+            const isCorrect = data.answers.some(answer => selectedAnswers.includes(answer));
             
-            // Instead of using current time, use the time when the answer was submitted
-            // Only use current time as fallback
-            let endTime;
-            if (answerSubmitted) {
-              // Get actual submission time from when the answer was submitted
-              // This is more accurate than using the current time
-              endTime = new Date(lastSubmittedAnswer.timestamp || Date.now()).getTime();
-            } else {
-              // If no answer was submitted, use current time
-              endTime = new Date().getTime();
+            // Calculate response time (if available)
+            let responseTime = null;
+            if (currentQuestion.isoTimeLastQuestionStarted) {
+              const startTime = new Date(currentQuestion.isoTimeLastQuestionStarted).getTime();
+              
+              // Instead of using current time, use the time when the answer was submitted
+              // Only use current time as fallback
+              let endTime;
+              if (answerSubmitted && lastSubmittedAnswer && lastSubmittedAnswer.timestamp) {
+                // Get actual submission time from when the answer was submitted
+                // This is more accurate than using the current time
+                endTime = new Date(lastSubmittedAnswer.timestamp || Date.now()).getTime();
+              } else {
+                // If no answer was submitted, use current time
+                endTime = new Date().getTime();
+              }
+              
+              responseTime = (endTime - startTime) / 1000;
+              
+              // Store for future reference
+              currentQuestion.responseTime = responseTime;
             }
             
-            responseTime = (endTime - startTime) / 1000;
+            // Calculate points if the answer is correct
+            let finalPoints = 0;
+            if (isCorrect && responseTime) {
+              // Ensure we have numeric values for calculations
+              const basePoints = parseInt(currentQuestion.points || 10, 10);
+              const questionDuration = parseInt(currentQuestion.duration || 30, 10);
+              
+              const pointsData = calculateSpeedPoints(
+                responseTime,
+                questionDuration,
+                basePoints
+              );
+              
+              // Store the points data in the current question
+              currentQuestion.basePoints = basePoints;
+              currentQuestion.speedMultiplier = pointsData.speedMultiplier;
+              currentQuestion.finalPoints = pointsData.finalPoints;
+              finalPoints = pointsData.finalPoints;
+              
+              // Log the points calculation for debugging
+              console.log('Points calculation:', {
+                basePoints,
+                responseTime,
+                questionDuration,
+                speedMultiplier: pointsData.speedMultiplier,
+                finalPoints: pointsData.finalPoints
+              });
+            } else {
+              // If answer is incorrect, set points to 0
+              currentQuestion.finalPoints = 0;
+            }
             
-            // Store for future reference
-            currentQuestion.responseTime = responseTime;
-          }
-          
-          // Calculate points if the answer is correct
-          if (isCorrect && responseTime) {
-            const basePoints = currentQuestion.points || 10;
-            const questionDuration = currentQuestion.duration || 30;
+            // Store question result in localStorage
+            const storedResults = JSON.parse(localStorage.getItem(`bigbrain_player_${playerId}_results`) || '[]');
+            storedResults.push({
+              question: currentQuestion.text,
+              position: currentQuestion.position,
+              points: finalPoints,
+              responseTime: responseTime ? Math.round(responseTime * 10) / 10 : null,
+              correct: isCorrect,
+              questionPoints: parseInt(currentQuestion.points || 10, 10),
+              speedMultiplier: isCorrect ? currentQuestion.speedMultiplier : 0
+            });
+            localStorage.setItem(`bigbrain_player_${playerId}_results`, JSON.stringify(storedResults));
             
-            const pointsData = calculateSpeedPoints(
-              responseTime,
-              questionDuration,
-              basePoints
-            );
+            // Also update total scores in localStorage
+            const currentTotal = JSON.parse(localStorage.getItem(`bigbrain_player_${playerId}_totals`) || '{"totalScore": 0, "totalTime": 0, "answeredCount": 0}');
+            currentTotal.totalScore += finalPoints;
+            if (responseTime) {
+              currentTotal.totalTime += responseTime;
+              currentTotal.answeredCount += 1;
+            }
+            localStorage.setItem(`bigbrain_player_${playerId}_totals`, JSON.stringify(currentTotal));
             
-            // Store the points data in the current question
-            currentQuestion.basePoints = basePoints;
-            currentQuestion.speedMultiplier = pointsData.speedMultiplier;
-            currentQuestion.finalPoints = pointsData.finalPoints;
+          } catch (err) {
+            console.error('Error calculating points:', err);
+            // Set default values in case of error
+            currentQuestion.basePoints = parseInt(currentQuestion.points || 10, 10);
+            currentQuestion.finalPoints = 0;
           }
         }
         
@@ -472,49 +448,6 @@ function GamePlay() {
                     console.log('Detected game end after question results:', resultsData);
                     // Process the results data
                     setPlayerResults(resultsData);
-                    
-                    // Calculate total score and average time
-                    let totalScore = 0;
-                    let totalTime = 0;
-                    let answeredCount = 0;
-                    
-                    resultsData.forEach(answer => {
-                      if (answer.correct) {
-                        const basePoints = answer.questionPoints || 10;
-                        
-                        // Calculate response time if available
-                        let responseTime = null;
-                        let speedPoints = basePoints; // Default to base points
-                        
-                        if (answer.answeredAt && answer.questionStartedAt) {
-                          const startTime = new Date(answer.questionStartedAt).getTime();
-                          const endTime = new Date(answer.answeredAt).getTime();
-                          responseTime = (endTime - startTime) / 1000;
-                          
-                          // Calculate speed-based points
-                          const pointsData = calculateSpeedPoints(
-                            responseTime,
-                            answer.questionDuration || 30,
-                            basePoints
-                          );
-                          
-                          speedPoints = pointsData.finalPoints;
-                          // Store calculated points in the answer object
-                          answer.speedMultiplier = pointsData.speedMultiplier;
-                          answer.calculatedPoints = speedPoints;
-                        }
-                        
-                        totalScore += speedPoints;
-                        
-                        if (responseTime !== null) {
-                          totalTime += responseTime;
-                          answeredCount++;
-                        }
-                      }
-                    });
-                    
-                    setPlayerTotalScore(totalScore);
-                    setPlayerAvgTime(answeredCount > 0 ? Math.round((totalTime / answeredCount) * 10) / 10 : 0);
                     
                     // Set game as ended
                     setGameEnded(true);
@@ -765,6 +698,11 @@ function GamePlay() {
     };
   };
 
+  // Function to view results without ending the game
+  const handleViewResults = () => {
+    navigate(`/player-results/${playerId}`);
+  };
+
   /**
    * Render loading state
    */
@@ -883,9 +821,19 @@ function GamePlay() {
                       color: '#00B4D8',
                       '& .MuiCircularProgress-circle': {
                         strokeLinecap: 'round',
-                      }
+                      },
+                      mb: 3
                     }} 
                   />
+                  
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={handleViewResults}
+                    sx={{ mt: 2 }}
+                  >
+                    View Current Results
+                  </Button>
                 </CardContent>
               </Card>
             </Zoom>
@@ -907,235 +855,32 @@ function GamePlay() {
           sx={{
             minHeight: '100vh',
             display: 'flex',
-            flexDirection: 'column',
-            backgroundImage: 'linear-gradient(135deg, #2D3047 0%, #00B4D8 50%, #06D6A0 100%)',
-            backgroundSize: '400% 400%',
-            animation: 'gradient 15s ease infinite',
-            '@keyframes gradient': {
-              '0%': { backgroundPosition: '0% 50%' },
-              '50%': { backgroundPosition: '100% 50%' },
-              '100%': { backgroundPosition: '0% 50%' },
-            },
-            pt: { xs: 3, sm: 5 },
-            pb: 5,
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'linear-gradient(135deg, #1a237e 0%, #0d47a1 100%)',
           }}
         >
-          <Container maxWidth="md">
-            <Fade in={true} timeout={600}>
-              <Paper
-                elevation={10}
-                sx={{
-                  width: '100%',
-                  margin: 'auto',
-                  p: { xs: 3, sm: 4 },
-                  borderRadius: 4,
-                  boxShadow: '0 16px 48px rgba(0,0,0,0.2)',
-                  background: 'rgba(255, 255, 255, 0.95)',
-                  backdropFilter: 'blur(10px)',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}
-              >
-                <Box sx={{ textAlign: 'center', mb: 4 }}>
-                  <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1a237e', mb: 2 }}>
-                    Game Complete!
-                  </Typography>
-                  <Typography variant="h6" sx={{ color: 'text.secondary', mb: 3 }}>
-                    Here&apos;s how you performed
-                  </Typography>
-                  
-                  <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, mb: 4 }}>
-                    <Card sx={{ 
-                      minWidth: 140, 
-                      p: 2, 
-                      bgcolor: 'primary.main', 
-                      color: 'white',
-                      borderRadius: 3
-                    }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
-                        <TrophyIcon fontSize="large" />
-                      </Box>
-                      <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                        {playerTotalScore}
-                      </Typography>
-                      <Typography variant="body2">
-                        Total Points
-                      </Typography>
-                    </Card>
-                    
-                    <Card sx={{ 
-                      minWidth: 140, 
-                      p: 2, 
-                      bgcolor: 'secondary.main', 
-                      color: 'white',
-                      borderRadius: 3
-                    }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
-                        <TimerIcon fontSize="large" />
-                      </Box>
-                      <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                        {playerAvgTime}s
-                      </Typography>
-                      <Typography variant="body2">
-                        Avg Response Time
-                      </Typography>
-                    </Card>
-                  </Box>
-                </Box>
-
-                <Divider sx={{ mb: 4 }} />
-                
-                {/* Points System Explanation */}
-                <Paper 
-                  elevation={0} 
-                  sx={{ 
-                    p: 3, 
-                    mb: 4, 
-                    bgcolor: 'rgba(25, 118, 210, 0.08)',
-                    borderRadius: 2,
-                    border: '1px solid rgba(25, 118, 210, 0.2)'
-                  }}
-                >
-                  <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1.5, color: 'primary.main' }}>
-                    Advanced Points System
-                  </Typography>
-                  <Typography variant="body2" sx={{ mb: 1.5 }}>
-                    Your points are calculated using a speed-based multiplier:
-                  </Typography>
-                  <Typography variant="body2" component="div" sx={{ mb: 1 }}>
-                    <strong>Final Points = Base Question Points × Speed Multiplier</strong>
-                  </Typography>
-                  <Typography variant="body2" sx={{ mb: 0.5 }}>
-                    • Faster answers earn higher multipliers (up to 2x for instant answers)
-                  </Typography>
-                  <Typography variant="body2" sx={{ mb: 0.5 }}>
-                    • Even the slowest answers receive at least 0.5x multiplier
-                  </Typography>
-                  <Typography variant="body2">
-                    • The multiplier decreases linearly as more time is used
-                  </Typography>
-                </Paper>
-                
-                <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold' }}>
-                  Question Performance
-                </Typography>
-                
-                <TableContainer component={Paper} elevation={0} sx={{ mb: 3 }}>
-                  <Table>
-                    <TableHead>
-                      <TableRow sx={{ bgcolor: 'rgba(0,0,0,0.04)' }}>
-                        <TableCell sx={{ fontWeight: 'bold' }}>Question</TableCell>
-                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>Result</TableCell>
-                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>Points</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 'bold' }}>Response Time</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {playerResults.map((answer, index) => {
-                        // Calculate response time
-                        let responseTime = null;
-                        if (answer.answeredAt && answer.questionStartedAt) {
-                          const startTime = new Date(answer.questionStartedAt).getTime();
-                          const endTime = new Date(answer.answeredAt).getTime();
-                          responseTime = Math.round(((endTime - startTime) / 1000) * 10) / 10;
-                        }
-                        
-                        return (
-                          <TableRow key={index} sx={{ 
-                            '&:nth-of-type(odd)': { bgcolor: 'rgba(0,0,0,0.02)' },
-                            transition: 'background-color 0.2s',
-                            '&:hover': { bgcolor: 'rgba(0,0,0,0.05)' }
-                          }}>
-                            <TableCell>
-                              <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-                                Question {index + 1}
-                              </Typography>
-                              <Typography variant="body2" color="text.secondary" noWrap sx={{ maxWidth: 200 }}>
-                                {answer.question}
-                              </Typography>
-                            </TableCell>
-                            <TableCell align="center">
-                              {answer.correct ? (
-                                <Chip 
-                                  icon={<CheckCircleIcon />} 
-                                  label="Correct" 
-                                  color="success" 
-                                  size="small"
-                                  sx={{ fontWeight: 'medium' }}
-                                />
-                              ) : (
-                                <Chip 
-                                  icon={<CancelIcon />} 
-                                  label="Incorrect" 
-                                  color="error" 
-                                  size="small"
-                                  sx={{ fontWeight: 'medium' }}
-                                />
-                              )}
-                            </TableCell>
-                            <TableCell align="center">
-                              {answer.correct ? (
-                                <Box>
-                                  <Typography variant="body1" fontWeight="medium" color="success.main">
-                                    {answer.calculatedPoints || (answer.questionPoints || 10)}
-                                  </Typography>
-                                  {answer.speedMultiplier && (
-                                    <Typography variant="caption" color="text.secondary">
-                                      {answer.questionPoints || 10} × {answer.speedMultiplier} speed
-                                    </Typography>
-                                  )}
-                                </Box>
-                              ) : (
-                                <Typography variant="body1" fontWeight="medium" color="text.secondary">
-                                  0
-                                </Typography>
-                              )}
-                            </TableCell>
-                            <TableCell align="right">
-                              {responseTime ? (
-                                <Chip
-                                  icon={<TimerIcon fontSize="small" />}
-                                  label={`${responseTime}s`}
-                                  size="small"
-                                  color="secondary"
-                                  variant="outlined"
-                                  sx={{ fontWeight: 'medium' }}
-                                />
-                              ) : (
-                                <Typography variant="body2" color="text.secondary">
-                                  N/A
-                                </Typography>
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-                
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-                  <Button 
-                    variant="contained" 
-                    color="primary"
-                    size="large"
-                    startIcon={<QuestionIcon />}
-                    onClick={() => window.location.href = '/'}
-                    sx={{ 
-                      borderRadius: 2,
-                      px: 4,
-                      py: 1.5,
-                      textTransform: 'none',
-                      fontWeight: 'bold',
-                      fontSize: '1.1rem'
-                    }}
-                  >
-                    Play Another Game
-                  </Button>
-                </Box>
-              </Paper>
-            </Fade>
-          </Container>
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="h4" sx={{ color: 'white', mb: 3, fontWeight: 'bold' }}>
+              Game Complete!
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              onClick={handleViewResults}
+              sx={{ 
+                borderRadius: 2,
+                px: 4,
+                py: 1.5,
+                textTransform: 'none',
+                fontWeight: 'bold',
+                mb: 2
+              }}
+            >
+              View Results
+            </Button>
+          </Box>
         </Box>
       </ThemeProvider>
     );

@@ -14,7 +14,6 @@ import {
   Timer as TimerIcon,
   EmojiEvents as TrophyIcon,
 } from '@mui/icons-material';
-import bigBrainTheme from '../../../theme/bigBrainTheme';
 
 // Other players table component
 const OtherPlayers = ({ players }) => (

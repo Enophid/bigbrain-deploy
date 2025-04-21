@@ -20,10 +20,9 @@ import LoadingView from './components/LoadingView';
 import ErrorView from './components/ErrorView';
 import PlayerStats from './components/PlayerStats';
 import PointsSystemExplanation from './components/PointsSystemExplanation';
-import ResultsTable from './components/ResultsTable';
-import MobileResultsList from './components/MobileResultsList';
+import DetailedPerformance from './components/DetailedPerformance';
 import ActionButtons from './components/ActionButtons';
-
+import ApiCall from '../apiCall';
 /**
  * Main component to display player game results
  */
@@ -33,69 +32,180 @@ const PlayerGameResults = () => {
   const [loading, setLoading] = useState(true);
   const [results, setResults] = useState([]);
   const [totalScore, setTotalScore] = useState(0);
-  const [avgTime, setAvgTime] = useState(0);
   const [error, setError] = useState('');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
 
   // Helper function to calculate totals
   const calculateTotals = (resultsData) => {
     let totalPoints = 0;
-    let totalTime = 0;
-    let answeredCount = 0;
 
     resultsData.forEach((result) => {
+      // Add points to total
       totalPoints += result.points || 0;
-
-      if (result.responseTime) {
-        totalTime += result.responseTime;
-        answeredCount++;
-      }
     });
 
+    console.log(`Calculated total score: ${totalPoints}`);
+    
     return {
       totalScore: totalPoints,
-      avgTime:
-        answeredCount > 0
-          ? Math.round((totalTime / answeredCount) * 10) / 10
-          : 0,
     };
   };
 
-  // Load results from localStorage on mount
+  // Load results from API on mount
   useEffect(() => {
-    try {
-      if (!playerId) {
-        setError('No player ID provided');
+    const fetchPlayerResults = async () => {
+      try {
+        if (!playerId) {
+          setError('No player ID provided');
+          setLoading(false);
+          return;
+        }
+
+        // Fetch results from API
+        const response = await ApiCall(`/play/${playerId}/results`, {}, 'GET');
+        
+        if (response.error) {
+          throw new Error(response.error || 'Failed to load game results');
+        }
+        
+        console.log('API Response:', response); // Log the full response for debugging
+        
+        // The API response structure might be different - adapt based on actual response
+        let resultsData = [];
+        
+        // Check if we have a valid response structure
+        if (response) {
+          // If response is an array directly
+          if (Array.isArray(response)) {
+            resultsData = response;
+          } 
+          // If response has a results property that's an array
+          else if (response.results && Array.isArray(response.results)) {
+            resultsData = response.results;
+          }
+          // If response has questions property that's an array
+          else if (response.questions && Array.isArray(response.questions)) {
+            resultsData = response.questions;
+          }
+          // If response has a different structure
+          else {
+            console.log('Unexpected API response structure:', response);
+            // Try to extract useful data anyway if possible
+            resultsData = Object.values(response).filter(item => 
+              item && typeof item === 'object' && (
+                Object.prototype.hasOwnProperty.call(item, 'question') || 
+                Object.prototype.hasOwnProperty.call(item, 'points') || 
+                Object.prototype.hasOwnProperty.call(item, 'correct')
+              )
+            );
+          }
+        }
+        
+        if (resultsData.length > 0) {
+          console.log('Processed results data:', resultsData);
+          
+          // Debug: Log raw data structure for response times
+          console.log('Response time fields in API data:', resultsData.map(item => ({
+            responseTime: item.responseTime,
+            timeTaken: item.timeTaken,
+            answerTime: item.answerTime,
+            timeSpent: item.timeSpent,
+            questionStartedAt: item.questionStartedAt,
+            answeredAt: item.answeredAt
+          })));
+          
+          // Ensure each result has the required fields for display
+          const formattedResults = resultsData.map((result, index) => {
+            // Process response time with proper fallbacks
+            let responseTime = null;
+            
+            // Calculate from questionStartedAt and answeredAt if available (database format)
+            if (result.questionStartedAt && result.answeredAt) {
+              const startTime = new Date(result.questionStartedAt).getTime();
+              const endTime = new Date(result.answeredAt).getTime();
+              responseTime = (endTime - startTime) / 1000; // Convert to seconds
+              console.log(`Calculated response time from timestamps: ${responseTime}s for question ${index + 1}`);
+            }
+            // Fall back to direct responseTime fields if timestamps not available
+            else if (result.responseTime !== undefined) {
+              responseTime = parseFloat(result.responseTime);
+            } else if (result.timeTaken !== undefined) {
+              responseTime = parseFloat(result.timeTaken);
+            } else if (result.answerTime !== undefined) {
+              responseTime = parseFloat(result.answerTime);
+            } else if (result.timeSpent !== undefined) {
+              responseTime = parseFloat(result.timeSpent);
+            } else if (result.time !== undefined) {
+              responseTime = parseFloat(result.time);
+            } else if (result.duration !== undefined) {
+              responseTime = parseFloat(result.duration);
+            }
+            
+            // Check special case - if response is an object with a 'time' property
+            if (responseTime === null && result.response && typeof result.response === 'object' && result.response.time !== undefined) {
+              responseTime = parseFloat(result.response.time);
+            }
+            
+            // Ensure response time is a valid number
+            if (isNaN(responseTime)) {
+              responseTime = null;
+            } else {
+              // Round to 1 decimal place for display
+              responseTime = Math.round(responseTime * 10) / 10;
+            }
+            
+            // Calculate speed multiplier and points if not provided but we have response time
+            let speedMultiplier = result.speedMultiplier;
+            let points = result.points;
+            const isCorrect = result.correct || false;
+            const basePoints = result.questionPoints || result.basePoints || 10;
+            
+            // If no speedMultiplier but we have responseTime and it's a correct answer, calculate it
+            if (!speedMultiplier && responseTime !== null && isCorrect) {
+              // Default question duration (adjust as needed)
+              const questionDuration = 30;
+              // Calculate speed ratio (how quickly they answered)
+              const speedRatio = Math.min(responseTime / questionDuration, 1);
+              // Calculate multiplier from 0.5 to 2.0
+              speedMultiplier = Math.round((2 - (1.5 * speedRatio)) * 100) / 100;
+              console.log(`Calculated speed multiplier: ${speedMultiplier}x for response time ${responseTime}s`);
+            }
+            
+            // If no points but we have speedMultiplier and it's a correct answer, calculate points
+            if (!points && speedMultiplier && isCorrect) {
+              points = Math.round(basePoints * speedMultiplier);
+              console.log(`Calculated points: ${points} (${basePoints} × ${speedMultiplier})`);
+            }
+            
+            return {
+              question: result.question || result.text || `Question ${index + 1}`,
+              position: result.position || result.questionNumber || index + 1,
+              points: points || (isCorrect ? basePoints : 0),
+              responseTime: responseTime,
+              correct: isCorrect,
+              questionPoints: basePoints,
+              speedMultiplier: speedMultiplier || (isCorrect && points ? points / basePoints : 1)
+            };
+          });
+          
+          setResults(formattedResults);
+          
+          // Calculate totals
+          const { totalScore } = calculateTotals(formattedResults);
+          setTotalScore(totalScore);
+        } else {
+          setError('No results found for this player');
+        }
+      } catch (err) {
+        console.error('Error loading player results:', err);
+        setError('Failed to load game results: ' + (err.message || 'Unknown error'));
+      } finally {
         setLoading(false);
-        return;
       }
+    };
 
-      // Attempt to load from localStorage
-      const storedResults = localStorage.getItem(
-        `bigbrain_player_${playerId}_results`
-      );
-
-      if (storedResults) {
-        const parsedResults = JSON.parse(storedResults);
-        console.log('Loaded results from localStorage:', parsedResults);
-
-        setResults(parsedResults);
-
-        // Calculate totals
-        const { totalScore, avgTime } = calculateTotals(parsedResults);
-        setTotalScore(totalScore);
-        setAvgTime(avgTime);
-      } else {
-        setError('No results found for this player');
-      }
-    } catch (err) {
-      console.error('Error loading from localStorage:', err);
-      setError('Failed to load game results');
-    } finally {
-      setLoading(false);
-    }
+    fetchPlayerResults();
   }, [playerId]);
 
   // Handle navigation back to home
@@ -125,6 +235,11 @@ const PlayerGameResults = () => {
       <Box
         sx={{
           minHeight: '100vh',
+          height: '100%',
+          width: '100%',
+          position: 'absolute',
+          top: 0,
+          left: 0,
           display: 'flex',
           flexDirection: 'column',
           backgroundImage:
@@ -138,6 +253,7 @@ const PlayerGameResults = () => {
           },
           pt: { xs: 2, sm: 3, md: 5 },
           pb: { xs: 2, sm: 3, md: 5 },
+          overflow: 'auto',
         }}
       >
         <Container maxWidth="md">
@@ -162,7 +278,7 @@ const PlayerGameResults = () => {
                 <>
                   <PlayerStats
                     totalScore={totalScore}
-                    avgTime={avgTime}
+                    results={results}
                     isMobile={isMobile}
                   />
 
@@ -170,25 +286,8 @@ const PlayerGameResults = () => {
 
                   <PointsSystemExplanation />
 
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      mb: { xs: 2, sm: 3 },
-                      fontWeight: 'bold',
-                      fontSize: { xs: '1.1rem', sm: '1.25rem' },
-                    }}
-                  >
-                    Question Performance
-                  </Typography>
-
                   {results.length > 0 ? (
-                    <>
-                      {/* Desktop/Tablet View - Table */}
-                      <ResultsTable results={results} isTablet={isTablet} />
-
-                      {/* Mobile View - Card list */}
-                      <MobileResultsList results={results} />
-                    </>
+                    <DetailedPerformance results={results} />
                   ) : (
                     <Box sx={{ textAlign: 'center', py: 4 }}>
                       <Typography variant="body1" color="text.secondary">

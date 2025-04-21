@@ -44,9 +44,9 @@ const PlayerGameResults = () => {
     let totalTime = 0;
     let answeredCount = 0;
 
-    resultsData.forEach(result => {
+    resultsData.forEach((result) => {
       totalPoints += result.points || 0;
-      
+
       if (result.responseTime) {
         totalTime += result.responseTime;
         answeredCount++;
@@ -55,7 +55,10 @@ const PlayerGameResults = () => {
 
     return {
       totalScore: totalPoints,
-      avgTime: answeredCount > 0 ? Math.round((totalTime / answeredCount) * 10) / 10 : 0
+      avgTime:
+        answeredCount > 0
+          ? Math.round((totalTime / answeredCount) * 10) / 10
+          : 0,
     };
   };
 
@@ -69,14 +72,16 @@ const PlayerGameResults = () => {
       }
 
       // Attempt to load from localStorage
-      const storedResults = localStorage.getItem(`bigbrain_player_${playerId}_results`);
-      
+      const storedResults = localStorage.getItem(
+        `bigbrain_player_${playerId}_results`
+      );
+
       if (storedResults) {
         const parsedResults = JSON.parse(storedResults);
         console.log('Loaded results from localStorage:', parsedResults);
-        
+
         setResults(parsedResults);
-        
+
         // Calculate totals
         const { totalScore, avgTime } = calculateTotals(parsedResults);
         setTotalScore(totalScore);
@@ -96,7 +101,7 @@ const PlayerGameResults = () => {
   const handlePlayAgain = () => {
     navigate('/');
   };
-  
+
   // Handle navigation back to the game
   const handleReturnToGame = () => {
     navigate(`/gameplay/${playerId}`);
@@ -113,7 +118,8 @@ const PlayerGameResults = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundImage: 'linear-gradient(135deg, #2D3047 0%, #00B4D8 50%, #06D6A0 100%)',
+            backgroundImage:
+              'linear-gradient(135deg, #2D3047 0%, #00B4D8 50%, #06D6A0 100%)',
           }}
         >
           <CircularProgress size={60} color="primary" />
@@ -125,4 +131,4 @@ const PlayerGameResults = () => {
  
 };
 
-export default PlayerGameResults; 
+export default PlayerGameResults;

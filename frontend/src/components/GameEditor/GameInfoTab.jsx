@@ -1,8 +1,27 @@
-import { Box, Typography, Card, CardContent, Button } from '@mui/material';
-import { Edit as EditIcon } from '@mui/icons-material';
+import { useState } from 'react';
+import { Box, Typography, Card, CardContent, Button, Stack } from '@mui/material';
+import { 
+  Edit as EditIcon,
+  FileUpload as FileUploadIcon 
+} from '@mui/icons-material';
 import PropTypes from 'prop-types';
+import GameUploadModal from './GameUploadModal';
 
-const GameInfoTab = ({ game, onEditMetadata }) => {
+const GameInfoTab = ({ game, onEditMetadata, onImportGame }) => {
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+
+  const handleOpenUploadModal = () => {
+    setUploadModalOpen(true);
+  };
+
+  const handleCloseUploadModal = () => {
+    setUploadModalOpen(false);
+  };
+
+  const handleUpload = (gameData) => {
+    onImportGame(gameData);
+  };
+
   return (
     <Box
       sx={{
@@ -109,25 +128,50 @@ const GameInfoTab = ({ game, onEditMetadata }) => {
             </Box>
 
             <Box sx={{ mt: 4 }}>
-              <Button
-                variant="contained"
-                color="primary"
-                startIcon={<EditIcon />}
-                onClick={onEditMetadata}
-                fullWidth
-                sx={{
-                  borderRadius: 2,
-                  py: 1,
-                  textTransform: 'none',
-                  fontWeight: 600,
-                }}
-              >
-                Edit Game Details
-              </Button>
+              <Stack spacing={2}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<EditIcon />}
+                  onClick={onEditMetadata}
+                  fullWidth
+                  sx={{
+                    borderRadius: 2,
+                    py: 1,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                  }}
+                >
+                  Edit Game Details
+                </Button>
+                
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<FileUploadIcon />}
+                  onClick={handleOpenUploadModal}
+                  fullWidth
+                  sx={{
+                    borderRadius: 2,
+                    py: 1,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                  }}
+                >
+                  Import Game from JSON
+                </Button>
+              </Stack>
             </Box>
           </CardContent>
         </Card>
       </Box>
+      
+      {/* Game Upload Modal */}
+      <GameUploadModal
+        open={uploadModalOpen}
+        onClose={handleCloseUploadModal}
+        onUpload={handleUpload}
+      />
     </Box>
   );
 };
@@ -137,4 +181,5 @@ export default GameInfoTab;
 GameInfoTab.propTypes = {
   game: PropTypes.object.isRequired,
   onEditMetadata: PropTypes.func.isRequired,
+  onImportGame: PropTypes.func.isRequired,
 };

@@ -417,12 +417,34 @@ function Dashboard() {
         throw new Error('User not authenticated. Please log in again.');
       }
 
+      // Process and normalize the game data
+      const normalizedQuestions = gameData.questions 
+        ? gameData.questions.map((question, index) => ({
+            id: Date.now() + index, // Ensure ID is unique
+            text: question.text || '',
+            type: question.type || 'single',
+            timeLimit: question.timeLimit || question.duration || 30,
+            points: question.points || 10,
+            answers: Array.isArray(question.answers)
+              ? question.answers.map((answer, idx) => ({
+                  id: Date.now() + index + idx,
+                  text: answer.text || '',
+                  isCorrect: answer.isCorrect === true,
+                }))
+              : [],
+            imageUrl: question.imageUrl || '',
+            videoUrl: question.videoUrl || '',
+          }))
+        : [];
+
       // Create a new game object
       const gameId = generateRandomID();
       const newGame = {
-        ...gameData,
         id: gameId,
+        name: gameData.name,
+        thumbnail: gameData.thumbnail || '',
         owner: userEmail,
+        questions: normalizedQuestions,
         active: null,
         oldSessions: [],
         createAt: new Date().toISOString(),

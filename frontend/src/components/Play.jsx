@@ -13,7 +13,24 @@ import {
   Alert,
   Card,
   CardContent,
+  Avatar,
+  Zoom,
+  Fade,
+  Chip,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
 } from '@mui/material';
+import {
+  Lightbulb as LightbulbIcon,
+  EmojiObjects as EmojiObjectsIcon,
+  SportsEsports as GameIcon,
+  Psychology as PsychologyIcon,
+  Forum as ForumIcon,
+  Schedule as ScheduleIcon,
+} from '@mui/icons-material';
 import ApiCall from './apiCall';
 import bigBrainTheme from '../theme/bigBrainTheme';
 import GlobalStyles from '../theme/globalStyles';
@@ -31,6 +48,66 @@ function Play() {
   const [joined, setJoined] = useState(false);
   const [playerId, setPlayerId] = useState(null);
   const [gameStarted, setGameStarted] = useState(false);
+  const [waitingTime, setWaitingTime] = useState(0);
+  const [lobbyTip, setLobbyTip] = useState(0);
+  const [playerInfo, setPlayerInfo] = useState({ name: '', avatar: '' });
+
+  // Tips to show in the lobby
+  const lobbyTips = [
+    "Answer questions quickly for a higher score!",
+    "Read each question carefully before answering.",
+    "Some questions may have multiple correct answers.",
+    "Don't stress if you get one wrong - just keep going!",
+    "You can see your score at the end of the game.",
+    "The faster you answer correctly, the more points you earn!",
+  ];
+
+  // Generate player avatar
+  useEffect(() => {
+    if (playerName) {
+      // Create initials from player name
+      const initials = playerName
+        .split(' ')
+        .map(word => word.charAt(0))
+        .join('')
+        .toUpperCase();
+      
+      // Generate a random color based on player name
+      const colors = [
+        '#1976d2', '#e91e63', '#ff9800', '#4caf50', 
+        '#9c27b0', '#f44336', '#2196f3', '#ffeb3b'
+      ];
+      const colorIndex = playerName.length % colors.length;
+      
+      setPlayerInfo({
+        name: playerName,
+        initials,
+        color: colors[colorIndex],
+      });
+    }
+  }, [playerName]);
+
+  // Rotate lobby tips every 8 seconds
+  useEffect(() => {
+    if (joined && !gameStarted) {
+      const tipInterval = setInterval(() => {
+        setLobbyTip(prev => (prev + 1) % lobbyTips.length);
+      }, 8000);
+      
+      return () => clearInterval(tipInterval);
+    }
+  }, [joined, gameStarted, lobbyTips.length]);
+
+  // Track waiting time
+  useEffect(() => {
+    if (joined && !gameStarted) {
+      const timer = setInterval(() => {
+        setWaitingTime(prev => prev + 1);
+      }, 1000);
+      
+      return () => clearInterval(timer);
+    }
+  }, [joined, gameStarted]);
 
   useEffect(() => {
     // If there's no session ID in the URL, show an error
@@ -104,6 +181,13 @@ function Play() {
     }
   };
 
+  // Format waiting time to mm:ss
+  const formatWaitingTime = () => {
+    const minutes = Math.floor(waitingTime / 60);
+    const seconds = waitingTime % 60;
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  };
+
   return (
     <ThemeProvider theme={bigBrainTheme}>
       <CssBaseline />
@@ -147,7 +231,7 @@ function Play() {
                 color: bigBrainTheme.palette.primary.main,
               }}
             >
-              Join Game Session
+              {joined ? 'Game Lobby' : 'Join Game Session'}
             </Typography>
 
             {sessionId && (
@@ -203,21 +287,7 @@ function Play() {
                 </Button>
               </Box>
             ) : (
-              <Card sx={{ mt: 3, borderRadius: 2, backgroundColor: '#f8f9fa' }}>
-                <CardContent>
-                  <Typography variant='h6' align='center' gutterBottom>
-                    You&apos;ve joined the game!
-                  </Typography>
-                  <Typography variant='body1' align='center' component='p'>
-                    Waiting for the host to start the game...
-                  </Typography>
-                  <Box
-                    sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}
-                  >
-                    <CircularProgress />
-                  </Box>
-                </CardContent>
-              </Card>
+
             )}
           </Paper>
         </Container>

@@ -569,3 +569,199 @@ function GamePlay() {
       </ThemeProvider>
     );
   }
+
+  /**
+   * Main game content
+   */
+  return (
+    <ThemeProvider theme={bigBrainTheme}>
+      <CssBaseline />
+      <GlobalStyles />
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          backgroundImage: 'linear-gradient(135deg, #2D3047 0%, #00B4D8 50%, #06D6A0 100%)',
+          backgroundSize: '400% 400%',
+          animation: 'gradient 15s ease infinite',
+          '@keyframes gradient': {
+            '0%': { backgroundPosition: '0% 50%' },
+            '50%': { backgroundPosition: '100% 50%' },
+            '100%': { backgroundPosition: '0% 50%' },
+          },
+          pt: { xs: 3, sm: 5 },
+          pb: 5,
+        }}
+      >
+        <Container maxWidth="md">
+          <Fade in={true} timeout={600}>
+            <Paper
+              elevation={10}
+              sx={{
+                width: '100%',
+                margin: 'auto',
+                p: { xs: 3, sm: 4 },
+                borderRadius: 4,
+                boxShadow: '0 16px 48px rgba(0,0,0,0.2)',
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              {/* Timer display and question badge */}
+              <Box 
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  width: '100%',
+                  mb: 2,
+                }}
+              >
+                <Box sx={{ width: '100%', mb: 1 }}>
+                  <LinearProgress
+                    variant="determinate"
+                    value={calculateRemainingTimePercent()}
+                    color={showResults ? 'secondary' : getTimerColor()}
+                    sx={{ 
+                      height: 10, 
+                      borderRadius: 5,
+                      '& .MuiLinearProgress-bar': {
+                        transition: 'transform 1s linear',
+                      }
+                    }}
+                  />
+                </Box>
+                
+                <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  {/* Timer display */}
+                  <Typography 
+                    variant="h6" 
+                    component="div"
+                    color={showResults ? 'secondary.main' : getTimerColor()}
+                    sx={{ 
+                      fontWeight: 'bold',
+                      fontSize: { xs: '0.9rem', sm: '1.1rem' },
+                      transition: 'color 0.3s ease'
+                    }}
+                  >
+                    {showResults ? "Results" : formatTimeLeft(timeLeft)}
+                  </Typography>
+                  
+
+                </Box>
+              </Box>
+
+              {/* Question content */}
+              <Box sx={{ mb: 4 }}>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    fontWeight: 'bold',
+                    mb: 3,
+                    color: '#1a237e',
+                    lineHeight: 1.3,
+                  }}
+                >
+                  {currentQuestion?.text || 'Question'}
+                </Typography>
+
+                {/* Media content (image or video) */}
+                {currentQuestion?.imageUrl && (
+                  <Box
+                    sx={{ 
+                      position: 'relative',
+                      mb: 4,
+                      borderRadius: 3,
+                      overflow: 'hidden',
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                    }}
+                  >
+                    <Box
+                      component="img"
+                      src={currentQuestion.imageUrl}
+                      alt="Question media"
+                      sx={{
+                        width: '100%',
+                        maxHeight: '400px',
+                        objectFit: 'contain',
+                        display: 'block',
+                      }}
+                    />
+                  </Box>
+                )}
+
+                {currentQuestion?.videoUrl && (
+                  <Box
+                    sx={{ 
+                      position: 'relative',
+                      mb: 4,
+                      borderRadius: 3,
+                      overflow: 'hidden',
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                    }}
+                  >
+                    <Box
+                      component="iframe"
+                      src={currentQuestion.videoUrl}
+                      title="Question video"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      sx={{
+                        width: '100%',
+                        height: '400px',
+                        display: 'block',
+                      }}
+                    />
+                  </Box>
+                )}
+              </Box>
+
+              {/* Results message (if showing results) */}
+              {showResults && (
+                <Fade in={true} timeout={800}>
+                  <Box
+                    sx={{
+                      mb: 4,
+                      p: 3,
+                      borderRadius: 3,
+                      backgroundColor: correctAnswers.some(ans => selectedAnswers.includes(ans)) 
+                        ? 'rgba(76, 175, 80, 0.1)' 
+                        : 'rgba(244, 67, 54, 0.1)',
+                      border: `1px solid ${correctAnswers.some(ans => selectedAnswers.includes(ans)) 
+                        ? 'rgba(76, 175, 80, 0.3)' 
+                        : 'rgba(244, 67, 54, 0.3)'}`,
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      {selectedAnswers.length > 0 && correctAnswers.some(ans => selectedAnswers.includes(ans)) ? (
+                        <CheckCircleIcon sx={{ color: '#4caf50', fontSize: 28, mr: 1.5 }} />
+                      ) : (
+                        <CancelIcon sx={{ color: '#f44336', fontSize: 28, mr: 1.5 }} />
+                      )}
+                      <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                        {getResultMessage()}
+                      </Typography>
+                    </Box>
+
+                    <Typography variant="body1" sx={{ mb: 1.5, fontWeight: 'medium' }}>
+                      Correct answer{correctAnswers.length > 1 ? 's' : ''}:
+                    </Typography>
+
+                    <Stack direction="row" flexWrap="wrap" gap={1}>
+                      {correctAnswers.map((answer, idx) => (
+                        <Chip
+                          key={idx}
+                          label={answer}
+                          color="success"
+                          sx={{ fontWeight: 'bold', px: 1 }}
+                        />
+                      ))}
+                    </Stack>
+                  </Box>
+                </Fade>
+              )}
+

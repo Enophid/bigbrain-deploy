@@ -170,17 +170,7 @@ function GamePlay() {
             let answeredCount = 0;
             
             resultsData.forEach(answer => {
-              if (answer.correct) {
-                totalScore += answer.questionPoints || 10; // Default to 10 points if not specified
-              }
-              
-              if (answer.answeredAt && answer.questionStartedAt) {
-                const startTime = new Date(answer.questionStartedAt).getTime();
-                const endTime = new Date(answer.answeredAt).getTime();
-                const responseTime = (endTime - startTime) / 1000;
-                totalTime += responseTime;
-                answeredCount++;
-              }
+     
             });
             
             setPlayerTotalScore(totalScore);
@@ -277,15 +267,36 @@ function GamePlay() {
           
           data.forEach(answer => {
             if (answer.correct) {
-              totalScore += answer.questionPoints || 10; // Default to 10 points if not specified
-            }
-            
-            if (answer.answeredAt && answer.questionStartedAt) {
-              const startTime = new Date(answer.questionStartedAt).getTime();
-              const endTime = new Date(answer.answeredAt).getTime();
-              const responseTime = (endTime - startTime) / 1000;
-              totalTime += responseTime;
-              answeredCount++;
+              const basePoints = answer.questionPoints || 10;
+              
+              // Calculate response time if available
+              let responseTime = null;
+              let speedPoints = basePoints; // Default to base points
+              
+              if (answer.answeredAt && answer.questionStartedAt) {
+                const startTime = new Date(answer.questionStartedAt).getTime();
+                const endTime = new Date(answer.answeredAt).getTime();
+                responseTime = (endTime - startTime) / 1000;
+                
+                // Calculate speed-based points
+                const pointsData = calculateSpeedPoints(
+                  responseTime,
+                  answer.questionDuration || 30,
+                  basePoints
+                );
+                
+                speedPoints = pointsData.finalPoints;
+                // Store calculated points in the answer object
+                answer.speedMultiplier = pointsData.speedMultiplier;
+                answer.calculatedPoints = speedPoints;
+              }
+              
+              totalScore += speedPoints;
+              
+              if (responseTime !== null) {
+                totalTime += responseTime;
+                answeredCount++;
+              }
             }
           });
           
@@ -368,6 +379,41 @@ function GamePlay() {
 
         console.log('Successfully retrieved answers:', data.answers);
         setCorrectAnswers(data.answers || []);
+        
+        // Calculate speed-based points for this question
+        if (currentQuestion) {
+          // Get if the player got the answer correct
+          const isCorrect = data.answers.some(answer => selectedAnswers.includes(answer));
+          
+          // Calculate response time (if available)
+          let responseTime = null;
+          if (currentQuestion.isoTimeLastQuestionStarted) {
+            const startTime = new Date(currentQuestion.isoTimeLastQuestionStarted).getTime();
+            const endTime = new Date().getTime(); // Use current time as end time
+            responseTime = (endTime - startTime) / 1000;
+            
+            // Store for future reference
+            currentQuestion.responseTime = responseTime;
+          }
+          
+          // Calculate points if the answer is correct
+          if (isCorrect && responseTime) {
+            const basePoints = currentQuestion.points || 10;
+            const questionDuration = currentQuestion.duration || 30;
+            
+            const pointsData = calculateSpeedPoints(
+              responseTime,
+              questionDuration,
+              basePoints
+            );
+            
+            // Store the points data in the current question
+            currentQuestion.basePoints = basePoints;
+            currentQuestion.speedMultiplier = pointsData.speedMultiplier;
+            currentQuestion.finalPoints = pointsData.finalPoints;
+          }
+        }
+        
         setShowResults(true);
 
         // After showing results, we're waiting for next question
@@ -391,15 +437,36 @@ function GamePlay() {
                     
                     resultsData.forEach(answer => {
                       if (answer.correct) {
-                        totalScore += answer.questionPoints || 10;
-                      }
-                      
-                      if (answer.answeredAt && answer.questionStartedAt) {
-                        const startTime = new Date(answer.questionStartedAt).getTime();
-                        const endTime = new Date(answer.answeredAt).getTime();
-                        const responseTime = (endTime - startTime) / 1000;
-                        totalTime += responseTime;
-                        answeredCount++;
+                        const basePoints = answer.questionPoints || 10;
+                        
+                        // Calculate response time if available
+                        let responseTime = null;
+                        let speedPoints = basePoints; // Default to base points
+                        
+                        if (answer.answeredAt && answer.questionStartedAt) {
+                          const startTime = new Date(answer.questionStartedAt).getTime();
+                          const endTime = new Date(answer.answeredAt).getTime();
+                          responseTime = (endTime - startTime) / 1000;
+                          
+                          // Calculate speed-based points
+                          const pointsData = calculateSpeedPoints(
+                            responseTime,
+                            answer.questionDuration || 30,
+                            basePoints
+                          );
+                          
+                          speedPoints = pointsData.finalPoints;
+                          // Store calculated points in the answer object
+                          answer.speedMultiplier = pointsData.speedMultiplier;
+                          answer.calculatedPoints = speedPoints;
+                        }
+                        
+                        totalScore += speedPoints;
+                        
+                        if (responseTime !== null) {
+                          totalTime += responseTime;
+                          answeredCount++;
+                        }
                       }
                     });
                     
@@ -613,6 +680,37 @@ function GamePlay() {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  /**
+   * Calculate points based on speed (time taken) and question value
+   * Formula: Points = Base Question Points × Speed Multiplier
+   * - Speed Multiplier decreases as time increases
+   * - Faster answers get higher multipliers
+   */
+  const calculateSpeedPoints = (responseTime, questionDuration, basePoints) => {
+    // Default values
+    basePoints = basePoints || 10;
+    questionDuration = questionDuration || 30;
+    
+    // Calculate speed ratio (how quickly they answered)
+    // A value of 1 means they used all the time, 0 means they answered instantly
+    const speedRatio = Math.min(responseTime / questionDuration, 1);
+    
+    // Calculate speed multiplier from 0.5 to 2.0
+    // Faster answers get higher multipliers (up to 2x for instant answers)
+    // Even the slowest answer gets at least 0.5x
+    const speedMultiplier = 2 - (1.5 * speedRatio);
+    
+    // Calculate final points
+    const finalPoints = Math.round(basePoints * speedMultiplier);
+    
+    return {
+      basePoints,
+      speedMultiplier: Math.round(speedMultiplier * 100) / 100,
+      finalPoints,
+      responseTime: Math.round(responseTime * 10) / 10
+    };
   };
 
   /**
@@ -835,6 +933,37 @@ function GamePlay() {
 
                 <Divider sx={{ mb: 4 }} />
                 
+                {/* Points System Explanation */}
+                <Paper 
+                  elevation={0} 
+                  sx={{ 
+                    p: 3, 
+                    mb: 4, 
+                    bgcolor: 'rgba(25, 118, 210, 0.08)',
+                    borderRadius: 2,
+                    border: '1px solid rgba(25, 118, 210, 0.2)'
+                  }}
+                >
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1.5, color: 'primary.main' }}>
+                    Advanced Points System
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 1.5 }}>
+                    Your points are calculated using a speed-based multiplier:
+                  </Typography>
+                  <Typography variant="body2" component="div" sx={{ mb: 1 }}>
+                    <strong>Final Points = Base Question Points × Speed Multiplier</strong>
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 0.5 }}>
+                    • Faster answers earn higher multipliers (up to 2x for instant answers)
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 0.5 }}>
+                    • Even the slowest answers receive at least 0.5x multiplier
+                  </Typography>
+                  <Typography variant="body2">
+                    • The multiplier decreases linearly as more time is used
+                  </Typography>
+                </Paper>
+                
                 <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold' }}>
                   Question Performance
                 </Typography>
@@ -846,7 +975,7 @@ function GamePlay() {
                         <TableCell sx={{ fontWeight: 'bold' }}>Question</TableCell>
                         <TableCell align="center" sx={{ fontWeight: 'bold' }}>Result</TableCell>
                         <TableCell align="center" sx={{ fontWeight: 'bold' }}>Points</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 'bold' }}>Time</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 'bold' }}>Response Time</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -893,9 +1022,22 @@ function GamePlay() {
                               )}
                             </TableCell>
                             <TableCell align="center">
-                              <Typography variant="body1" fontWeight="medium" color={answer.correct ? 'success.main' : 'text.secondary'}>
-                                {answer.correct ? (answer.questionPoints || 10) : 0}
-                              </Typography>
+                              {answer.correct ? (
+                                <Box>
+                                  <Typography variant="body1" fontWeight="medium" color="success.main">
+                                    {answer.calculatedPoints || (answer.questionPoints || 10)}
+                                  </Typography>
+                                  {answer.speedMultiplier && (
+                                    <Typography variant="caption" color="text.secondary">
+                                      {answer.questionPoints || 10} × {answer.speedMultiplier} speed
+                                    </Typography>
+                                  )}
+                                </Box>
+                              ) : (
+                                <Typography variant="body1" fontWeight="medium" color="text.secondary">
+                                  0
+                                </Typography>
+                              )}
                             </TableCell>
                             <TableCell align="right">
                               {responseTime ? (
@@ -1123,6 +1265,27 @@ function GamePlay() {
                         {getResultMessage()}
                       </Typography>
                     </Box>
+
+                    {/* Show points calculation if correct */}
+                    {selectedAnswers.length > 0 && correctAnswers.some(ans => selectedAnswers.includes(ans)) && 
+                      currentQuestion && currentQuestion.speedMultiplier && (
+                      <Box sx={{ mb: 2, p: 1.5, bgcolor: 'rgba(76, 175, 80, 0.05)', borderRadius: 2 }}>
+                        <Typography variant="body1" sx={{ mb: 1, fontWeight: 'medium' }}>
+                          Points Calculation:
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                          <Typography variant="body2">
+                            Base Points: {currentQuestion.basePoints || 10}
+                          </Typography>
+                          <Typography variant="body2">
+                            Speed Multiplier: {currentQuestion.speedMultiplier}x (responded in {currentQuestion.responseTime.toFixed(1)}s)
+                          </Typography>
+                          <Typography variant="body1" sx={{ fontWeight: 'bold', mt: 0.5 }}>
+                            Final Points: {currentQuestion.finalPoints}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    )}
 
                     <Typography variant="body1" sx={{ mb: 1.5, fontWeight: 'medium' }}>
                       Correct answer{correctAnswers.length > 1 ? 's' : ''}:

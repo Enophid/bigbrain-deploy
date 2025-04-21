@@ -170,7 +170,38 @@ function GamePlay() {
             let answeredCount = 0;
             
             resultsData.forEach(answer => {
-     
+              if (answer.correct) {
+                const basePoints = answer.questionPoints || 10;
+                
+                // Calculate response time if available
+                let responseTime = null;
+                let speedPoints = basePoints; // Default to base points
+                
+                if (answer.answeredAt && answer.questionStartedAt) {
+                  const startTime = new Date(answer.questionStartedAt).getTime();
+                  const endTime = new Date(answer.answeredAt).getTime();
+                  responseTime = (endTime - startTime) / 1000;
+                  
+                  // Calculate speed-based points
+                  const pointsData = calculateSpeedPoints(
+                    responseTime,
+                    answer.questionDuration || 30,
+                    basePoints
+                  );
+                  
+                  speedPoints = pointsData.finalPoints;
+                  // Store calculated points in the answer object
+                  answer.speedMultiplier = pointsData.speedMultiplier;
+                  answer.calculatedPoints = speedPoints;
+                }
+                
+                totalScore += speedPoints;
+                
+                if (responseTime !== null) {
+                  totalTime += responseTime;
+                  answeredCount++;
+                }
+              }
             });
             
             setPlayerTotalScore(totalScore);

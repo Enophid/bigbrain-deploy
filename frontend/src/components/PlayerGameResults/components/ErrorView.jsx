@@ -25,4 +25,4 @@ ErrorView.propTypes = {
   onPlayAgain: PropTypes.func.isRequired,
 };
 
-export default ErrorView; 
+export default ErrorView;

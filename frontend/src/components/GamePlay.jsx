@@ -18,11 +18,20 @@ import {
   Fade,
   Avatar,
   Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Divider,
 } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
   QuestionAnswer as QuestionIcon,
+  EmojiEvents as TrophyIcon,
+  Timer as TimerIcon,
 } from '@mui/icons-material';
 import ApiCall from './apiCall';
 import bigBrainTheme from '../theme/bigBrainTheme';
@@ -47,6 +56,10 @@ function GamePlay() {
   const [lastSubmittedAnswer, setLastSubmittedAnswer] = useState([]);
   const [shouldCheckAnswers, setShouldCheckAnswers] = useState(false);
   const [lastPollTime, setLastPollTime] = useState(Date.now());
+  const [gameEnded, setGameEnded] = useState(false);
+  const [playerResults, setPlayerResults] = useState(null);
+  const [playerTotalScore, setPlayerTotalScore] = useState(0);
+  const [playerAvgTime, setPlayerAvgTime] = useState(0);
 
   /**
    * Calculate remaining time based on server's start time and time limit
@@ -139,10 +152,54 @@ function GamePlay() {
       if (err.message === 'Session has not started yet') {
         // Handle the case where we're waiting for the game to start
         setWaitingForNextQuestion(true);
+      } else if (err.message.includes('not an active session') || 
+                err.message.includes('No active session') || 
+                err.message.includes('Session is not active')) {
+        // Game has ended - try to fetch final results
+        console.log('Game session has ended, fetching final results...');
+        
+        try {
+          const resultsData = await ApiCall(`/play/${playerId}/results`, {}, 'GET');
+          if (resultsData) {
+            console.log('Successfully retrieved final results:', resultsData);
+            setPlayerResults(resultsData);
+            
+            // Calculate total score and average time
+            let totalScore = 0;
+            let totalTime = 0;
+            let answeredCount = 0;
+            
+            resultsData.forEach(answer => {
+              if (answer.correct) {
+                totalScore += answer.questionPoints || 10; // Default to 10 points if not specified
+              }
+              
+              if (answer.answeredAt && answer.questionStartedAt) {
+                const startTime = new Date(answer.questionStartedAt).getTime();
+                const endTime = new Date(answer.answeredAt).getTime();
+                const responseTime = (endTime - startTime) / 1000;
+                totalTime += responseTime;
+                answeredCount++;
+              }
+            });
+            
+            setPlayerTotalScore(totalScore);
+            setPlayerAvgTime(answeredCount > 0 ? Math.round((totalTime / answeredCount) * 10) / 10 : 0);
+            
+            // Set game as ended and clear waiting state
+            setGameEnded(true);
+            setWaitingForNextQuestion(false);
+            setLoading(false);
+          }
+        } catch (resultsErr) {
+          console.error('Error fetching final results:', resultsErr.message);
+          setError('Game has ended, but we could not retrieve your results. Please try again later.');
+          setLoading(false);
+        }
       } else {
         setError(err.message || 'Failed to fetch question data.');
+        setLoading(false);
       }
-      setLoading(false);
       setLastPollTime(Date.now());
     }
   }, [playerId, currentQuestion]);
@@ -192,6 +249,76 @@ function GamePlay() {
     // Clean up interval on unmount
     return () => clearInterval(pollInterval);
   }, [fetchQuestionData, lastPollTime]);
+
+  /**
+   * Check for game end and fetch final results
+   */
+  useEffect(() => {
+    // If we're waiting for next question but couldn't get a new question after multiple attempts
+    // we may have reached the end of the game
+    const checkForGameEnd = async () => {
+      // Skip check if we already know the game has ended
+      if (gameEnded || playerResults) {
+        return;
+      }
+      
+      try {
+        // Try to fetch player results
+        const data = await ApiCall(`/play/${playerId}/results`, {}, 'GET');
+        if (data) {
+          console.log('Game has ended! Retrieved player results:', data);
+          // Process the results data
+          setPlayerResults(data);
+          
+          // Calculate total score and average time
+          let totalScore = 0;
+          let totalTime = 0;
+          let answeredCount = 0;
+          
+          data.forEach(answer => {
+            if (answer.correct) {
+              totalScore += answer.questionPoints || 10; // Default to 10 points if not specified
+            }
+            
+            if (answer.answeredAt && answer.questionStartedAt) {
+              const startTime = new Date(answer.questionStartedAt).getTime();
+              const endTime = new Date(answer.answeredAt).getTime();
+              const responseTime = (endTime - startTime) / 1000;
+              totalTime += responseTime;
+              answeredCount++;
+            }
+          });
+          
+          setPlayerTotalScore(totalScore);
+          setPlayerAvgTime(answeredCount > 0 ? Math.round((totalTime / answeredCount) * 10) / 10 : 0);
+          
+          // Set game as ended
+          setGameEnded(true);
+          setWaitingForNextQuestion(false);
+          setError(''); // Clear any previous errors
+        }
+      } catch (err) {
+        // If we get a "Session is ongoing" error, the game is still active
+        if (err.message && err.message.includes("Session is ongoing")) {
+          console.log('Game is still ongoing, will check again later');
+        } else {
+          console.log('Could not check game status:', err.message);
+        }
+      }
+    };
+    
+    let endCheckTimeout;
+    if (waitingForNextQuestion && currentQuestion) {
+      // Wait 10 seconds before checking if the game has ended
+      endCheckTimeout = setTimeout(() => {
+        checkForGameEnd();
+      }, 10000);
+    }
+    
+    return () => {
+      if (endCheckTimeout) clearTimeout(endCheckTimeout);
+    };
+  }, [waitingForNextQuestion, currentQuestion, playerId, gameEnded, playerResults]);
 
   /**
    * Timer countdown
@@ -245,6 +372,54 @@ function GamePlay() {
 
         // After showing results, we're waiting for next question
         setWaitingForNextQuestion(true);
+        
+        // Check if this might be the last question after a short delay
+        setTimeout(() => {
+          if (waitingForNextQuestion) {
+            try {
+              ApiCall(`/play/${playerId}/results`, {}, 'GET')
+                .then(resultsData => {
+                  if (resultsData) {
+                    console.log('Detected game end after question results:', resultsData);
+                    // Process the results data
+                    setPlayerResults(resultsData);
+                    
+                    // Calculate total score and average time
+                    let totalScore = 0;
+                    let totalTime = 0;
+                    let answeredCount = 0;
+                    
+                    resultsData.forEach(answer => {
+                      if (answer.correct) {
+                        totalScore += answer.questionPoints || 10;
+                      }
+                      
+                      if (answer.answeredAt && answer.questionStartedAt) {
+                        const startTime = new Date(answer.questionStartedAt).getTime();
+                        const endTime = new Date(answer.answeredAt).getTime();
+                        const responseTime = (endTime - startTime) / 1000;
+                        totalTime += responseTime;
+                        answeredCount++;
+                      }
+                    });
+                    
+                    setPlayerTotalScore(totalScore);
+                    setPlayerAvgTime(answeredCount > 0 ? Math.round((totalTime / answeredCount) * 10) / 10 : 0);
+                    
+                    // Set game as ended
+                    setGameEnded(true);
+                    setWaitingForNextQuestion(false);
+                  }
+                })
+                .catch(_err => {
+                  // Ignore errors here - it will retry later if needed
+                  console.log('Game not ended yet, will check again later');
+                });
+            } catch (_err) {
+              // Ignore errors
+            }
+          }
+        }, 5000); // Wait 5 seconds to check for game end
       } else if (!showResults) {
         console.log('Not checking answers yet - timer still running or results already shown');
       }
@@ -569,6 +744,8 @@ function GamePlay() {
       </ThemeProvider>
     );
   }
+
+  
 
   /**
    * Main game content

@@ -573,11 +573,19 @@ function GamePlay() {
       setSelectedAnswers(answerArray);
       setLastSubmittedAnswer({ answers: answerArray, timestamp: new Date().toISOString() });
       setAnswerSubmitted(true);
-      
+
       // Use ApiCall instead of fetch directly
-      console.log('Submitting answer:', answerArray);
-      const data = await ApiCall(`/play/${playerId}/answer`, { answers: answerArray }, 'PUT');
+      const payload = {
+        answers: answerArray,
+      };
       
+      console.log('Submitting answer:', payload);
+      const data = await ApiCall(
+        `/play/${playerId}/answer`,
+        payload,
+        'PUT'
+      );
+
       if (data.error) {
         if (data.error.includes("Can't answer question once answer is available")) {
           console.log('Answer period has ended on the server');

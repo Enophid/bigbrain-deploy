@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
-import { Box, Typography, Avatar, Chip } from '@mui/material';
+import { Box, Typography, Avatar, Chip, Stack } from '@mui/material';
+import { Timer as TimerIcon } from '@mui/icons-material';
 
 // Player podium component (1st, 2nd, 3rd places)
 const PlayerPodium = ({ player, rank, color, size, order, marginTop }) => {
@@ -39,24 +40,43 @@ const PlayerPodium = ({ player, rank, color, size, order, marginTop }) => {
       >
         {player?.name || `Player ${rank}`}
       </Typography>
-      <Chip
-        label={`${player?.score || 0} pts`}
-        sx={{
-          backgroundColor: color,
-          color: 'white',
-          fontWeight: 'bold',
-          fontSize: rank === 1 ? '1rem' : '0.9rem',
-          px: rank === 1 ? 1 : 0,
-        }}
-      />
+      <Stack direction="column" spacing={1} alignItems="center">
+        <Chip
+          label={`${player?.score || 0}/${player?.totalQuestions || 0}`}
+          sx={{
+            backgroundColor: color,
+            color: 'white',
+            fontWeight: 'bold',
+            fontSize: rank === 1 ? '1rem' : '0.9rem',
+            px: rank === 1 ? 1 : 0,
+          }}
+        />
+        
+        {player?.avgResponseTime && (
+          <Chip
+            icon={<TimerIcon fontSize="small" />}
+            label={`${player.avgResponseTime}s`}
+            size="small"
+            variant="outlined"
+            sx={{
+              fontWeight: 'medium',
+              borderColor: color,
+              color: 'text.secondary',
+            }}
+          />
+        )}
+      </Stack>
     </Box>
   );
 };
 
 PlayerPodium.propTypes = {
   player: PropTypes.shape({
-    name: PropTypes.string,
-    score: PropTypes.number,
+    name: PropTypes.string.isRequired,
+    score: PropTypes.number.isRequired,
+    totalQuestions: PropTypes.number.isRequired,
+    scorePercentage: PropTypes.number.isRequired,
+    avgResponseTime: PropTypes.number,
   }),
   rank: PropTypes.number.isRequired,
   color: PropTypes.string.isRequired,

@@ -410,26 +410,45 @@ function Dashboard() {
 
   const handleUploadGame = async (gameData) => {
     try {
-      const response = await ApiCall('/admin/games', { name: gameData.name }, 'POST');
-      if (response.error) {
-        throw new Error(response.error);
+      // Get the current user's email from localStorage
+      const userEmail = localStorage.getItem('admin');
+      
+      if (!userEmail) {
+        throw new Error('User not authenticated. Please log in again.');
       }
 
-      // Add questions to the new game
-      if (gameData.questions && gameData.questions.length > 0) {
-        for (const question of gameData.questions) {
-          await ApiCall(`/admin/game/${response.id}/questions`, question, 'POST');
-        }
+      // Create a new game object
+      const gameId = generateRandomID();
+      const newGame = {
+        ...gameData,
+        id: gameId,
+        owner: userEmail,
+        active: null,
+        oldSessions: [],
+        createAt: new Date().toISOString(),
+      };
+
+      // Add the new game to the existing games
+      const updatedGames = [...games, newGame];
+
+      // Use the PUT endpoint to update all games
+      const response = await ApiCall(
+        '/admin/games',
+        { games: updatedGames },
+        'PUT'
+      );
+
+      if (response.error) {
+        throw new Error(response.error);
       }
 
       // Refresh the games list
       const refreshData = await ApiCall('/admin/games', {}, 'GET');
       if (!refreshData.error) {
         setGames(refreshData.games);
+        // Show success message
+        displayAlert('Game imported successfully!', 'success');
       }
-
-      // Show success message
-      displayAlert('Game imported successfully!', 'success');
     } catch (error) {
       console.error('Failed to import game:', error);
       displayAlert(`Failed to import game: ${error.message}`, 'error');

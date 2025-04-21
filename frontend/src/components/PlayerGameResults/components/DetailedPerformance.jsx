@@ -47,15 +47,18 @@ const DetailedPerformance = ({ results }) => {
         const isCorrect = result.correct;
         const basePoints = result.questionPoints || 10;
         const earnedPoints = result.points || 0;
-        const speedMultiplier = result.speedMultiplier || (isCorrect ? earnedPoints / basePoints : 0);
-        
+        const speedMultiplier =
+          result.speedMultiplier || (isCorrect ? earnedPoints / basePoints : 0);
+
         // Calculate bonus points explicitly
         const regularPoints = isCorrect ? basePoints : 0;
         const bonusPoints = isCorrect ? earnedPoints - regularPoints : 0;
-        
+
         // Calculate percentage of points earned (for progress bar)
-        const pointsPercentage = isCorrect ? (earnedPoints / (basePoints * 2) * 100) : 0;
-        
+        const pointsPercentage = isCorrect
+          ? (earnedPoints / (basePoints * 2)) * 100
+          : 0;
+
         return (
           <Paper
             key={index}
@@ -64,25 +67,27 @@ const DetailedPerformance = ({ results }) => {
               p: { xs: 2, sm: 3 },
               mb: 2,
               borderRadius: 2,
-              border: isCorrect 
-                ? '1px solid rgba(76, 175, 80, 0.2)' 
+              border: isCorrect
+                ? '1px solid rgba(76, 175, 80, 0.2)'
                 : '1px solid rgba(244, 67, 54, 0.2)',
-              backgroundColor: isCorrect 
-                ? 'rgba(76, 175, 80, 0.05)' 
+              backgroundColor: isCorrect
+                ? 'rgba(76, 175, 80, 0.05)'
                 : 'rgba(244, 67, 54, 0.05)',
             }}
           >
-            <Box sx={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'flex-start',
-              flexDirection: isMobile ? 'column' : 'row',
-              mb: 1.5
-            }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                flexDirection: isMobile ? 'column' : 'row',
+                mb: 1.5,
+              }}
+            >
               <Box>
-                <Typography 
-                  variant="subtitle1" 
-                  sx={{ 
+                <Typography
+                  variant="subtitle1"
+                  sx={{
                     fontWeight: 'bold',
                     display: 'flex',
                     alignItems: 'center',
@@ -91,35 +96,43 @@ const DetailedPerformance = ({ results }) => {
                   Question {result.position}
                   <Chip
                     icon={isCorrect ? <CheckCircleIcon /> : <CancelIcon />}
-                    label={isCorrect ? "Correct" : "Incorrect"}
-                    color={isCorrect ? "success" : "error"}
+                    label={isCorrect ? 'Correct' : 'Incorrect'}
+                    color={isCorrect ? 'success' : 'error'}
                     size="small"
                     sx={{ ml: 1, fontWeight: 'medium' }}
                   />
                 </Typography>
-                <Typography 
-                  variant="body2" 
+                <Typography
+                  variant="body2"
                   color="text.secondary"
                   sx={{ mt: 0.5, mb: 1 }}
                 >
                   {result.question}
                 </Typography>
               </Box>
-              
-              <Box sx={{ 
-                display: 'flex',
-                alignItems: 'center',
-                mt: isMobile ? 1 : 0
-              }}>
-                <TrophyIcon color={isCorrect ? "success" : "disabled"} sx={{ mr: 0.5 }} />
-                <Typography variant="h6" color={isCorrect ? "success.main" : "text.secondary"}>
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  mt: isMobile ? 1 : 0,
+                }}
+              >
+                <TrophyIcon
+                  color={isCorrect ? 'success' : 'disabled'}
+                  sx={{ mr: 0.5 }}
+                />
+                <Typography
+                  variant="h6"
+                  color={isCorrect ? 'success.main' : 'text.secondary'}
+                >
                   {earnedPoints} points
                 </Typography>
               </Box>
             </Box>
-            
+
             <Divider sx={{ my: 1.5 }} />
-            
+
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <Typography variant="caption" color="text.secondary">
@@ -131,16 +144,16 @@ const DetailedPerformance = ({ results }) => {
                   </Typography>
                 </Box>
               </Grid>
-              
+
               <Grid item xs={12} sm={6}>
                 <Typography variant="caption" color="text.secondary">
                   Speed Multiplier
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
-                  <Typography 
-                    variant="body1" 
+                  <Typography
+                    variant="body1"
                     fontWeight="medium"
-                    color={isCorrect ? "primary.main" : "text.secondary"}
+                    color={isCorrect ? 'primary.main' : 'text.secondary'}
                   >
                     {isCorrect ? `${speedMultiplier}x` : 'N/A'}
                   </Typography>
@@ -154,10 +167,14 @@ const DetailedPerformance = ({ results }) => {
                   )}
                 </Box>
               </Grid>
-              
+
               {isCorrect && (
                 <Grid item xs={12} sx={{ mt: 1 }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ mb: 0.5, display: 'block' }}
+                  >
                     Points Calculation
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -165,18 +182,22 @@ const DetailedPerformance = ({ results }) => {
                       {basePoints} × {speedMultiplier} = {earnedPoints} points
                     </Typography>
                   </Box>
-                  
+
                   {bonusPoints > 0 && (
-                    <Box 
-                      sx={{ 
-                        p: 1.5, 
-                        borderRadius: 2, 
+                    <Box
+                      sx={{
+                        p: 1.5,
+                        borderRadius: 2,
                         mb: 2,
-                        bgcolor: 'rgba(156, 39, 176, 0.08)', 
-                        border: '1px solid rgba(156, 39, 176, 0.2)'
+                        bgcolor: 'rgba(156, 39, 176, 0.08)',
+                        border: '1px solid rgba(156, 39, 176, 0.2)',
                       }}
                     >
-                      <Typography variant="subtitle2" color="secondary.main" sx={{ mb: 0.5, fontWeight: 'bold' }}>
+                      <Typography
+                        variant="subtitle2"
+                        color="secondary.main"
+                        sx={{ mb: 0.5, fontWeight: 'bold' }}
+                      >
                         Speed Bonus Breakdown:
                       </Typography>
                       <Grid container spacing={1}>
@@ -184,17 +205,23 @@ const DetailedPerformance = ({ results }) => {
                           <Typography variant="body2">Base Points:</Typography>
                         </Grid>
                         <Grid item xs={6}>
-                          <Typography variant="body2" align="right">{regularPoints}</Typography>
+                          <Typography variant="body2" align="right">
+                            {regularPoints}
+                          </Typography>
                         </Grid>
                         <Grid item xs={6}>
-                          <Typography variant="body2" color="secondary.main" fontWeight="medium">
+                          <Typography
+                            variant="body2"
+                            color="secondary.main"
+                            fontWeight="medium"
+                          >
                             Speed Bonus:
                           </Typography>
                         </Grid>
                         <Grid item xs={6}>
-                          <Typography 
-                            variant="body2" 
-                            color="secondary.main" 
+                          <Typography
+                            variant="body2"
+                            color="secondary.main"
                             fontWeight="bold"
                             align="right"
                           >
@@ -205,29 +232,40 @@ const DetailedPerformance = ({ results }) => {
                           <Divider sx={{ my: 0.5 }} />
                         </Grid>
                         <Grid item xs={6}>
-                          <Typography variant="body2" fontWeight="bold">Total:</Typography>
+                          <Typography variant="body2" fontWeight="bold">
+                            Total:
+                          </Typography>
                         </Grid>
                         <Grid item xs={6}>
-                          <Typography variant="body2" fontWeight="bold" align="right">
+                          <Typography
+                            variant="body2"
+                            fontWeight="bold"
+                            align="right"
+                          >
                             {earnedPoints}
                           </Typography>
                         </Grid>
                       </Grid>
                     </Box>
                   )}
-                  
-                  <LinearProgress 
-                    variant="determinate" 
-                    value={pointsPercentage} 
+
+                  <LinearProgress
+                    variant="determinate"
+                    value={pointsPercentage}
                     color="success"
-                    sx={{ 
-                      height: 6, 
+                    sx={{
+                      height: 6,
                       borderRadius: 3,
                       backgroundColor: 'rgba(76, 175, 80, 0.1)',
                     }}
                   />
-                  <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
-                    {earnedPoints} out of maximum {basePoints * 2} possible points ({Math.round(pointsPercentage)}%)
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ mt: 0.5, display: 'block' }}
+                  >
+                    {earnedPoints} out of maximum {basePoints * 2} possible
+                    points ({Math.round(pointsPercentage)}%)
                   </Typography>
                 </Grid>
               )}
@@ -243,4 +281,4 @@ DetailedPerformance.propTypes = {
   results: PropTypes.array.isRequired,
 };
 
-export default DetailedPerformance; 
+export default DetailedPerformance;

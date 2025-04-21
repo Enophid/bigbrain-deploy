@@ -8,11 +8,7 @@ import MobileResultRow from './MobileResultRow';
 const MobileResultsList = ({ results }) => (
   <Box sx={{ display: { xs: 'block', sm: 'none' }, mb: 3 }}>
     {results.map((answer, index) => (
-      <MobileResultRow
-        key={index}
-        answer={answer}
-        index={index}
-      />
+      <MobileResultRow key={index} answer={answer} index={index} />
     ))}
   </Box>
 );
@@ -21,4 +17,4 @@ MobileResultsList.propTypes = {
   results: PropTypes.array.isRequired,
 };
 
-export default MobileResultsList; 
+export default MobileResultsList;

@@ -23,6 +23,7 @@ import CreateGameModal from './dashboard/CreateGameModal';
 import EmptyState from './dashboard/EmptyState';
 import SessionModal from './dashboard/SessionModal';
 import PastSessionsModal from './dashboard/PastSessionsModal';
+import GameUploadModal from './dashboard/GameUploadModal';
 
 // Helper function
 const generateRandomID = () => Math.floor(Math.random() * 10 ** 8);
@@ -31,6 +32,7 @@ function Dashboard() {
   const navigate = useNavigate();
   const [games, setGames] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [fileName, setFileName] = useState('No file chosen');
   const hasFetched = useRef(false);
   const [sessionModalOpen, setSessionModalOpen] = useState(false);
@@ -80,6 +82,8 @@ function Dashboard() {
   // Modal handlers
   const handleCloseModal = () => setModalOpen(false);
   const handleOpenModal = () => setModalOpen(true);
+  const handleOpenUploadModal = () => setUploadModalOpen(true);
+  const handleCloseUploadModal = () => setUploadModalOpen(false);
 
   // File handlers
   const handleFileChange = async (event) => {
@@ -404,6 +408,34 @@ function Dashboard() {
     return () => clearInterval(intervalId);
   }, []);
 
+  const handleUploadGame = async (gameData) => {
+    try {
+      const response = await ApiCall('/admin/games', { name: gameData.name }, 'POST');
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      // Add questions to the new game
+      if (gameData.questions && gameData.questions.length > 0) {
+        for (const question of gameData.questions) {
+          await ApiCall(`/admin/game/${response.id}/questions`, question, 'POST');
+        }
+      }
+
+      // Refresh the games list
+      const refreshData = await ApiCall('/admin/games', {}, 'GET');
+      if (!refreshData.error) {
+        setGames(refreshData.games);
+      }
+
+      // Show success message
+      displayAlert('Game imported successfully!', 'success');
+    } catch (error) {
+      console.error('Failed to import game:', error);
+      displayAlert(`Failed to import game: ${error.message}`, 'error');
+    }
+  };
+
   return (
     <ThemeProvider theme={bigBrainTheme}>
       <CssBaseline />
@@ -432,7 +464,7 @@ function Dashboard() {
         }}
       >
         {/* Header Section */}
-        <Header onCreateGame={handleOpenModal} />
+        <Header onCreateGame={handleOpenModal} onUploadGame={handleOpenUploadModal} />
 
         <Container
           maxWidth='xl'
@@ -467,7 +499,7 @@ function Dashboard() {
 
           {/* Games Display */}
           {games.length === 0 ? (
-            <EmptyState onCreateGame={handleOpenModal} />
+            <EmptyState onCreateGame={handleOpenModal} onUploadGame={handleOpenUploadModal} />
           ) : (
             <Grid
               sx={{
@@ -516,6 +548,13 @@ function Dashboard() {
         onInputChange={handleInputChange}
         onFileChange={handleFileChange}
         onCreateGame={handleAddNewGame}
+      />
+
+      {/* Game Upload Modal */}
+      <GameUploadModal
+        open={uploadModalOpen}
+        onClose={handleCloseUploadModal}
+        onUpload={handleUploadGame}
       />
 
       {/* Session Started Modal */}

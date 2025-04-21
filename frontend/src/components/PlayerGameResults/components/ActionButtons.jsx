@@ -67,4 +67,4 @@ ActionButtons.propTypes = {
   isMobile: PropTypes.bool.isRequired,
 };
 
-export default ActionButtons; 
+export default ActionButtons;

@@ -745,7 +745,204 @@ function GamePlay() {
     );
   }
 
-  
+  if (gameEnded && playerResults) {
+    return (
+      <ThemeProvider theme={bigBrainTheme}>
+        <CssBaseline />
+        <GlobalStyles />
+        <Box
+          sx={{
+            minHeight: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            backgroundImage: 'linear-gradient(135deg, #2D3047 0%, #00B4D8 50%, #06D6A0 100%)',
+            backgroundSize: '400% 400%',
+            animation: 'gradient 15s ease infinite',
+            '@keyframes gradient': {
+              '0%': { backgroundPosition: '0% 50%' },
+              '50%': { backgroundPosition: '100% 50%' },
+              '100%': { backgroundPosition: '0% 50%' },
+            },
+            pt: { xs: 3, sm: 5 },
+            pb: 5,
+          }}
+        >
+          <Container maxWidth="md">
+            <Fade in={true} timeout={600}>
+              <Paper
+                elevation={10}
+                sx={{
+                  width: '100%',
+                  margin: 'auto',
+                  p: { xs: 3, sm: 4 },
+                  borderRadius: 4,
+                  boxShadow: '0 16px 48px rgba(0,0,0,0.2)',
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  backdropFilter: 'blur(10px)',
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+              >
+                <Box sx={{ textAlign: 'center', mb: 4 }}>
+                  <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1a237e', mb: 2 }}>
+                    Game Complete!
+                  </Typography>
+                  <Typography variant="h6" sx={{ color: 'text.secondary', mb: 3 }}>
+                    Here&apos;s how you performed
+                  </Typography>
+                  
+                  <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, mb: 4 }}>
+                    <Card sx={{ 
+                      minWidth: 140, 
+                      p: 2, 
+                      bgcolor: 'primary.main', 
+                      color: 'white',
+                      borderRadius: 3
+                    }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+                        <TrophyIcon fontSize="large" />
+                      </Box>
+                      <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                        {playerTotalScore}
+                      </Typography>
+                      <Typography variant="body2">
+                        Total Points
+                      </Typography>
+                    </Card>
+                    
+                    <Card sx={{ 
+                      minWidth: 140, 
+                      p: 2, 
+                      bgcolor: 'secondary.main', 
+                      color: 'white',
+                      borderRadius: 3
+                    }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+                        <TimerIcon fontSize="large" />
+                      </Box>
+                      <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                        {playerAvgTime}s
+                      </Typography>
+                      <Typography variant="body2">
+                        Avg Response Time
+                      </Typography>
+                    </Card>
+                  </Box>
+                </Box>
+
+                <Divider sx={{ mb: 4 }} />
+                
+                <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold' }}>
+                  Question Performance
+                </Typography>
+                
+                <TableContainer component={Paper} elevation={0} sx={{ mb: 3 }}>
+                  <Table>
+                    <TableHead>
+                      <TableRow sx={{ bgcolor: 'rgba(0,0,0,0.04)' }}>
+                        <TableCell sx={{ fontWeight: 'bold' }}>Question</TableCell>
+                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>Result</TableCell>
+                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>Points</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 'bold' }}>Time</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {playerResults.map((answer, index) => {
+                        // Calculate response time
+                        let responseTime = null;
+                        if (answer.answeredAt && answer.questionStartedAt) {
+                          const startTime = new Date(answer.questionStartedAt).getTime();
+                          const endTime = new Date(answer.answeredAt).getTime();
+                          responseTime = Math.round(((endTime - startTime) / 1000) * 10) / 10;
+                        }
+                        
+                        return (
+                          <TableRow key={index} sx={{ 
+                            '&:nth-of-type(odd)': { bgcolor: 'rgba(0,0,0,0.02)' },
+                            transition: 'background-color 0.2s',
+                            '&:hover': { bgcolor: 'rgba(0,0,0,0.05)' }
+                          }}>
+                            <TableCell>
+                              <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+                                Question {index + 1}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary" noWrap sx={{ maxWidth: 200 }}>
+                                {answer.question}
+                              </Typography>
+                            </TableCell>
+                            <TableCell align="center">
+                              {answer.correct ? (
+                                <Chip 
+                                  icon={<CheckCircleIcon />} 
+                                  label="Correct" 
+                                  color="success" 
+                                  size="small"
+                                  sx={{ fontWeight: 'medium' }}
+                                />
+                              ) : (
+                                <Chip 
+                                  icon={<CancelIcon />} 
+                                  label="Incorrect" 
+                                  color="error" 
+                                  size="small"
+                                  sx={{ fontWeight: 'medium' }}
+                                />
+                              )}
+                            </TableCell>
+                            <TableCell align="center">
+                              <Typography variant="body1" fontWeight="medium" color={answer.correct ? 'success.main' : 'text.secondary'}>
+                                {answer.correct ? (answer.questionPoints || 10) : 0}
+                              </Typography>
+                            </TableCell>
+                            <TableCell align="right">
+                              {responseTime ? (
+                                <Chip
+                                  icon={<TimerIcon fontSize="small" />}
+                                  label={`${responseTime}s`}
+                                  size="small"
+                                  color="secondary"
+                                  variant="outlined"
+                                  sx={{ fontWeight: 'medium' }}
+                                />
+                              ) : (
+                                <Typography variant="body2" color="text.secondary">
+                                  N/A
+                                </Typography>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                  <Button 
+                    variant="contained" 
+                    color="primary"
+                    size="large"
+                    startIcon={<QuestionIcon />}
+                    onClick={() => window.location.href = '/'}
+                    sx={{ 
+                      borderRadius: 2,
+                      px: 4,
+                      py: 1.5,
+                      textTransform: 'none',
+                      fontWeight: 'bold',
+                      fontSize: '1.1rem'
+                    }}
+                  >
+                    Play Another Game
+                  </Button>
+                </Box>
+              </Paper>
+            </Fade>
+          </Container>
+        </Box>
+      </ThemeProvider>
+    );
+  }
 
   /**
    * Main game content

@@ -388,4 +388,184 @@ function GamePlay() {
       : "Sorry, that's not correct.";
   };
 
- 
+  /**
+   * Get the appropriate avatar background color based on selection state
+   */
+  const getAvatarBgColor = (isSelected, showResults, isCorrect) => {
+    if (!isSelected) return 'rgba(0,0,0,0.08)';
+    
+    if (showResults) {
+      return isCorrect ? '#4caf50' : '#f44336';
+    }
+    
+    return '#1976d2';
+  };
+
+  /**
+   * Get background color for the answer option box
+   */
+  const getAnswerBoxBgColor = (showResults, isCorrect) => {
+    if (showResults && isCorrect) {
+      return 'rgba(76, 175, 80, 0.1)';
+    }
+    return 'transparent';
+  };
+
+  /**
+   * Calculate remaining time as a percentage for the progress bar
+   */
+  const calculateRemainingTimePercent = () => {
+    if (!currentQuestion) return 0;
+    const totalDuration = parseInt(currentQuestion.duration || 30, 10);
+    return (timeLeft / totalDuration) * 100;
+  };
+
+  /**
+   * Get color for the timer based on time remaining
+   */
+  const getTimerColor = () => {
+    const percent = calculateRemainingTimePercent();
+    if (percent < 30) return 'error';
+    if (percent < 60) return 'warning';
+    return 'success';
+  };
+
+  /**
+   * Format time left in MM:SS format
+   */
+  const formatTimeLeft = (seconds) => {
+    if (seconds < 0) return '00:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  /**
+   * Render loading state
+   */
+  if (loading) {
+    return (
+      <ThemeProvider theme={bigBrainTheme}>
+        <CssBaseline />
+        <GlobalStyles />
+        <Box
+          sx={{
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'linear-gradient(135deg, #1a237e 0%, #0d47a1 100%)',
+          }}
+        >
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="h4" sx={{ color: 'white', mb: 3, fontWeight: 'bold' }}>
+              BigBrain
+            </Typography>
+            <CircularProgress size={60} sx={{ color: '#fff' }} />
+            <Typography variant="body1" sx={{ color: 'white', mt: 2 }}>
+              Loading your game...
+            </Typography>
+          </Box>
+        </Box>
+      </ThemeProvider>
+    );
+  }
+
+  /**
+   * Render error state
+   */
+  if (error) {
+    return (
+      <ThemeProvider theme={bigBrainTheme}>
+        <CssBaseline />
+        <GlobalStyles />
+        <Box
+          sx={{
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'linear-gradient(135deg, #1a237e 0%, #0d47a1 100%)',
+          }}
+        >
+          <Container maxWidth="sm">
+            <Fade in={true} timeout={800}>
+              <Alert 
+                severity="error" 
+                variant="filled"
+                sx={{ 
+                  borderRadius: 2,
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+                }}
+              >
+                <Typography variant="h6">Oops!</Typography>
+                {error}
+              </Alert>
+            </Fade>
+          </Container>
+        </Box>
+      </ThemeProvider>
+    );
+  }
+
+  /**
+   * Render waiting for game to start or next question
+   */
+  if (waitingForNextQuestion && !currentQuestion) {
+    return (
+      <ThemeProvider theme={bigBrainTheme}>
+        <CssBaseline />
+        <GlobalStyles />
+        <Box
+          sx={{
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundImage:
+              'linear-gradient(135deg, #2D3047 0%, #00B4D8 50%, #06D6A0 100%)',
+            backgroundSize: '400% 400%',
+            animation: 'gradient 15s ease infinite',
+            '@keyframes gradient': {
+              '0%': { backgroundPosition: '0% 50%' },
+              '50%': { backgroundPosition: '100% 50%' },
+              '100%': { backgroundPosition: '0% 50%' },
+            },
+          }}
+        >
+          <Container maxWidth="sm">
+            <Zoom in={true} timeout={500}>
+              <Card
+                sx={{
+                  p: 4,
+                  borderRadius: 3,
+                  boxShadow: '0 16px 48px rgba(0,0,0,0.25)',
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  backdropFilter: 'blur(10px)',
+                }}
+              >
+                <CardContent sx={{ textAlign: 'center' }}>
+                  <QuestionIcon sx={{ fontSize: 60, color: '#00B4D8', mb: 2 }} />
+                  <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+                    Get Ready!
+                  </Typography>
+                  <Typography variant="body1" sx={{ mb: 4, fontSize: '1.1rem' }}>
+                    Waiting for the host to start the game or advance to the next
+                    question.
+                  </Typography>
+                  <CircularProgress 
+                    sx={{ 
+                      color: '#00B4D8',
+                      '& .MuiCircularProgress-circle': {
+                        strokeLinecap: 'round',
+                      }
+                    }} 
+                  />
+                </CardContent>
+              </Card>
+            </Zoom>
+          </Container>
+        </Box>
+      </ThemeProvider>
+    );
+  }

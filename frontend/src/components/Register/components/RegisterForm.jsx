@@ -168,6 +168,78 @@ export default function RegisterForm() {
           }}
         />
 
+        <TextField
+          fullWidth
+          label="Confirm Password"
+          name="confirmPassword"
+          type={showConfirmPassword ? 'text' : 'password'}
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          onKeyDown={handleKeyPress}
+          variant="outlined"
+          size="medium"
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <LockIcon />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle confirm password visibility"
+                    onClick={toggleConfirmPasswordVisibility}
+                    edge="end"
+                    size="small"
+                  >
+                    {showConfirmPassword ? (
+                      <VisibilityOff
+                        sx={{ fontSize: { xs: 18, sm: 24 } }}
+                      />
+                    ) : (
+                      <Visibility sx={{ fontSize: { xs: 18, sm: 24 } }} />
+                    )}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
+          }}
+          sx={{
+            mb: { xs: 2, sm: 3 },
+            '& .MuiInputBase-root': {
+              fontSize: { xs: '0.875rem', sm: '1rem' },
+            },
+            '& .MuiInputLabel-root': {
+              fontSize: { xs: '0.875rem', sm: '1rem' },
+            },
+          }}
+        />
 
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          size="large"
+          fullWidth
+          disabled={isLoading}
+          startIcon={<HowToReg sx={{ fontSize: { xs: 18, sm: 22 } }} />}
+          sx={{
+            py: { xs: 1, sm: 1.5 },
+            mt: { xs: 1, sm: 1 },
+            fontSize: { xs: '0.9rem', sm: '1.1rem' },
+            fontWeight: 700,
+            boxShadow: 3,
+            '&:hover': {
+              transform: 'translateY(-2px)',
+              boxShadow: 4,
+            },
+            transition: 'all 0.2s',
+          }}
+        >
+          {isLoading ? 'Registering...' : 'Create Account'}
+        </Button>
+      </Box>
+    </>
   );
 }

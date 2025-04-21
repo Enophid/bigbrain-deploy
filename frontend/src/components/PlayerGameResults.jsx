@@ -299,8 +299,207 @@ const PlayerGameResults = () => {
                       • The multiplier decreases linearly as more time is used
                     </Typography>
                   </Paper>
+                  <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold' }}>
+                    Question Performance
+                  </Typography>
 
-                  
+                  {results.length > 0 ? (
+                    <TableContainer
+                      component={Paper}
+                      elevation={0}
+                      sx={{ mb: 3 }}
+                    >
+                      <Table>
+                        <TableHead>
+                          <TableRow sx={{ bgcolor: 'rgba(0,0,0,0.04)' }}>
+                            <TableCell sx={{ fontWeight: 'bold' }}>
+                              Question
+                            </TableCell>
+                            <TableCell
+                              align="center"
+                              sx={{ fontWeight: 'bold' }}
+                            >
+                              Result
+                            </TableCell>
+                            <TableCell
+                              align="center"
+                              sx={{ fontWeight: 'bold' }}
+                            >
+                              Points
+                            </TableCell>
+                            <TableCell
+                              align="right"
+                              sx={{ fontWeight: 'bold' }}
+                            >
+                              Response Time
+                            </TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {results.map((answer, index) => {
+                            // Determine if correct based on points
+                            const isCorrect = answer.points > 0;
+
+                            return (
+                              <TableRow
+                                key={index}
+                                sx={{
+                                  '&:nth-of-type(odd)': {
+                                    bgcolor: 'rgba(0,0,0,0.02)',
+                                  },
+                                  transition: 'background-color 0.2s',
+                                  '&:hover': { bgcolor: 'rgba(0,0,0,0.05)' },
+                                }}
+                              >
+                                <TableCell>
+                                  <Typography
+                                    variant="body1"
+                                    sx={{ fontWeight: 'medium' }}
+                                  >
+                                    Question {answer.position || index + 1}
+                                  </Typography>
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    noWrap
+                                    sx={{ maxWidth: 200 }}
+                                  >
+                                    {answer.question}
+                                  </Typography>
+                                </TableCell>
+                                <TableCell align="center">
+                                  {isCorrect ? (
+                                    <Chip
+                                      icon={<CheckCircleIcon />}
+                                      label="Correct"
+                                      color="success"
+                                      size="small"
+                                      sx={{ fontWeight: 'medium' }}
+                                    />
+                                  ) : (
+                                    <Chip
+                                      icon={<CancelIcon />}
+                                      label="Incorrect"
+                                      color="error"
+                                      size="small"
+                                      sx={{ fontWeight: 'medium' }}
+                                    />
+                                  )}
+                                </TableCell>
+                                <TableCell align="center">
+                                  {isCorrect ? (
+                                    <Box>
+                                      <Typography
+                                        variant="body1"
+                                        fontWeight="medium"
+                                        color="success.main"
+                                      >
+                                        {answer.points}
+                                      </Typography>
+                                      {answer.speedMultiplier && (
+                                        <Typography
+                                          variant="caption"
+                                          color="text.secondary"
+                                        >
+                                          {answer.questionPoints} ×{' '}
+                                          {answer.speedMultiplier} speed
+                                        </Typography>
+                                      )}
+                                    </Box>
+                                  ) : (
+                                    <Typography
+                                      variant="body1"
+                                      fontWeight="medium"
+                                      color="text.secondary"
+                                    >
+                                      0
+                                    </Typography>
+                                  )}
+                                </TableCell>
+                                <TableCell align="right">
+                                  {answer.responseTime ? (
+                                    <Chip
+                                      icon={<TimerIcon fontSize="small" />}
+                                      label={`${answer.responseTime}s`}
+                                      size="small"
+                                      color="secondary"
+                                      variant="outlined"
+                                      sx={{ fontWeight: 'medium' }}
+                                    />
+                                  ) : (
+                                    <Typography
+                                      variant="body2"
+                                      color="text.secondary"
+                                    >
+                                      N/A
+                                    </Typography>
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  ) : (
+                    <Box sx={{ textAlign: 'center', py: 4 }}>
+                      <Typography variant="body1" color="text.secondary">
+                        No results found. Try playing a game first!
+                      </Typography>
+                    </Box>
+                  )}
+                </>
+              )}
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  mt: 4,
+                  gap: 2,
+                }}
+              >
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  size="large"
+                  startIcon={<ArrowBackIcon />}
+                  onClick={handleReturnToGame}
+                  sx={{
+                    borderRadius: 2,
+                    px: 3,
+                    py: 1.5,
+                    textTransform: 'none',
+                    fontWeight: 'medium',
+                    fontSize: '1rem',
+                  }}
+                >
+                  Return to Game
+                </Button>
+
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  startIcon={<QuestionIcon />}
+                  onClick={handlePlayAgain}
+                  sx={{
+                    borderRadius: 2,
+                    px: 4,
+                    py: 1.5,
+                    textTransform: 'none',
+                    fontWeight: 'bold',
+                    fontSize: '1.1rem',
+                  }}
+                >
+                  Play New Game
+                </Button>
+              </Box>
+            </Paper>
+          </Fade>
+        </Container>
+      </Box>
+    </ThemeProvider>
   );
 };
 

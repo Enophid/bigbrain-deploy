@@ -19,6 +19,9 @@ import {
   ThemeProvider,
   CssBaseline,
   CircularProgress,
+  useMediaQuery,
+  useTheme,
+  Grid,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -28,6 +31,104 @@ import QuestionIcon from '@mui/icons-material/QuizOutlined';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import bigBrainTheme from '../theme/bigBrainTheme';
 import GlobalStyles from '../theme/globalStyles';
+import PropTypes from 'prop-types';
+/**
+ * Component to display a question result in a card format for mobile views
+ */
+const MobileResultRow = ({ answer, index }) => {
+  const isCorrect = answer.points > 0;
+
+  return (
+    <Card
+      sx={{
+        p: 2,
+        mb: 2,
+        borderRadius: 2,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        border: isCorrect
+          ? '1px solid rgba(76, 175, 80, 0.3)'
+          : '1px solid rgba(244, 67, 54, 0.1)',
+        bgcolor: isCorrect
+          ? 'rgba(76, 175, 80, 0.05)'
+          : 'rgba(244, 67, 54, 0.05)',
+      }}
+    >
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5 }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+          Question {answer.position || index + 1}
+        </Typography>
+        {isCorrect ? (
+          <Chip
+            icon={<CheckCircleIcon />}
+            label="Correct"
+            color="success"
+            size="small"
+            sx={{ fontWeight: 'medium' }}
+          />
+        ) : (
+          <Chip
+            icon={<CancelIcon />}
+            label="Incorrect"
+            color="error"
+            size="small"
+            sx={{ fontWeight: 'medium' }}
+          />
+        )}
+      </Box>
+
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        {answer.question}
+      </Typography>
+
+      <Grid container spacing={2}>
+        <Grid item xs={6}>
+          <Typography variant="caption" color="text.secondary">
+            Points
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
+            <Typography
+              variant="body1"
+              fontWeight="medium"
+              color={isCorrect ? 'success.main' : 'text.secondary'}
+            >
+              {isCorrect ? answer.points : 0}
+            </Typography>
+            {isCorrect && answer.speedMultiplier && (
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ ml: 0.5 }}
+              >
+                ({answer.questionPoints} × {answer.speedMultiplier})
+              </Typography>
+            )}
+          </Box>
+        </Grid>
+        <Grid item xs={6}>
+          <Typography variant="caption" color="text.secondary">
+            Response Time
+          </Typography>
+          <Box sx={{ mt: 0.5 }}>
+            {answer.responseTime ? (
+              <Chip
+                icon={<TimerIcon fontSize="small" />}
+                label={`${answer.responseTime}s`}
+                size="small"
+                color="secondary"
+                variant="outlined"
+                sx={{ fontWeight: 'medium' }}
+              />
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                N/A
+              </Typography>
+            )}
+          </Box>
+        </Grid>
+      </Grid>
+    </Card>
+  );
+};
 
 const PlayerGameResults = () => {
   const { playerId } = useParams();
@@ -37,6 +138,9 @@ const PlayerGameResults = () => {
   const [totalScore, setTotalScore] = useState(0);
   const [avgTime, setAvgTime] = useState(0);
   const [error, setError] = useState('');
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
 
   // Helper function to calculate totals
   const calculateTotals = (resultsData) => {
@@ -146,8 +250,8 @@ const PlayerGameResults = () => {
             '50%': { backgroundPosition: '100% 50%' },
             '100%': { backgroundPosition: '0% 50%' },
           },
-          pt: { xs: 3, sm: 5 },
-          pb: 5,
+          pt: { xs: 2, sm: 3, md: 5 },
+          pb: { xs: 2, sm: 3, md: 5 },
         }}
       >
         <Container maxWidth="md">
@@ -157,7 +261,7 @@ const PlayerGameResults = () => {
               sx={{
                 width: '100%',
                 margin: 'auto',
-                p: { xs: 3, sm: 4 },
+                p: { xs: 2, sm: 3, md: 4 },
                 borderRadius: 4,
                 boxShadow: '0 16px 48px rgba(0,0,0,0.2)',
                 background: 'rgba(255, 255, 255, 0.95)',
@@ -182,325 +286,31 @@ const PlayerGameResults = () => {
                 </Box>
               ) : (
                 <>
-                  <Box sx={{ textAlign: 'center', mb: 4 }}>
+                  <Box sx={{ textAlign: 'center', mb: { xs: 3, sm: 4 } }}>
                     <Typography
                       variant="h4"
-                      sx={{ fontWeight: 'bold', color: '#1a237e', mb: 2 }}
+                      sx={{
+                        fontWeight: 'bold',
+                        color: '#1a237e',
+                        mb: 1.5,
+                        fontSize: {
+                          xs: '1.75rem',
+                          sm: '2.125rem',
+                          md: '2.5rem',
+                        },
+                      }}
                     >
                       Results So Far
                     </Typography>
-                    <Typography
-                      variant="h6"
-                      sx={{ color: 'text.secondary', mb: 3 }}
-                    >
-                      Here&apos;s how you&apos;re performing
-                    </Typography>
 
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        gap: 3,
-                        mb: 4,
-                      }}
-                    >
-                      <Card
-                        sx={{
-                          minWidth: 140,
-                          p: 2,
-                          bgcolor: 'primary.main',
-                          color: 'white',
-                          borderRadius: 3,
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            mb: 1,
-                          }}
-                        >
-                          <TrophyIcon fontSize="large" />
-                        </Box>
-                        <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                          {totalScore}
-                        </Typography>
-                        <Typography variant="body2">Total Points</Typography>
-                      </Card>
-
-                      <Card
-                        sx={{
-                          minWidth: 140,
-                          p: 2,
-                          bgcolor: 'secondary.main',
-                          color: 'white',
-                          borderRadius: 3,
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            mb: 1,
-                          }}
-                        >
-                          <TimerIcon fontSize="large" />
-                        </Box>
-                        <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                          {avgTime}s
-                        </Typography>
-                        <Typography variant="body2">
-                          Avg Response Time
-                        </Typography>
-                      </Card>
-                    </Box>
-                  </Box>
-
-                  <Divider sx={{ mb: 4 }} />
-
-                  {/* Points System Explanation */}
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      p: 3,
-                      mb: 4,
-                      bgcolor: 'rgba(25, 118, 210, 0.08)',
-                      borderRadius: 2,
-                      border: '1px solid rgba(25, 118, 210, 0.2)',
-                    }}
-                  >
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: 'bold',
-                        mb: 1.5,
-                        color: 'primary.main',
-                      }}
-                    >
-                      Advanced Points System
-                    </Typography>
-                    <Typography variant="body2" sx={{ mb: 1.5 }}>
-                      Your points are calculated using a speed-based multiplier:
-                    </Typography>
-                    <Typography variant="body2" component="div" sx={{ mb: 1 }}>
-                      <strong>
-                        Final Points = Base Question Points × Speed Multiplier
-                      </strong>
-                    </Typography>
-                    <Typography variant="body2" sx={{ mb: 0.5 }}>
-                      • Faster answers earn higher multipliers (up to 2x for
-                      instant answers)
-                    </Typography>
-                    <Typography variant="body2" sx={{ mb: 0.5 }}>
-                      • Even the slowest answers receive at least 0.5x
-                      multiplier
-                    </Typography>
-                    <Typography variant="body2">
-                      • The multiplier decreases linearly as more time is used
-                    </Typography>
-                  </Paper>
-                  <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold' }}>
-                    Question Performance
-                  </Typography>
-
-                  {results.length > 0 ? (
-                    <TableContainer
-                      component={Paper}
-                      elevation={0}
-                      sx={{ mb: 3 }}
-                    >
-                      <Table>
-                        <TableHead>
-                          <TableRow sx={{ bgcolor: 'rgba(0,0,0,0.04)' }}>
-                            <TableCell sx={{ fontWeight: 'bold' }}>
-                              Question
-                            </TableCell>
-                            <TableCell
-                              align="center"
-                              sx={{ fontWeight: 'bold' }}
-                            >
-                              Result
-                            </TableCell>
-                            <TableCell
-                              align="center"
-                              sx={{ fontWeight: 'bold' }}
-                            >
-                              Points
-                            </TableCell>
-                            <TableCell
-                              align="right"
-                              sx={{ fontWeight: 'bold' }}
-                            >
-                              Response Time
-                            </TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {results.map((answer, index) => {
-                            // Determine if correct based on points
-                            const isCorrect = answer.points > 0;
-
-                            return (
-                              <TableRow
-                                key={index}
-                                sx={{
-                                  '&:nth-of-type(odd)': {
-                                    bgcolor: 'rgba(0,0,0,0.02)',
-                                  },
-                                  transition: 'background-color 0.2s',
-                                  '&:hover': { bgcolor: 'rgba(0,0,0,0.05)' },
-                                }}
-                              >
-                                <TableCell>
-                                  <Typography
-                                    variant="body1"
-                                    sx={{ fontWeight: 'medium' }}
-                                  >
-                                    Question {answer.position || index + 1}
-                                  </Typography>
-                                  <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                    noWrap
-                                    sx={{ maxWidth: 200 }}
-                                  >
-                                    {answer.question}
-                                  </Typography>
-                                </TableCell>
-                                <TableCell align="center">
-                                  {isCorrect ? (
-                                    <Chip
-                                      icon={<CheckCircleIcon />}
-                                      label="Correct"
-                                      color="success"
-                                      size="small"
-                                      sx={{ fontWeight: 'medium' }}
-                                    />
-                                  ) : (
-                                    <Chip
-                                      icon={<CancelIcon />}
-                                      label="Incorrect"
-                                      color="error"
-                                      size="small"
-                                      sx={{ fontWeight: 'medium' }}
-                                    />
-                                  )}
-                                </TableCell>
-                                <TableCell align="center">
-                                  {isCorrect ? (
-                                    <Box>
-                                      <Typography
-                                        variant="body1"
-                                        fontWeight="medium"
-                                        color="success.main"
-                                      >
-                                        {answer.points}
-                                      </Typography>
-                                      {answer.speedMultiplier && (
-                                        <Typography
-                                          variant="caption"
-                                          color="text.secondary"
-                                        >
-                                          {answer.questionPoints} ×{' '}
-                                          {answer.speedMultiplier} speed
-                                        </Typography>
-                                      )}
-                                    </Box>
-                                  ) : (
-                                    <Typography
-                                      variant="body1"
-                                      fontWeight="medium"
-                                      color="text.secondary"
-                                    >
-                                      0
-                                    </Typography>
-                                  )}
-                                </TableCell>
-                                <TableCell align="right">
-                                  {answer.responseTime ? (
-                                    <Chip
-                                      icon={<TimerIcon fontSize="small" />}
-                                      label={`${answer.responseTime}s`}
-                                      size="small"
-                                      color="secondary"
-                                      variant="outlined"
-                                      sx={{ fontWeight: 'medium' }}
-                                    />
-                                  ) : (
-                                    <Typography
-                                      variant="body2"
-                                      color="text.secondary"
-                                    >
-                                      N/A
-                                    </Typography>
-                                  )}
-                                </TableCell>
-                              </TableRow>
-                            );
-                          })}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  ) : (
-                    <Box sx={{ textAlign: 'center', py: 4 }}>
-                      <Typography variant="body1" color="text.secondary">
-                        No results found. Try playing a game first!
-                      </Typography>
-                    </Box>
-                  )}
-                </>
-              )}
-
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  mt: 4,
-                  gap: 2,
-                }}
-              >
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  size="large"
-                  startIcon={<ArrowBackIcon />}
-                  onClick={handleReturnToGame}
-                  sx={{
-                    borderRadius: 2,
-                    px: 3,
-                    py: 1.5,
-                    textTransform: 'none',
-                    fontWeight: 'medium',
-                    fontSize: '1rem',
-                  }}
-                >
-                  Return to Game
-                </Button>
-
-                <Button
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  startIcon={<QuestionIcon />}
-                  onClick={handlePlayAgain}
-                  sx={{
-                    borderRadius: 2,
-                    px: 4,
-                    py: 1.5,
-                    textTransform: 'none',
-                    fontWeight: 'bold',
-                    fontSize: '1.1rem',
-                  }}
-                >
-                  Play New Game
-                </Button>
-              </Box>
-            </Paper>
-          </Fade>
-        </Container>
       </Box>
     </ThemeProvider>
   );
 };
 
 export default PlayerGameResults;
+
+MobileResultRow.propTypes = {
+  answer: PropTypes.object.isRequired,
+  index: PropTypes.number.isRequired,
+};

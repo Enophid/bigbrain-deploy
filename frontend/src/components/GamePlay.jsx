@@ -18,7 +18,6 @@ import {
   Fade,
   Avatar,
   Stack,
-
 } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
@@ -220,68 +219,6 @@ function GamePlay() {
   }, [fetchQuestionData, lastPollTime]);
 
   /**
-   * Check for game end and fetch final results
-   */
-  useEffect(() => {
-    // If we're waiting for next question but couldn't get a new question after multiple attempts
-    // we may have reached the end of the game
-    const checkForGameEnd = async () => {
-      // Skip check if we already know the game has ended
-      if (gameEnded || playerResults) {
-        return;
-      }
-      
-      try {
-        // Check localStorage first before fetching from server
-        const storedResults = JSON.parse(localStorage.getItem(`bigbrain_player_${playerId}_results`) || '[]');
-        
-        if (storedResults.length > 0) {
-          console.log('Retrieved player results from localStorage:', storedResults);
-          setPlayerResults(storedResults);
-          
-          // Set game as ended
-          setGameEnded(true);
-          setWaitingForNextQuestion(false);
-          setError(''); // Clear any previous errors
-          return;
-        }
-        
-        // If nothing in localStorage, try to fetch from server
-        const data = await ApiCall(`/play/${playerId}/results`, {}, 'GET');
-        if (data) {
-          console.log('Game has ended! Retrieved player results from server:', data);
-          // Process the results data
-          setPlayerResults(data);
-          
-          // Set game as ended
-          setGameEnded(true);
-          setWaitingForNextQuestion(false);
-          setError(''); // Clear any previous errors
-        }
-      } catch (err) {
-        // If we get a "Session is ongoing" error, the game is still active
-        if (err.message && err.message.includes("Session is ongoing")) {
-          console.log('Game is still ongoing, will check again later');
-        } else {
-          console.log('Could not check game status:', err.message);
-        }
-      }
-    };
-    
-    let endCheckTimeout;
-    if (waitingForNextQuestion && currentQuestion) {
-      // Wait 10 seconds before checking if the game has ended
-      endCheckTimeout = setTimeout(() => {
-        checkForGameEnd();
-      }, 10000);
-    }
-    
-    return () => {
-      if (endCheckTimeout) clearTimeout(endCheckTimeout);
-    };
-  }, [waitingForNextQuestion, currentQuestion, playerId, gameEnded, playerResults]);
-
-  /**
    * Timer countdown
    */
   useEffect(() => {
@@ -437,32 +374,6 @@ function GamePlay() {
 
         // After showing results, we're waiting for next question
         setWaitingForNextQuestion(true);
-        
-        // Check if this might be the last question after a short delay
-        setTimeout(() => {
-          if (waitingForNextQuestion) {
-            try {
-              ApiCall(`/play/${playerId}/results`, {}, 'GET')
-                .then(resultsData => {
-                  if (resultsData) {
-                    console.log('Detected game end after question results:', resultsData);
-                    // Process the results data
-                    setPlayerResults(resultsData);
-                    
-                    // Set game as ended
-                    setGameEnded(true);
-                    setWaitingForNextQuestion(false);
-                  }
-                })
-                .catch(_err => {
-                  // Ignore errors here - it will retry later if needed
-                  console.log('Game not ended yet, will check again later');
-                });
-            } catch (_err) {
-              // Ignore errors
-            }
-          }
-        }, 5000); // Wait 5 seconds to check for game end
       } else if (!showResults) {
         console.log('Not checking answers yet - timer still running or results already shown');
       }

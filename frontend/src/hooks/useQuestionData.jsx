@@ -23,15 +23,46 @@ const useQuestionData = (gameId, questionId) => {
       if (!gameData) {
         throw new Error('Game not found');
       }
+      
       const questionData = gameData.questions.find(
         (q) => q.id.toString() === questionId,
       );
       if (!questionData) {
         throw new Error('Question not found');
       }
+      
+      // Normalize the question structure for editing
+      const normalizedQuestion = {
+        ...questionData,
+        // Ensure these fields have proper defaults if missing
+        id: questionData.id,
+        text: questionData.text || '',
+        type: questionData.type || 'single',
+        timeLimit: questionData.timeLimit || questionData.duration || 30,
+        points: questionData.points || 10,
+        // Make sure answers are properly structured
+        answers: Array.isArray(questionData.answers) 
+          ? questionData.answers.map((answer, idx) => ({
+            id: Date.now() + idx, // Ensure unique IDs
+            text: answer.text || '',
+            isCorrect: answer.isCorrect === true
+          }))
+          : [{ id: Date.now(), text: '', isCorrect: true }],
+        // Ensure correctAnswers exists
+        correctAnswers: Array.isArray(questionData.correctAnswers) 
+          ? questionData.correctAnswers 
+          : Array.isArray(questionData.answers) 
+            ? questionData.answers
+              .filter(ans => ans.isCorrect === true)
+              .map(ans => ans.text)
+            : [],
+        // Include media URLs if present
+        imageUrl: questionData.imageUrl || '',
+        videoUrl: questionData.videoUrl || '',
+      };
 
       setGame(gameData);
-      setQuestion(questionData);
+      setQuestion(normalizedQuestion);
       return gameData;
     } catch (err) {
       setError(err.message);

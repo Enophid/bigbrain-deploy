@@ -6,6 +6,7 @@ import GameEditor from './components/GameEditor';
 import Play from './components/Play';
 import GamePlay from './components/GamePlay';
 import GameResults from './components/GameResults/index.jsx';
+import PlayerGameResults from './components/PlayerGameResults';
 import QuestionEditor from './components/QuestionEditor';
 import GlobalStyles from './theme/globalStyles';
 import { Box } from '@mui/material';
@@ -22,6 +23,7 @@ function App() {
           <Route path='/play' element={<Play />} />
           <Route path='/play/:sessionId' element={<Play />} />
           <Route path='/gameplay/:playerId' element={<GamePlay />} />
+          <Route path='/player-results/:playerId' element={<PlayerGameResults />} />
 
           {/* Admin routes */}
           <Route path='/dashboard' element={<Dashboard />} />

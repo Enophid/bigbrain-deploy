@@ -43,6 +43,7 @@ export default function Logout() {
         throw new Error(data.error || 'Logout failed');
       } else {
         localStorage.removeItem('token');
+        localStorage.removeItem('admin');
         navigate('/login');
         setIsLoggingOut(false);
         setOpen(false);

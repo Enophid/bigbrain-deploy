@@ -765,3 +765,137 @@ function GamePlay() {
                 </Fade>
               )}
 
+              {/* Answer options */}
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                  gap: 2.5,
+                }}
+              >
+                {currentQuestion?.answers?.map((answer, index) => {
+                  const isSelected = selectedAnswers.includes(answer.text);
+                  const isCorrect = correctAnswers.includes(answer.text);
+                  const letterOptions = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+                  
+                  return (
+                    <Zoom in={true} timeout={300 + index * 100} key={`answer-${answer.text}-${index}`}>
+                      <Button
+                        variant={isSelected ? 'contained' : 'outlined'}
+                        color={getButtonColor(answer)}
+                        onClick={() => handleAnswerSelect(answer.text)}
+                        disabled={showResults || answerPeriodEnded}
+                        sx={{
+                          height: 'auto',
+                          minHeight: 72,
+                          padding: 0,
+                          position: 'relative',
+                          textTransform: 'none',
+                          borderRadius: 3,
+                          overflow: 'hidden',
+                          transition: 'all 0.2s',
+                          boxShadow: isSelected ? 4 : 0,
+                          '&:hover': {
+                            transform: showResults ? 'none' : 'translateY(-3px)',
+                            boxShadow: showResults ? 0 : 6,
+                          },
+                        }}
+                      >
+                        <Box sx={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          width: '100%', 
+                          p: 0,
+                          position: 'relative',
+                          backgroundColor: getAnswerBoxBgColor(showResults, isCorrect),
+                        }}>
+                          <Avatar 
+                            sx={{ 
+                              bgcolor: getAvatarBgColor(isSelected, showResults, isCorrect),
+                              color: isSelected ? '#fff' : '#1976d2',
+                              m: 1.5,
+                              transition: 'all 0.2s',
+                              fontWeight: 'bold',
+                            }}
+                          >
+                            {letterOptions[index]}
+                          </Avatar>
+                          
+                          <Typography
+                            sx={{
+                              flex: 1,
+                              textAlign: 'left',
+                              p: 2,
+                              pr: 3,
+                              fontWeight: 'medium',
+                              fontSize: '1rem',
+                            }}
+                          >
+                            {answer.text}
+                          </Typography>
+                          
+                          {getResultIcon(answer) && (
+                            <Box sx={{ position: 'absolute', right: 12 }}>
+                              {getResultIcon(answer)}
+                            </Box>
+                          )}
+                        </Box>
+                      </Button>
+                    </Zoom>
+                  );
+                })}
+              </Box>
+
+              {/* Status message */}
+              {answerSubmitted && !showResults && (
+                <Fade in={true} timeout={500}>
+                  <Typography
+                    variant="body2"
+                    color="primary"
+                    sx={{ mt: 3, textAlign: 'center', fontWeight: 'medium' }}
+                  >
+                    Your answer has been submitted. You can change it until the timer
+                    expires.
+                  </Typography>
+                </Fade>
+              )}
+
+              {answerError && (
+                <Fade in={true} timeout={500}>
+                  <Typography
+                    variant="body2"
+                    color="error"
+                    sx={{ mt: 3, textAlign: 'center', fontWeight: 'medium' }}
+                  >
+                    Error: {answerError}
+                  </Typography>
+                </Fade>
+              )}
+
+              {showResults && (
+                <Fade in={true} timeout={800}>
+                  <Box sx={{ 
+                    mt: 4, 
+                    p: 2, 
+                    borderRadius: 2, 
+                    backgroundColor: 'rgba(0,0,0,0.04)',
+                    textAlign: 'center'
+                  }}>
+                    <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
+                      <CircularProgress size={18} sx={{ mr: 1.5 }} />
+                      <Typography color="text.secondary" sx={{ fontWeight: 'medium' }}>
+                        Waiting for the host to advance to the next question...
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Fade>
+              )}
+            </Paper>
+          </Fade>
+        </Container>
+      </Box>
+    </ThemeProvider>
+  );
+}
+
+export default GamePlay;

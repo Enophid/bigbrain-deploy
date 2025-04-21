@@ -43,7 +43,7 @@ const useGameData = (gameId) => {
             id: questionWithId.id,
             text: questionWithId.text || '',
             type: questionWithId.type || 'single',
-            timeLimit: questionWithId.timeLimit || questionWithId.duration || 30,
+            duration: questionWithId.duration || 30,
             points: questionWithId.points || 10,
             // Map answers to the expected format
             answers: Array.isArray(questionWithId.answers) 

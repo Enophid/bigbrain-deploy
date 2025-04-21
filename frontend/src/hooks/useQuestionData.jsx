@@ -38,7 +38,7 @@ const useQuestionData = (gameId, questionId) => {
         id: questionData.id,
         text: questionData.text || '',
         type: questionData.type || 'single',
-        timeLimit: questionData.timeLimit || questionData.duration || 30,
+        duration: questionData.duration || 30,
         points: questionData.points || 10,
         // Make sure answers are properly structured
         answers: Array.isArray(questionData.answers) 

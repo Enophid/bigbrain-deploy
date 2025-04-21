@@ -52,8 +52,8 @@ const validateQuestion = (question, index) => {
     return { valid: false, error: `Question ${index + 1}: Invalid type (must be single, multiple, or judgement)` };
   }
   
-  if (!question.timeLimit || typeof question.timeLimit !== 'number' || question.timeLimit <= 0) {
-    return { valid: false, error: `Question ${index + 1}: Time limit must be a positive number` };
+  if (!question.duration || typeof question.duration !== 'number' || question.duration <= 0) {
+    return { valid: false, error: `Question ${index + 1}: Time duration must be a positive number` };
   }
   
   if (!question.points || typeof question.points !== 'number' || question.points <= 0) {

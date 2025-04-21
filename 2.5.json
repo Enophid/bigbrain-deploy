@@ -5,8 +5,11 @@
     {
       "text": "What is the chemical symbol for water?",
       "type": "single",
-      "timeLimit": 30,
+      "duration": 30,
       "points": 10,
+      "correctAnswers": [
+        "H2O"
+      ],
       "answers": [
         { "text": "H2O", "isCorrect": true },
         { "text": "CO2", "isCorrect": false },
@@ -18,8 +21,13 @@
     {
       "text": "Which of the following are planets in our solar system?",
       "type": "multiple",
-      "timeLimit": 60,
+      "duration": 60,
       "points": 20,
+      "correctAnswers": [
+        "Mercury",
+        "Venus",
+        "Jupiter"
+      ],
       "answers": [
         { "text": "Mercury", "isCorrect": true },
         { "text": "Venus", "isCorrect": true },
@@ -32,8 +40,11 @@
     {
       "text": "Is the Earth flat?",
       "type": "judgement",
-      "timeLimit": 20,
+      "duration": 20,
       "points": 5,
+      "correctAnswers": [
+        "False"
+      ],
       "answers": [
         { "text": "True", "isCorrect": false },
         { "text": "False", "isCorrect": true }

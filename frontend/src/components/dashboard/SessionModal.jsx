@@ -42,30 +42,6 @@ const styles = {
   },
 };
 
-const handleAdvanceToFirstQuestion = async (gameId) => {
-  if (!gameId) {
-    console.error('Cannot advance: Game ID is missing');
-    return;
-  }
-  
-  try {
-    console.log('Advancing to first question for game:', gameId);
-    const data = await ApiCall(
-      `/admin/game/${gameId}/mutate`,
-      {
-        mutationType: 'ADVANCE',
-      },
-      'POST'
-    );
-
-    console.log('Game advanced successfully:', data);
-    // The server will handle making the question available to players,
-    // players' clients will automatically detect the new question.
-  } catch (e) {
-    console.error('Error advancing to question:', e);
-  }
-};
-
 /**
  * Component that displays the modal content for active or new game sessions
  */
@@ -73,10 +49,10 @@ const DefaultSessionContent = ({
   gameName,
   isNewSession,
   sessionId = '',
-  gameId = '',
   playUrl,
   copied,
   handleCopyLink,
+  handleAdvanceToFirstQuestion,
 }) => (
   <>
     <Typography variant="h6" sx={{ mb: 2 }}>
@@ -134,7 +110,7 @@ const DefaultSessionContent = ({
         fullWidth
         variant="contained"
         color="info"
-        onClick={() => handleAdvanceToFirstQuestion(gameId)}
+        onClick={() => handleAdvanceToFirstQuestion()}
       >
         Advance to the question 🚀
       </Button>
@@ -349,12 +325,61 @@ const SessionModal = ({
   const [isEnded, setIsEnded] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState(null);
+  const [isAdvancing, setIsAdvancing] = useState(false);
 
   // URLs
   const baseAppUrl = window.location.origin;
   const playUrl = sessionId
     ? `${baseAppUrl}/play?session=${sessionId}`
     : `${baseAppUrl}/play`;
+
+  /**
+   * Advances the game to the first question
+   */
+  const handleAdvanceToFirstQuestion = async () => {
+    if (!gameId) {
+      console.error('Cannot advance: Game ID is missing');
+      setError('Cannot advance: Game ID is missing');
+      return;
+    }
+    
+    // Prevent multiple clicks
+    if (isAdvancing) {
+      return;
+    }
+    
+    try {
+      setIsAdvancing(true);
+      console.log('Advancing to first question for game:', gameId);
+      
+      const data = await ApiCall(
+        `/admin/game/${gameId}/mutate`,
+        {
+          mutationType: 'ADVANCE',
+        },
+        'POST'
+      );
+
+      // No need to close the modal
+      console.log('Game advanced successfully:', data);
+      
+      // Show feedback to the user
+      setError({ 
+        severity: 'success', 
+        message: 'Advanced to the next question successfully!' 
+      });
+      
+      // Re-fetch game list would happen in the parent component
+    } catch (e) {
+      console.error('Error advancing to question:', e);
+      setError({ 
+        severity: 'error', 
+        message: `Failed to advance: ${e.message || 'Unknown error'}` 
+      });
+    } finally {
+      setIsAdvancing(false);
+    }
+  };
 
   // Copy play URL
   const handleCopyLink = () => {
@@ -365,7 +390,10 @@ const SessionModal = ({
         setTimeout(() => setCopied(false), 2000);
       })
       .catch(() => {
-        setError('Failed to copy to clipboard. Please try again.');
+        setError({ 
+          severity: 'error', 
+          message: 'Failed to copy to clipboard. Please try again.' 
+        });
       });
   };
 
@@ -517,6 +545,7 @@ const SessionModal = ({
           playUrl={playUrl}
           copied={copied}
           handleCopyLink={handleCopyLink}
+          handleAdvanceToFirstQuestion={handleAdvanceToFirstQuestion}
         />
       ),
       actions: (
@@ -614,18 +643,17 @@ const SessionModal = ({
       </Dialog>
 
       <Snackbar
-        open={error !== null}
-        autoHideDuration={3000}
+        open={!!error}
+        autoHideDuration={6000}
         onClose={handleCloseAlert}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <Alert
-          onClose={handleCloseAlert}
-          severity="error"
-          variant="filled"
+        <Alert 
+          onClose={handleCloseAlert} 
+          severity={error?.severity || 'error'} 
           sx={{ width: '100%' }}
         >
-          {error}
+          {error?.message || 'An error occurred'}
         </Alert>
       </Snackbar>
     </>
@@ -641,6 +669,7 @@ DefaultSessionContent.propTypes = {
   copied: PropTypes.bool.isRequired,
   handleCopyLink: PropTypes.func.isRequired,
   gameId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  handleAdvanceToFirstQuestion: PropTypes.func.isRequired,
 };
 
 DefaultSessionActions.propTypes = {

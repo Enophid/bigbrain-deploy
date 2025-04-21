@@ -31,10 +31,40 @@ const useGameData = (gameId) => {
       if (gameData.questions && gameData.questions.length > 0) {
         gameData.questions = gameData.questions.map((question, index) => {
           // If a question lacks an ID, assign a unique timestamp-based one
-          if (!question.id) {
-            return { ...question, id: Date.now() + index };
-          }
-          return question;
+          const questionWithId = !question.id 
+            ? { ...question, id: Date.now() + index } 
+            : question;
+          
+          // Make sure all required fields are present with proper format
+          // This handles both API responses and imported JSON structures
+          return {
+            ...questionWithId,
+            // Ensure these fields have proper defaults if missing
+            id: questionWithId.id,
+            text: questionWithId.text || '',
+            type: questionWithId.type || 'single',
+            timeLimit: questionWithId.timeLimit || questionWithId.duration || 30,
+            points: questionWithId.points || 10,
+            // Map answers to the expected format
+            answers: Array.isArray(questionWithId.answers) 
+              ? questionWithId.answers.map((answer, idx) => ({
+                id: Date.now() + index + idx, // Ensure unique IDs
+                text: answer.text || '',
+                isCorrect: answer.isCorrect === true
+              }))
+              : [{ id: Date.now() + index, text: '', isCorrect: true }],
+            // Ensure correctAnswers exists (needed for editing)
+            correctAnswers: Array.isArray(questionWithId.correctAnswers) 
+              ? questionWithId.correctAnswers 
+              : questionWithId.answers 
+                ? questionWithId.answers
+                  .filter(ans => ans.isCorrect === true)
+                  .map(ans => ans.text)
+                : [],
+            // Include media URLs if present
+            imageUrl: questionWithId.imageUrl || '',
+            videoUrl: questionWithId.videoUrl || '',
+          };
         });
       }
 

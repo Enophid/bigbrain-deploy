@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Register from './components/register';
+import Register from './components/Register/index.jsx';
 import Login from './components/Login/index.jsx';
 import Dashboard from './components/dashboard';
 import GameEditor from './components/GameEditor';

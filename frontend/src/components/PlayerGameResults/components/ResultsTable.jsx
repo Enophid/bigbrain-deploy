@@ -29,25 +29,14 @@ const ResultsTable = ({ results, isTablet }) => (
     <Table size={isTablet ? 'small' : 'medium'}>
       <TableHead>
         <TableRow sx={{ bgcolor: 'rgba(0,0,0,0.04)' }}>
-          <TableCell sx={{ fontWeight: 'bold' }}>
-            Question
-          </TableCell>
-          <TableCell
-            align="center"
-            sx={{ fontWeight: 'bold' }}
-          >
+          <TableCell sx={{ fontWeight: 'bold' }}>Question</TableCell>
+          <TableCell align="center" sx={{ fontWeight: 'bold' }}>
             Result
           </TableCell>
-          <TableCell
-            align="center"
-            sx={{ fontWeight: 'bold' }}
-          >
+          <TableCell align="center" sx={{ fontWeight: 'bold' }}>
             Points
           </TableCell>
-          <TableCell
-            align="right"
-            sx={{ fontWeight: 'bold' }}
-          >
+          <TableCell align="right" sx={{ fontWeight: 'bold' }}>
             Response Time
           </TableCell>
         </TableRow>
@@ -71,10 +60,7 @@ const ResultsTable = ({ results, isTablet }) => (
               }}
             >
               <TableCell>
-                <Typography
-                  variant="body1"
-                  sx={{ fontWeight: 'medium' }}
-                >
+                <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
                   Question {answer.position || index + 1}
                 </Typography>
                 <Typography
@@ -116,12 +102,8 @@ const ResultsTable = ({ results, isTablet }) => (
                       {answer.points}
                     </Typography>
                     {answer.speedMultiplier && (
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                      >
-                        {answer.questionPoints} ×{' '}
-                        {answer.speedMultiplier} speed
+                      <Typography variant="caption" color="text.secondary">
+                        {answer.questionPoints} × {answer.speedMultiplier} speed
                       </Typography>
                     )}
                   </Box>
@@ -146,10 +128,7 @@ const ResultsTable = ({ results, isTablet }) => (
                     sx={{ fontWeight: 'medium' }}
                   />
                 ) : (
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                  >
+                  <Typography variant="body2" color="text.secondary">
                     N/A
                   </Typography>
                 )}
@@ -167,4 +146,4 @@ ResultsTable.propTypes = {
   isTablet: PropTypes.bool.isRequired,
 };
 
-export default ResultsTable; 
+export default ResultsTable;

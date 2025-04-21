@@ -63,6 +63,29 @@ function GameEditor() {
     navigate(`/game/${gameId}/question/${question.id}`);
   };
 
+  // Handle import game from JSON
+  const handleImportGame = async (gameData) => {
+    try {
+      // We'll update the current game with the imported game data
+      const updatedGame = {
+        ...game,
+        name: gameData.name,
+        thumbnail: gameData.thumbnail || game.thumbnail,
+        questions: gameData.questions || [],
+      };
+
+      const success = await updateGame(updatedGame);
+
+      if (success) {
+        displayAlert('Game imported successfully!');
+        await fetchGameData(); // Refresh game data
+      }
+    } catch (error) {
+      displayAlert(`Failed to import game: ${error.message}`, 'error');
+      console.error('Import game error:', error);
+    }
+  };
+
   // Create a reusable handler for saving game updates
   const createSaveHandler = (
     updateData,
@@ -288,6 +311,7 @@ function GameEditor() {
             <GameInfoTab
               game={game}
               onEditMetadata={() => setMetadataModalOpen(true)}
+              onImportGame={handleImportGame}
             />
           )}
         </Container>

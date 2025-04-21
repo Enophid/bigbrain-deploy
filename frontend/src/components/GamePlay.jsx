@@ -192,3 +192,200 @@ function GamePlay() {
     // Clean up interval on unmount
     return () => clearInterval(pollInterval);
   }, [fetchQuestionData, lastPollTime]);
+
+  /**
+   * Timer countdown
+   */
+  useEffect(() => {
+    if (timeLeft > 0 && !showResults) {
+      const timer = setInterval(() => {
+        setTimeLeft((prevTime) => {
+          const newTime = prevTime > 0 ? prevTime - 1 : 0;
+          
+          // When timer hits 0, get results and mark answer period as ended
+          if (newTime === 0 && !showResults) {
+            console.log('Timer reached zero, ending answer period...');
+            setAnswerPeriodEnded(true);
+            // Set flag to check answers rather than calling directly
+            setShouldCheckAnswers(true);
+          }
+          return newTime;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [timeLeft, showResults]);
+
+  /**
+   * Get correct answers and results when time expires
+   */
+  const getAnswerResults = async () => {
+    try {
+      // Only get answer results if:
+      // 1. We haven't already shown results
+      // 2. And timer has actually expired (timeLeft is 0) or answer period has ended
+      if (!showResults && (timeLeft === 0 || answerPeriodEnded)) {
+        console.log('Attempting to get answer results...');
+        
+        const data = await ApiCall(`/play/${playerId}/answer`, {}, 'GET');
+
+        if (data.error) {
+          if (data.error.includes("Answers are not available yet")) {
+            // If answers aren't available yet, try again after a short delay
+            console.log("Answers not yet available, retrying in 2 seconds...");
+            setTimeout(() => getAnswerResults(), 2000);
+            return;
+          }
+          throw new Error(data.error);
+        }
+
+        console.log('Successfully retrieved answers:', data.answers);
+        setCorrectAnswers(data.answers || []);
+        setShowResults(true);
+
+        // After showing results, we're waiting for next question
+        setWaitingForNextQuestion(true);
+      } else if (!showResults) {
+        console.log('Not checking answers yet - timer still running or results already shown');
+      }
+    } catch (err) {
+      console.error('Failed to get answer results:', err);
+      // If there's an error, try again after a short delay, but only if timer has expired
+      if (!showResults && (timeLeft === 0 || answerPeriodEnded)) {
+        console.log('Retrying to get answer results in 2 seconds...');
+        setTimeout(() => getAnswerResults(), 2000);
+      }
+    }
+  };
+
+  /**
+   * Submit answers to the server - direct fetch implementation
+   */
+  const submitAnswer = async (answerArray) => {
+    // Remove the submission buffer check to allow submitting until timer hits 0
+    
+    // Additional checks
+    if (answerPeriodEnded || showResults) {
+      console.log('Not submitting - answer period ended or showing results');
+      return false;
+    }
+    
+    if (!answerArray || answerArray.length === 0) {
+      console.log('Not submitting - empty answers array');
+      return false;
+    }
+    
+    if (JSON.stringify(answerArray) === JSON.stringify(lastSubmittedAnswer)) {
+      console.log('Not submitting - same as previous submission');
+      return false;
+    }
+
+    try {
+      console.log('Submitting answer:', answerArray);
+      
+      // Update UI state immediately
+      setSelectedAnswers(answerArray);
+      setLastSubmittedAnswer(answerArray);
+      setAnswerSubmitted(true);
+      
+      // Use ApiCall instead of fetch directly
+      console.log('Submitting answer:', answerArray);
+      const data = await ApiCall(`/play/${playerId}/answer`, { answers: answerArray }, 'PUT');
+      
+      if (data.error) {
+        if (data.error.includes("Can't answer question once answer is available")) {
+          console.log('Answer period has ended on the server');
+          setAnswerPeriodEnded(true);
+          return false;
+        }
+        
+        console.error('Error submitting answer:', data.error);
+        setAnswerError(data.error);
+        return false;
+      }
+      
+      console.log('Answer submitted successfully!');
+      setAnswerError('');
+      return true;
+    } catch (error) {
+      console.error('Network error in submitAnswer:', error);
+      setAnswerError(`Network error: ${error.message || 'Unknown error'}`);
+      return false;
+    }
+  };
+
+  /**
+   * Handle answer selection
+   */
+  const handleAnswerSelect = (answerText) => {
+    console.log('Attempting to select answer:', answerText);
+    console.log('Current state:', { timeLeft, showResults, answerPeriodEnded });
+    
+    // Check if the user can select an answer (only when timer > 0 and not showing results)
+    const shouldNotSelect = timeLeft <= 0 || showResults || answerPeriodEnded;
+    
+    if (shouldNotSelect) {
+      console.log('Cannot select answer - timer expired or results shown');
+      return;
+    }
+
+    // Set the new selected answers
+    let newSelectedAnswers = [...selectedAnswers];
+
+    // For single choice and judgement questions, only allow one selection
+    if (
+      currentQuestion.type === 'single' ||
+      currentQuestion.type === 'judgement'
+    ) {
+      newSelectedAnswers = [answerText];
+    } else {
+      // For multiple choice questions, toggle the selection
+      if (newSelectedAnswers.includes(answerText)) {
+        newSelectedAnswers = newSelectedAnswers.filter(
+          (ans) => ans !== answerText
+        );
+      } else {
+        newSelectedAnswers.push(answerText);
+      }
+    }
+
+    console.log('New selected answers:', newSelectedAnswers);
+    
+    // Update UI immediately
+    setSelectedAnswers(newSelectedAnswers);
+    
+    // Submit immediately if we have answers
+    if (newSelectedAnswers.length > 0) {
+      submitAnswer(newSelectedAnswers);
+    }
+  };
+
+  const getButtonColor = (answer) => {
+    if (showResults && correctAnswers.includes(answer.text)) return 'success';
+    if (showResults && selectedAnswers.includes(answer.text)) return 'error';
+    return 'primary';
+  };
+
+  const getResultIcon = (answer) => {
+    if (!showResults) return null;
+    if (correctAnswers.includes(answer.text)) 
+      return <CheckCircleIcon color="success" />;
+    if (selectedAnswers.includes(answer.text) && !correctAnswers.includes(answer.text)) 
+      return <CancelIcon color="error" />;
+    return null;
+  };
+
+  /**
+   * Get the appropriate result message based on answer status
+   */
+  const getResultMessage = () => {
+    if (selectedAnswers.length === 0) {
+      return "Time's up! You didn't select an answer.";
+    }
+    
+    return correctAnswers.some((ans) => selectedAnswers.includes(ans))
+      ? 'Good job! Your answer is correct.'
+      : "Sorry, that's not correct.";
+  };
+
+ 

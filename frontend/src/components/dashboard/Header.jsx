@@ -17,7 +17,7 @@ import {
   FileUpload as FileUploadIcon,
   Menu as MenuIcon
 } from '@mui/icons-material';
-import Logout from '../logout';
+import Logout from '../Logout/index.jsx';
 import SessionSearchBar from '../SessionSearchBar';
 import PropTypes from 'prop-types';
 

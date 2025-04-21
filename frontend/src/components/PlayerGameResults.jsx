@@ -494,7 +494,188 @@ const PlayerGameResults = () => {
                                 // Determine if correct based on points
                                 const isCorrect = answer.points > 0;
 
- 
+                                return (
+                                  <TableRow
+                                    key={index}
+                                    sx={{
+                                      '&:nth-of-type(odd)': {
+                                        bgcolor: 'rgba(0,0,0,0.02)',
+                                      },
+                                      transition: 'background-color 0.2s',
+                                      '&:hover': {
+                                        bgcolor: 'rgba(0,0,0,0.05)',
+                                      },
+                                    }}
+                                  >
+                                    <TableCell>
+                                      <Typography
+                                        variant="body1"
+                                        sx={{ fontWeight: 'medium' }}
+                                      >
+                                        Question {answer.position || index + 1}
+                                      </Typography>
+                                      <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        noWrap
+                                        sx={{ maxWidth: isTablet ? 120 : 200 }}
+                                      >
+                                        {answer.question}
+                                      </Typography>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                      {isCorrect ? (
+                                        <Chip
+                                          icon={<CheckCircleIcon />}
+                                          label="Correct"
+                                          color="success"
+                                          size="small"
+                                          sx={{ fontWeight: 'medium' }}
+                                        />
+                                      ) : (
+                                        <Chip
+                                          icon={<CancelIcon />}
+                                          label="Incorrect"
+                                          color="error"
+                                          size="small"
+                                          sx={{ fontWeight: 'medium' }}
+                                        />
+                                      )}
+                                    </TableCell>
+                                    <TableCell align="center">
+                                      {isCorrect ? (
+                                        <Box>
+                                          <Typography
+                                            variant="body1"
+                                            fontWeight="medium"
+                                            color="success.main"
+                                          >
+                                            {answer.points}
+                                          </Typography>
+                                          {answer.speedMultiplier && (
+                                            <Typography
+                                              variant="caption"
+                                              color="text.secondary"
+                                            >
+                                              {answer.questionPoints} ×{' '}
+                                              {answer.speedMultiplier} speed
+                                            </Typography>
+                                          )}
+                                        </Box>
+                                      ) : (
+                                        <Typography
+                                          variant="body1"
+                                          fontWeight="medium"
+                                          color="text.secondary"
+                                        >
+                                          0
+                                        </Typography>
+                                      )}
+                                    </TableCell>
+                                    <TableCell align="right">
+                                      {answer.responseTime ? (
+                                        <Chip
+                                          icon={<TimerIcon fontSize="small" />}
+                                          label={`${answer.responseTime}s`}
+                                          size="small"
+                                          color="secondary"
+                                          variant="outlined"
+                                          sx={{ fontWeight: 'medium' }}
+                                        />
+                                      ) : (
+                                        <Typography
+                                          variant="body2"
+                                          color="text.secondary"
+                                        >
+                                          N/A
+                                        </Typography>
+                                      )}
+                                    </TableCell>
+                                  </TableRow>
+                                );
+                              })}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+                      )}
+
+                      {/* Mobile View - Card list */}
+                      <Box sx={{ display: { xs: 'block', sm: 'none' }, mb: 3 }}>
+                        {results.map((answer, index) => (
+                          <MobileResultRow
+                            key={index}
+                            answer={answer}
+                            index={index}
+                          />
+                        ))}
+                      </Box>
+                    </>
+                  ) : (
+                    <Box sx={{ textAlign: 'center', py: 4 }}>
+                      <Typography variant="body1" color="text.secondary">
+                        No results found. Try playing a game first!
+                      </Typography>
+                    </Box>
+                  )}
+                </>
+              )}
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  mt: { xs: 3, sm: 4 },
+                  gap: { xs: 2, sm: 2 },
+                }}
+              >
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  fullWidth={isMobile}
+                  size={isMobile ? 'medium' : 'large'}
+                  startIcon={<ArrowBackIcon />}
+                  onClick={handleReturnToGame}
+                  sx={{
+                    borderRadius: 2,
+                    px: { xs: 2, sm: 3 },
+                    py: { xs: 1, sm: 1.5 },
+                    textTransform: 'none',
+                    fontWeight: 'medium',
+                    fontSize: { xs: '0.9rem', sm: '1rem' },
+                    order: { xs: 2, sm: 1 },
+                  }}
+                >
+                  Return to Game
+                </Button>
+
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth={isMobile}
+                  size={isMobile ? 'medium' : 'large'}
+                  startIcon={<QuestionIcon />}
+                  onClick={handlePlayAgain}
+                  sx={{
+                    borderRadius: 2,
+                    px: { xs: 2, sm: 4 },
+                    py: { xs: 1, sm: 1.5 },
+                    textTransform: 'none',
+                    fontWeight: 'bold',
+                    fontSize: { xs: '0.9rem', sm: '1.1rem' },
+                    order: { xs: 1, sm: 2 },
+                  }}
+                >
+                  Play New Game
+                </Button>
+              </Box>
+            </Paper>
+          </Fade>
+        </Container>
+      </Box>
+    </ThemeProvider>
+  );
 };
 
 export default PlayerGameResults;

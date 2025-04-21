@@ -112,7 +112,7 @@ const DefaultSessionContent = ({
         color="info"
         onClick={() => handleAdvanceToFirstQuestion()}
       >
-        Advance to the question 🚀
+        Advance to next the question 🚀
       </Button>
     </Box>
 

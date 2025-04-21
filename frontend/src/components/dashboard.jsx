@@ -22,6 +22,7 @@ import GameCard from './dashboard/GameCard';
 import CreateGameModal from './dashboard/CreateGameModal';
 import EmptyState from './dashboard/EmptyState';
 import SessionModal from './dashboard/SessionModal';
+import PastSessionsModal from './dashboard/PastSessionsModal';
 
 // Helper function
 const generateRandomID = () => Math.floor(Math.random() * 10 ** 8);
@@ -38,6 +39,12 @@ function Dashboard() {
     gameName: '',
     isNewSession: true,
     gameId: null,
+  });
+  const [pastSessionsModalOpen, setPastSessionsModalOpen] = useState(false);
+  const [currentPastSessions, setCurrentPastSessions] = useState({
+    gameId: null,
+    gameName: '',
+    sessions: [],
   });
   const [newGameDetails, setNewGameDetails] = useState({
     id: 0,
@@ -348,30 +355,54 @@ function Dashboard() {
     }
   };
 
-  const handleCloseSessionModal = () => {
+  const handleCloseSessionModal = async () => {
     setSessionModalOpen(false);
+    
+    // Refresh games list when modal is closed to ensure we have the latest state
+    try {
+      const refreshData = await ApiCall('/admin/games', {}, 'GET');
+      if (!refreshData.error) {
+        setGames(refreshData.games);
+      }
+    } catch (err) {
+      console.error('Failed to refresh games after closing session modal:', err.message);
+    }
   };
 
-  // // Add this function to refresh games data periodically
-  // useEffect(() => {
-  //   // Function to refresh games data
-  //   const refreshGames = async () => {
-  //     try {
-  //       const data = await ApiCall('/admin/games', {}, 'GET');
-  //       if (!data.error) {
-  //         setGames(data.games);
-  //       }
-  //     } catch (error) {
-  //       console.error('Failed to refresh games data:', error);
-  //     }
-  //   };
+  // Handle viewing past sessions
+  const handleViewPastSessions = (gameId, gameName, pastSessions) => {
+    setCurrentPastSessions({
+      gameId,
+      gameName,
+      sessions: pastSessions,
+    });
+    setPastSessionsModalOpen(true);
+  };
 
-  //   // Set up periodic refresh every 15 seconds
-  //   const intervalId = setInterval(refreshGames, 15000);
+  const handleClosePastSessionsModal = () => {
+    setPastSessionsModalOpen(false);
+  };
 
-  //   // Clean up interval on component unmount
-  //   return () => clearInterval(intervalId);
-  // }, []);
+  // Add periodic refresh to ensure games data is always up to date
+  useEffect(() => {
+    // Function to refresh games data
+    const refreshGames = async () => {
+      try {
+        const data = await ApiCall('/admin/games', {}, 'GET');
+        if (!data.error) {
+          setGames(data.games);
+        }
+      } catch (error) {
+        console.error('Failed to refresh games data:', error);
+      }
+    };
+
+    // Set up periodic refresh every 10 seconds
+    const intervalId = setInterval(refreshGames, 10000);
+
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalId);
+  }, []);
 
   return (
     <ThemeProvider theme={bigBrainTheme}>
@@ -439,8 +470,6 @@ function Dashboard() {
             <EmptyState onCreateGame={handleOpenModal} />
           ) : (
             <Grid
-              container
-              spacing={3}
               sx={{
                 display: 'grid',
                 gridTemplateColumns: {
@@ -469,6 +498,7 @@ function Dashboard() {
                     onEdit={handleEditGame}
                     onDelete={handleDeleteGame}
                     onStart={handleStartGame}
+                    onViewPastSessions={handleViewPastSessions}
                     displayAlert={displayAlert}
                   />
                 ))}
@@ -497,6 +527,14 @@ function Dashboard() {
         gameName={currentSession.gameName}
         isNewSession={currentSession.isNewSession}
         onEndSession={handleEndSession}
+      />
+
+      <PastSessionsModal
+        open={pastSessionsModalOpen}
+        onClose={handleClosePastSessionsModal}
+        gameId={currentPastSessions.gameId}
+        gameName={currentPastSessions.gameName}
+        pastSessions={currentPastSessions.sessions}
       />
 
       <Snackbar

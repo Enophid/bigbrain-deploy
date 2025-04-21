@@ -141,6 +141,7 @@ const GameUploadModal = ({ open, onClose, onUpload }) => {
             {error}
           </Alert>
         )}
+        
         {fileContent && (
           <Alert severity="success" sx={{ mb: 3 }}>
             File validated successfully. Ready to create game: <strong>{fileContent.name}</strong> with {fileContent.questions.length} questions.
@@ -182,6 +183,7 @@ const GameUploadModal = ({ open, onClose, onUpload }) => {
           See the documentation or sample file for the expected format.
         </Typography>
       </DialogContent>
+      
       <DialogActions sx={{ px: 3, pb: 3 }}>
         <Button onClick={handleClose} variant="outlined">
           Cancel
@@ -198,3 +200,11 @@ const GameUploadModal = ({ open, onClose, onUpload }) => {
     </Dialog>
   );
 };
+
+GameUploadModal.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onUpload: PropTypes.func.isRequired,
+};
+
+export default GameUploadModal; 

@@ -32,16 +32,16 @@ const Statistics = ({ results = [] }) => {
     let totalCorrect = 0;
     let totalAnswers = 0;
     let responseTimes = [];
-    
+
     // Use first player's answers to get question count
     const questionCount = results[0]?.answers?.length || 0;
-    
+
     // Calculate totals
-    results.forEach(player => {
-      player.answers.forEach(answer => {
+    results.forEach((player) => {
+      player.answers.forEach((answer) => {
         totalAnswers++;
         if (answer.correct) totalCorrect++;
-        
+
         if (answer.answeredAt && answer.questionStartedAt) {
           const startTime = new Date(answer.questionStartedAt).getTime();
           const endTime = new Date(answer.answeredAt).getTime();
@@ -49,16 +49,20 @@ const Statistics = ({ results = [] }) => {
         }
       });
     });
-    
+
     // Calculate rates
-    const accuracyPercentage = totalAnswers > 0 
-      ? Math.round((totalCorrect / totalAnswers) * 100) 
-      : 0;
-    
-    const avgResponseTime = responseTimes.length > 0
-      ? Math.round((responseTimes.reduce((sum, time) => sum + time, 0) / responseTimes.length) * 10) / 10
-      : 0;
-      
+    const accuracyPercentage =
+      totalAnswers > 0 ? Math.round((totalCorrect / totalAnswers) * 100) : 0;
+
+    const avgResponseTime =
+      responseTimes.length > 0
+        ? Math.round(
+          (responseTimes.reduce((sum, time) => sum + time, 0) /
+              responseTimes.length) *
+              10
+        ) / 10
+        : 0;
+
     return {
       playerCount,
       totalCorrect,
@@ -85,11 +89,23 @@ const Statistics = ({ results = [] }) => {
 
       {/* Summary Stats */}
       <Paper elevation={0} sx={{ p: 3, mb: 1 }}>
-        <Typography variant="h6" gutterBottom fontWeight={600} color="text.secondary">
+        <Typography
+          variant="h6"
+          gutterBottom
+          fontWeight={600}
+          color="text.secondary"
+        >
           Session Overview
         </Typography>
 
-        <Grid sx={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 3, mt: 1 }}>
+        <Grid
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(12, 1fr)',
+            gap: 3,
+            mt: 1,
+          }}
+        >
           <Grid sx={{ gridColumn: { xs: 'span 6', sm: 'span 3' } }}>
             <Box sx={{ textAlign: 'center', p: 2 }}>
               <PersonIcon color="primary" sx={{ fontSize: 32, mb: 1 }} />
@@ -101,7 +117,7 @@ const Statistics = ({ results = [] }) => {
               </Typography>
             </Box>
           </Grid>
-          
+
           <Grid sx={{ gridColumn: { xs: 'span 6', sm: 'span 3' } }}>
             <Box sx={{ textAlign: 'center', p: 2 }}>
               <QuestionIcon color="primary" sx={{ fontSize: 32, mb: 1 }} />
@@ -113,7 +129,7 @@ const Statistics = ({ results = [] }) => {
               </Typography>
             </Box>
           </Grid>
-          
+
           <Grid sx={{ gridColumn: { xs: 'span 6', sm: 'span 3' } }}>
             <Box sx={{ textAlign: 'center', p: 2 }}>
               <CheckCircleIcon color="success" sx={{ fontSize: 32, mb: 1 }} />
@@ -125,7 +141,7 @@ const Statistics = ({ results = [] }) => {
               </Typography>
             </Box>
           </Grid>
-          
+
           <Grid sx={{ gridColumn: { xs: 'span 6', sm: 'span 3' } }}>
             <Box sx={{ textAlign: 'center', p: 2 }}>
               <TimerIcon color="secondary" sx={{ fontSize: 32, mb: 1 }} />
@@ -138,9 +154,9 @@ const Statistics = ({ results = [] }) => {
             </Box>
           </Grid>
         </Grid>
-        
+
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-          <Chip 
+          <Chip
             icon={<TrophyIcon />}
             label={`${stats.totalCorrect} correct answers out of ${stats.totalAnswers} total responses`}
             color="primary"

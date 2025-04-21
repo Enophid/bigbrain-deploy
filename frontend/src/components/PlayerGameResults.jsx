@@ -302,10 +302,199 @@ const PlayerGameResults = () => {
                     >
                       Results So Far
                     </Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        color: 'text.secondary',
+                        mb: { xs: 2, sm: 3 },
+                        fontSize: { xs: '1rem', sm: '1.25rem' },
+                      }}
+                    >
+                      Here&apos;s how you&apos;re performing
+                    </Typography>
 
-      </Box>
-    </ThemeProvider>
-  );
+                    <Grid
+                      container
+                      spacing={2}
+                      justifyContent="center"
+                      sx={{ mb: { xs: 3, sm: 4 } }}
+                    >
+                      <Grid item xs={6} sm={5} md={4}>
+                        <Card
+                          sx={{
+                            p: { xs: 1.5, sm: 2 },
+                            bgcolor: 'primary.main',
+                            color: 'white',
+                            borderRadius: 3,
+                            height: '100%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'center',
+                              mb: 1,
+                            }}
+                          >
+                            <TrophyIcon
+                              fontSize={isMobile ? 'medium' : 'large'}
+                            />
+                          </Box>
+                          <Typography
+                            variant="h5"
+                            sx={{
+                              fontWeight: 'bold',
+                              fontSize: { xs: '1.5rem', sm: '1.8rem' },
+                            }}
+                          >
+                            {totalScore}
+                          </Typography>
+                          <Typography variant="body2">Total Points</Typography>
+                        </Card>
+                      </Grid>
+
+                      <Grid item xs={6} sm={5} md={4}>
+                        <Card
+                          sx={{
+                            p: { xs: 1.5, sm: 2 },
+                            bgcolor: 'secondary.main',
+                            color: 'white',
+                            borderRadius: 3,
+                            height: '100%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'center',
+                              mb: 1,
+                            }}
+                          >
+                            <TimerIcon
+                              fontSize={isMobile ? 'medium' : 'large'}
+                            />
+                          </Box>
+                          <Typography
+                            variant="h5"
+                            sx={{
+                              fontWeight: 'bold',
+                              fontSize: { xs: '1.5rem', sm: '1.8rem' },
+                            }}
+                          >
+                            {avgTime}s
+                          </Typography>
+                          <Typography variant="body2">
+                            Avg Response Time
+                          </Typography>
+                        </Card>
+                      </Grid>
+                    </Grid>
+                  </Box>
+
+                  <Divider sx={{ mb: { xs: 3, sm: 4 } }} />
+
+                  {/* Points System Explanation */}
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: { xs: 2, sm: 3 },
+                      mb: { xs: 3, sm: 4 },
+                      bgcolor: 'rgba(25, 118, 210, 0.08)',
+                      borderRadius: 2,
+                      border: '1px solid rgba(25, 118, 210, 0.2)',
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: 'bold',
+                        mb: 1.5,
+                        color: 'primary.main',
+                        fontSize: { xs: '1rem', sm: '1.25rem' },
+                      }}
+                    >
+                      Advanced Points System
+                    </Typography>
+                    <Typography variant="body2" sx={{ mb: 1.5 }}>
+                      Your points are calculated using a speed-based multiplier:
+                    </Typography>
+                    <Typography variant="body2" component="div" sx={{ mb: 1 }}>
+                      <strong>
+                        Final Points = Base Question Points × Speed Multiplier
+                      </strong>
+                    </Typography>
+                    <Typography variant="body2" sx={{ mb: 0.5 }}>
+                      • Faster answers earn higher multipliers (up to 2x for
+                      instant answers)
+                    </Typography>
+                    <Typography variant="body2" sx={{ mb: 0.5 }}>
+                      • Even the slowest answers receive at least 0.5x
+                      multiplier
+                    </Typography>
+                    <Typography variant="body2">
+                      • The multiplier decreases linearly as more time is used
+                    </Typography>
+                  </Paper>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      mb: { xs: 2, sm: 3 },
+                      fontWeight: 'bold',
+                      fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                    }}
+                  >
+                    Question Performance
+                  </Typography>
+
+                  {results.length > 0 ? (
+                    <>
+                      {/* Desktop/Tablet View - Table */}
+                      {!isMobile && (
+                        <TableContainer
+                          component={Paper}
+                          elevation={0}
+                          sx={{ mb: 3, display: { xs: 'none', sm: 'block' } }}
+                        >
+                          <Table size={isTablet ? 'small' : 'medium'}>
+                            <TableHead>
+                              <TableRow sx={{ bgcolor: 'rgba(0,0,0,0.04)' }}>
+                                <TableCell sx={{ fontWeight: 'bold' }}>
+                                  Question
+                                </TableCell>
+                                <TableCell
+                                  align="center"
+                                  sx={{ fontWeight: 'bold' }}
+                                >
+                                  Result
+                                </TableCell>
+                                <TableCell
+                                  align="center"
+                                  sx={{ fontWeight: 'bold' }}
+                                >
+                                  Points
+                                </TableCell>
+                                <TableCell
+                                  align="right"
+                                  sx={{ fontWeight: 'bold' }}
+                                >
+                                  Response Time
+                                </TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {results.map((answer, index) => {
+                                // Determine if correct based on points
+                                const isCorrect = answer.points > 0;
+
+ 
 };
 
 export default PlayerGameResults;

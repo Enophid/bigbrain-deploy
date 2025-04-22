@@ -1,16 +1,11 @@
-import {
-  Button,
-  Tooltip,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material';
+import { Button, Tooltip, useMediaQuery, useTheme } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PropTypes from 'prop-types';
 
 export default function LogoutButton({ onLogout }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  
+
   const buttonLabel = isMobile ? '' : 'Logout';
   const tooltipTitle = isMobile ? 'Logout' : 'Click to log out of your account';
 

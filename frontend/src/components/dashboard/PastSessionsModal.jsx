@@ -48,7 +48,7 @@ const PastSessionsModal = ({ open, onClose, gameName, pastSessions = [] }) => {
 
   const handleViewCharts = (sessionId) => {
     // Navigate to the detailed charts page for this session
-    navigate(`/game-results/${sessionId}`);
+    navigate(`/results/${sessionId}`);
     onClose();
   };
 

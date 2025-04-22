@@ -395,7 +395,80 @@ const SessionModal = ({
     ? `${baseAppUrl}/play?session=${sessionId}`
     : `${baseAppUrl}/play`;
 
+  // Log state changes for debugging
+  useEffect(() => {
+    console.log('Modal state:', { isEnded, isEnding, showEndConfirm });
+  }, [isEnded, isEnding, showEndConfirm]);
 
+  // Check if session has already ended when the modal opens (for auto-ended sessions)
+  useEffect(() => {
+    const checkSessionStatus = async () => {
+      // Only run this check for active sessions and when modal is open
+      if (!open || isNewSession || !gameId || !sessionId) return;
+      
+      console.log('Checking session status for potentially auto-ended session:', sessionId);
+      
+      try {
+        // Use the games endpoint instead of individual game endpoint
+        const data = await ApiCall(
+          `/admin/games`,
+          {},
+          'GET'
+        );
+        
+        // Find the specific game in the response
+        const game = data.games?.find(g => g.id === gameId);
+        
+        // Check if the game has no active session
+        if (game && !game.active) {
+          console.log('Session has automatically ended (detected via game data), showing results options');
+          
+          // Show the Session Ended view
+          setIsEnding(false);
+          setIsEnded(true);
+        } else if (game) {
+          console.log('Session is still active:', game.active);
+        } else {
+          console.log('Game not found in response');
+        }
+      } catch (error) {
+        console.error('Error checking session status:', error);
+      }
+    };
+    
+    // Only run once when the modal opens
+    if (open) {
+      checkSessionStatus();
+    }
+  }, [open, gameId, sessionId, isNewSession]);
+
+  // Add a check when the modal first opens for active sessions
+  useEffect(() => {
+    // When the modal opens for an existing session, check if it has the active field
+    if (open && !isNewSession && gameId && sessionId) {
+      console.log('Checking if session was previously ended:', sessionId);
+      
+      // Make API call to get current game state using games endpoint
+      ApiCall(`/admin/games`, {}, 'GET')
+        .then(data => {
+          // Find the specific game in the response
+          const game = data.games?.find(g => g.id === gameId);
+          
+          // If the game doesn't have an active session when we expect it to
+          if (game && !game.active) {
+            console.log('Found previously ended session, showing results options');
+            setIsEnded(true);
+          } else if (game) {
+            console.log('Active session confirmed:', game.active);
+          } else {
+            console.log('Game not found in response');
+          }
+        })
+        .catch(err => {
+          console.error('Error checking game status:', err);
+        });
+    }
+  }, [open, isNewSession, gameId, sessionId]);
 
   /**
    * Advances the game to the first question

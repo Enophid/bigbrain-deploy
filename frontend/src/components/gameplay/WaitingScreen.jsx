@@ -50,7 +50,11 @@ function WaitingScreen({ handleViewResults }) {
             >
               <CardContent sx={{ textAlign: 'center' }}>
                 <QuestionIcon sx={{ fontSize: 60, color: '#00B4D8', mb: 2 }} />
-                <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+                <Typography
+                  variant="h4"
+                  gutterBottom
+                  sx={{ fontWeight: 'bold' }}
+                >
                   Get Ready!
                 </Typography>
                 <Typography variant="body1" sx={{ mb: 4, fontSize: '1.1rem' }}>
@@ -63,7 +67,7 @@ function WaitingScreen({ handleViewResults }) {
                     '& .MuiCircularProgress-circle': {
                       strokeLinecap: 'round',
                     },
-                    mb: 3
+                    mb: 3,
                   }}
                 />
 
@@ -88,4 +92,4 @@ WaitingScreen.propTypes = {
   handleViewResults: PropTypes.func.isRequired,
 };
 
-export default WaitingScreen; 
+export default WaitingScreen;

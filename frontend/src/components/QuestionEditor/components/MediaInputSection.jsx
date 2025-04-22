@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { Box, Typography } from '@mui/material';
-import InputSwitcher from '../GameEditor/InputSwitcher'; // Adjust path if needed
+import InputSwitcher from '../../GameEditor/InputSwitcher'; // Corrected path
 
 /**
  * Component for handling optional media input (YouTube URL or Image upload).

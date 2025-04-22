@@ -1,23 +1,17 @@
 import PropTypes from 'prop-types';
-import {
-  Box,
-  Typography,
-  Chip,
-  Stack,
-  Fade,
-} from '@mui/material';
+import { Box, Typography, Chip, Stack, Fade } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
 } from '@mui/icons-material';
 
-function ResultOverlay({ 
-  selectedAnswers, 
-  correctAnswers, 
-  currentQuestion, 
-  getResultMessage 
+function ResultOverlay({
+  selectedAnswers,
+  correctAnswers,
+  currentQuestion,
+  getResultMessage,
 }) {
-  const isCorrect = correctAnswers.some(ans => selectedAnswers.includes(ans));
+  const isCorrect = correctAnswers.some((ans) => selectedAnswers.includes(ans));
 
   return (
     <Fade in={true} timeout={800}>
@@ -26,12 +20,12 @@ function ResultOverlay({
           mb: 4,
           p: 3,
           borderRadius: 3,
-          backgroundColor: isCorrect 
-            ? 'rgba(76, 175, 80, 0.1)' 
+          backgroundColor: isCorrect
+            ? 'rgba(76, 175, 80, 0.1)'
             : 'rgba(244, 67, 54, 0.1)',
-          border: `1px solid ${isCorrect 
-            ? 'rgba(76, 175, 80, 0.3)' 
-            : 'rgba(244, 67, 54, 0.3)'}`, 
+          border: `1px solid ${
+            isCorrect ? 'rgba(76, 175, 80, 0.3)' : 'rgba(244, 67, 54, 0.3)'
+          }`,
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -45,9 +39,16 @@ function ResultOverlay({
           </Typography>
         </Box>
 
-        {/* Show points calculation if correct */}        
+        {/* Show points calculation if correct */}
         {isCorrect && currentQuestion && currentQuestion.speedMultiplier && (
-          <Box sx={{ mb: 2, p: 1.5, bgcolor: 'rgba(76, 175, 80, 0.05)', borderRadius: 2 }}>
+          <Box
+            sx={{
+              mb: 2,
+              p: 1.5,
+              bgcolor: 'rgba(76, 175, 80, 0.05)',
+              borderRadius: 2,
+            }}
+          >
             <Typography variant="body1" sx={{ mb: 1, fontWeight: 'medium' }}>
               Points Calculation:
             </Typography>
@@ -56,7 +57,8 @@ function ResultOverlay({
                 Base Points: {currentQuestion.basePoints ?? 'N/A'}
               </Typography>
               <Typography variant="body2">
-                Speed Multiplier: {currentQuestion.speedMultiplier}x (responded in {currentQuestion.responseTime?.toFixed(1) ?? 'N/A'}s)
+                Speed Multiplier: {currentQuestion.speedMultiplier}x (responded
+                in {currentQuestion.responseTime?.toFixed(1) ?? 'N/A'}s)
               </Typography>
               <Typography variant="body1" sx={{ fontWeight: 'bold', mt: 0.5 }}>
                 Final Points: {currentQuestion.finalPoints ?? 'N/A'}
@@ -96,4 +98,4 @@ ResultOverlay.propTypes = {
   getResultMessage: PropTypes.func.isRequired,
 };
 
-export default ResultOverlay; 
+export default ResultOverlay;

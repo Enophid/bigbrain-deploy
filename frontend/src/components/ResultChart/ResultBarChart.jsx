@@ -1,108 +1,133 @@
-import { Box, Typography } from '@mui/material';
-import { BarChart } from '@mui/x-charts/BarChart';
 import PropTypes from 'prop-types';
+import { Box, Typography, useTheme, useMediaQuery } from '@mui/material';
+import { BarChart } from '@mui/x-charts/BarChart';
+import { processQuestionPerformanceData } from './utils';
 
-export default function ResultBarChart({ results = [] }) {
-  // Process data for the chart
-  const processChartData = () => {
-    if (!results || !results.length) {
-      return {
-        questionLabels: ['No Data'],
-        correctData: [0],
-        incorrectData: [0]
-      };
-    }
-
-    // Get the number of questions from the first player's answers
-    const questionCount = results[0]?.answers?.length || 0;
-    
-    // Initialize arrays to count correct and incorrect answers for each question
-    const correctAnswers = Array(questionCount).fill(0);
-    const incorrectAnswers = Array(questionCount).fill(0);
-    
-    // Count correct and incorrect answers for each question
-    results.forEach(player => {
-      player.answers.forEach((answer, index) => {
-        if (answer.correct) {
-          correctAnswers[index]++;
-        } else {
-          incorrectAnswers[index]++;
-        }
-      });
-    });
-    
-    // Create question labels (Q1, Q2, etc.)
-    const questionLabels = Array.from({ length: questionCount }, (_, i) => `Q${i + 1}`);
-    
-    return {
-      questionLabels,
-      correctData: correctAnswers,
-      incorrectData: incorrectAnswers
-    };
-  };
-
-  const { questionLabels, correctData, incorrectData } = processChartData();
+/**
+ * Component to display game results in a bar chart
+ */
+const ResultBarChart = ({ results }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+  
+  // Responsive chart dimensions
+  const chartHeight = isMobile ? 250 : 400;
+  
+  // Determine chart width based on screen size
+  let chartWidth = 700; // Default for desktop
+  if (isMobile) {
+    chartWidth = 300;
+  } else if (isTablet) {
+    chartWidth = 500;
+  }
+  
+  // Get question performance data
+  const { questionLabels, correctCount, incorrectCount } = processQuestionPerformanceData(results);
+  
+  // Create dataset for chart
+  const dataset = questionLabels.map((label, index) => ({
+    question: label,
+    correct: correctCount[index],
+    incorrect: incorrectCount[index]
+  }));
+  
+  if (!questionLabels.length) {
+    return (
+      <Box sx={{ mb: 4, textAlign: 'center' }}>
+        <Typography variant="body1">Insufficient data for bar chart visualization</Typography>
+      </Box>
+    );
+  }
 
   return (
-    <Box
-      sx={{
-        width: '100%',
-        maxWidth: 800,
-        mx: 'auto',
-        mt: 4,
-        p: 2,
-        borderRadius: 3,
-        bgcolor: 'rgba(255, 255, 255, 0.9)',
-        boxShadow: 3,
+    <Box 
+      sx={{ 
+        mb: 6, 
         textAlign: 'center',
+        p: isMobile ? 1 : 3,
+        overflowX: 'auto'
       }}
+      aria-describedby="performance-chart-desc"
+      tabIndex={0}
     >
-      <Typography variant="h4" sx={{ mb: 3 }}>
-        Question Performance Breakdown
+      <Typography 
+        id="performance-chart-title"
+        variant={isMobile ? 'h6' : 'h5'} 
+        component="h2" 
+        gutterBottom
+      >
+        Performance by Question
       </Typography>
-      <Box sx={{ height: 400, width: '100%', display: 'flex', justifyContent: 'center' }}>
+      <Typography 
+        id="performance-chart-desc"
+        variant="body2" 
+        color="text.secondary" 
+        paragraph
+      >
+        This chart shows the number of correct/incorrect responses for each question
+      </Typography>
+      
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          justifyContent: 'center',
+          minWidth: chartWidth
+        }}
+      >
         <BarChart
-          xAxis={[
-            { 
-              scaleType: 'band', 
-              data: questionLabels,
-              label: 'Questions'
-            },
-          ]}
+          dataset={dataset}
+          xAxis={[{ 
+            scaleType: 'band', 
+            dataKey: 'question',
+            label: 'Questions',
+            labelStyle: {
+              fontSize: isMobile ? 14 : 16,
+            }
+          }]}
           series={[
-            { 
-              data: correctData,
-              label: 'Correct Answers',
-              color: '#4caf50'
+            {
+              dataKey: 'correct',
+              label: 'Correct',
+              color: '#4caf50',
+              valueFormatter: (value) => `${value} responses`,
             },
-            { 
-              data: incorrectData,
-              label: 'Incorrect Answers',
-              color: '#f44336'
-            },
+            {
+              dataKey: 'incorrect',
+              label: 'Incorrect',
+              color: '#f44336',
+              valueFormatter: (value) => `${value} responses`,
+            }
           ]}
-          height={300}
-          width={500}
+          height={chartHeight}
+          width={chartWidth}
+          margin={{
+            top: isMobile ? 30 : 50,
+            right: isMobile ? 20 : 30,
+            bottom: isMobile ? 50 : 70,
+            left: isMobile ? 50 : 70,
+          }}
+          colors={['#4caf50', '#f44336']}
+          slotProps={{
+            legend: {
+              labelStyle: {
+                fontSize: isMobile ? 12 : 14,
+              }
+            }
+          }}
           legend={{ 
-            position: 'top',
+            position: { vertical: 'top', horizontal: 'middle' },
             padding: 20,
           }}
-          margin={{ top: 40, bottom: 40, left: 40, right: 40 }}
+          aria-labelledby="performance-chart-title"
         />
       </Box>
     </Box>
   );
-}
+};
 
 ResultBarChart.propTypes = {
-  results: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string,
-      answers: PropTypes.arrayOf(
-        PropTypes.shape({
-          correct: PropTypes.bool,
-        })
-      ),
-    })
-  ),
+  results: PropTypes.array.isRequired,
 };
+
+export default ResultBarChart;

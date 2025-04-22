@@ -1,13 +1,13 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  Box, 
-  Typography, 
-  Container, 
-  Button, 
-  ThemeProvider, 
-  CssBaseline, 
-  Breadcrumbs, 
-  Link 
+import {
+  Box,
+  Typography,
+  Container,
+  Button,
+  ThemeProvider,
+  CssBaseline,
+  Breadcrumbs,
+  Link,
 } from '@mui/material';
 import { ArrowBack, Home, BarChart } from '@mui/icons-material';
 import bigBrainTheme from '../../theme/bigBrainTheme';
@@ -29,22 +29,34 @@ const GameResultsPage = () => {
       <CssBaseline />
       <Container maxWidth="lg" sx={{ pt: 4, pb: 8 }}>
         {/* Header with navigation */}
-        <Box sx={{ mb: 4, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: 'space-between' }}>
+        <Box
+          sx={{
+            mb: 4,
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            alignItems: { xs: 'flex-start', sm: 'center' },
+            justifyContent: 'space-between',
+          }}
+        >
           <Box>
             <Breadcrumbs aria-label="breadcrumb navigation" sx={{ mb: 1 }}>
-              <Link 
+              <Link
                 component="button"
-                underline="hover" 
-                color="inherit" 
-                sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+                underline="hover"
+                color="inherit"
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  cursor: 'pointer',
+                }}
                 onClick={() => navigate('/dashboard')}
                 aria-label="Go to Dashboard"
               >
                 <Home sx={{ mr: 0.5 }} fontSize="small" />
                 Dashboard
               </Link>
-              <Typography 
-                color="text.primary" 
+              <Typography
+                color="text.primary"
                 sx={{ display: 'flex', alignItems: 'center' }}
                 aria-current="page"
               >
@@ -77,4 +89,4 @@ const GameResultsPage = () => {
   );
 };
 
-export default GameResultsPage; 
+export default GameResultsPage;

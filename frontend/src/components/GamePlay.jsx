@@ -607,6 +607,8 @@ function GamePlay() {
     navigate(`/player-results/${playerId}`);
   };
 
+
+
   /**
    * Render loading state
    */
@@ -804,6 +806,7 @@ function GamePlay() {
           flexDirection: 'column',
           backgroundImage: 'linear-gradient(135deg, #2D3047 0%, #00B4D8 50%, #06D6A0 100%)',
           backgroundSize: '400% 400%',
+          backgroundAttachment: 'fixed',
           animation: 'gradient 15s ease infinite',
           '@keyframes gradient': {
             '0%': { backgroundPosition: '0% 50%' },
@@ -812,9 +815,17 @@ function GamePlay() {
           },
           pt: { xs: 3, sm: 5 },
           pb: 5,
+          overflowX: 'hidden',
+          flex: 1,
+          justifyContent: currentQuestion?.imageUrl || currentQuestion?.videoUrl ? 'flex-start' : 'center',
         }}
       >
-        <Container maxWidth="md">
+        <Container maxWidth="md" sx={{ 
+          display: 'flex', 
+          flexDirection: 'column',
+          flex: 1, 
+          py: { xs: 2, sm: 3 },
+        }}>
           <Fade in={true} timeout={600}>
             <Paper
               elevation={10}
@@ -828,6 +839,9 @@ function GamePlay() {
                 backdropFilter: 'blur(10px)',
                 position: 'relative',
                 overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+                height: 'fit-content',
               }}
             >
               {/* Timer display and question badge */}
@@ -897,6 +911,7 @@ function GamePlay() {
                       borderRadius: 3,
                       overflow: 'hidden',
                       boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                      textAlign: 'center',
                     }}
                   >
                     <Box
@@ -908,6 +923,7 @@ function GamePlay() {
                         maxHeight: '400px',
                         objectFit: 'contain',
                         display: 'block',
+                        margin: '0 auto',
                       }}
                     />
                   </Box>
@@ -921,6 +937,8 @@ function GamePlay() {
                       borderRadius: 3,
                       overflow: 'hidden',
                       boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                      paddingTop: '56.25%', // 16:9 aspect ratio
+                      height: 0,
                     }}
                   >
                     <Box
@@ -931,8 +949,11 @@ function GamePlay() {
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                       sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
                         width: '100%',
-                        height: '400px',
+                        height: '100%',
                         display: 'block',
                       }}
                     />

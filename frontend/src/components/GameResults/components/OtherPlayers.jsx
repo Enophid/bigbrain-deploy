@@ -73,7 +73,14 @@ const OtherPlayers = ({ players }) => (
               {player.name || `Player ${index + 4}`}
             </TableCell>
             <TableCell align="center">
-              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: 1,
+                }}
+              >
                 <Chip
                   icon={<TrophyIcon sx={{ color: '#FFD700 !important' }} />}
                   label={`${player.score}/${player.totalQuestions}`}
@@ -86,7 +93,14 @@ const OtherPlayers = ({ players }) => (
             </TableCell>
             <TableCell align="right">
               {player.avgResponseTime !== null ? (
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 1 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    alignItems: 'center',
+                    gap: 1,
+                  }}
+                >
                   <Chip
                     icon={<TimerIcon fontSize="small" />}
                     label={`${player.avgResponseTime}s`}

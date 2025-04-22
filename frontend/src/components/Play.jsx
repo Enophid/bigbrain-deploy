@@ -54,12 +54,12 @@ function Play() {
 
   // Tips to show in the lobby
   const lobbyTips = [
-    "Answer questions quickly for a higher score!",
-    "Read each question carefully before answering.",
-    "Some questions may have multiple correct answers.",
+    'Answer questions quickly for a higher score!',
+    'Read each question carefully before answering.',
+    'Some questions may have multiple correct answers.',
     "Don't stress if you get one wrong - just keep going!",
-    "You can see your score at the end of the game.",
-    "The faster you answer correctly, the more points you earn!",
+    'You can see your score at the end of the game.',
+    'The faster you answer correctly, the more points you earn!',
   ];
 
   // Generate player avatar
@@ -68,17 +68,23 @@ function Play() {
       // Create initials from player name
       const initials = playerName
         .split(' ')
-        .map(word => word.charAt(0))
+        .map((word) => word.charAt(0))
         .join('')
         .toUpperCase();
-      
+
       // Generate a random color based on player name
       const colors = [
-        '#1976d2', '#e91e63', '#ff9800', '#4caf50', 
-        '#9c27b0', '#f44336', '#2196f3', '#ffeb3b'
+        '#1976d2',
+        '#e91e63',
+        '#ff9800',
+        '#4caf50',
+        '#9c27b0',
+        '#f44336',
+        '#2196f3',
+        '#ffeb3b',
       ];
       const colorIndex = playerName.length % colors.length;
-      
+
       setPlayerInfo({
         name: playerName,
         initials,
@@ -91,9 +97,9 @@ function Play() {
   useEffect(() => {
     if (joined && !gameStarted) {
       const tipInterval = setInterval(() => {
-        setLobbyTip(prev => (prev + 1) % lobbyTips.length);
+        setLobbyTip((prev) => (prev + 1) % lobbyTips.length);
       }, 8000);
-      
+
       return () => clearInterval(tipInterval);
     }
   }, [joined, gameStarted, lobbyTips.length]);
@@ -102,9 +108,9 @@ function Play() {
   useEffect(() => {
     if (joined && !gameStarted) {
       const timer = setInterval(() => {
-        setWaitingTime(prev => prev + 1);
+        setWaitingTime((prev) => prev + 1);
       }, 1000);
-      
+
       return () => clearInterval(timer);
     }
   }, [joined, gameStarted]);
@@ -113,7 +119,7 @@ function Play() {
     // If there's no session ID in the URL, show an error
     if (!sessionId) {
       setError(
-        'No game session ID found. Please use a valid game invitation link.',
+        'No game session ID found. Please use a valid game invitation link.'
       );
     }
   }, [sessionId]);
@@ -147,7 +153,7 @@ function Play() {
 
     if (!sessionId) {
       setError(
-        'No game session ID found. Please use a valid game invitation link.',
+        'No game session ID found. Please use a valid game invitation link.'
       );
       return;
     }
@@ -163,7 +169,7 @@ function Play() {
       const response = await ApiCall(
         `/play/join/${sessionId}`,
         { name: playerName },
-        'POST',
+        'POST'
       );
 
       if (response.error) {
@@ -175,7 +181,7 @@ function Play() {
       setLoading(false);
     } catch (err) {
       setError(
-        err.message || 'Failed to join game. Please check the session ID.',
+        err.message || 'Failed to join game. Please check the session ID.'
       );
       setLoading(false);
     }
@@ -210,7 +216,7 @@ function Play() {
           },
         }}
       >
-        <Container maxWidth='sm'>
+        <Container maxWidth="sm">
           <Paper
             elevation={10}
             sx={{
@@ -222,10 +228,10 @@ function Play() {
             }}
           >
             <Typography
-              variant='h4'
-              component='h1'
+              variant="h4"
+              component="h1"
               gutterBottom
-              align='center'
+              align="center"
               sx={{
                 fontWeight: 700,
                 color: bigBrainTheme.palette.primary.main,
@@ -236,28 +242,28 @@ function Play() {
 
             {sessionId && (
               <Typography
-                variant='subtitle1'
-                align='center'
+                variant="subtitle1"
+                align="center"
                 sx={{ mb: 3, fontWeight: 500 }}
               >
                 Session ID:{' '}
-                <Box component='span' sx={{ fontWeight: 700 }}>
+                <Box component="span" sx={{ fontWeight: 700 }}>
                   {sessionId}
                 </Box>
               </Typography>
             )}
 
             {!joined ? (
-              <Box component='form' onSubmit={handleJoinGame} sx={{ mt: 3 }}>
+              <Box component="form" onSubmit={handleJoinGame} sx={{ mt: 3 }}>
                 <TextField
-                  label='Your Name'
-                  variant='outlined'
+                  label="Your Name"
+                  variant="outlined"
                   fullWidth
-                  margin='normal'
+                  margin="normal"
                   value={playerName}
                   onChange={(e) => setPlayerName(e.target.value)}
                   disabled={loading}
-                  placeholder='Enter your name to join the game'
+                  placeholder="Enter your name to join the game"
                   autoFocus
                   InputProps={{
                     sx: { borderRadius: 2 },
@@ -265,22 +271,22 @@ function Play() {
                 />
 
                 {error && (
-                  <Alert severity='error' sx={{ mt: 2, borderRadius: 2 }}>
+                  <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>
                     {error}
                   </Alert>
                 )}
 
                 <Button
-                  type='submit'
+                  type="submit"
                   fullWidth
-                  variant='contained'
-                  color='primary'
-                  size='large'
+                  variant="contained"
+                  color="primary"
+                  size="large"
                   disabled={loading || !sessionId}
                   sx={{ mt: 3, mb: 2, borderRadius: 2, py: 1.2 }}
                 >
                   {loading ? (
-                    <CircularProgress size={24} color='inherit' />
+                    <CircularProgress size={24} color="inherit" />
                   ) : (
                     'Join Game'
                   )}
@@ -290,128 +296,164 @@ function Play() {
               <Fade in={true} timeout={800}>
                 <Box sx={{ mt: 2 }}>
                   {/* Player info section */}
-                  <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+                  <Box
+                    sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}
+                  >
                     <Zoom in={true} timeout={1000}>
-                      <Avatar 
-                        sx={{ 
-                          width: 80, 
-                          height: 80, 
+                      <Avatar
+                        sx={{
+                          width: 80,
+                          height: 80,
                           bgcolor: playerInfo.color,
                           fontSize: '2rem',
                           fontWeight: 'bold',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                         }}
                       >
                         {playerInfo.initials}
                       </Avatar>
                     </Zoom>
                   </Box>
-                  
+
                   <Zoom in={true} timeout={800}>
-                    <Typography variant='h5' align='center' gutterBottom>
+                    <Typography variant="h5" align="center" gutterBottom>
                       Welcome, {playerInfo.name}!
                     </Typography>
                   </Zoom>
-                  
+
                   <Zoom in={true} timeout={1000}>
-                    <Box 
-                      sx={{ 
-                        display: 'flex', 
-                        justifyContent: 'center', 
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
                         alignItems: 'center',
                         mb: 4,
-                        mt: 1
+                        mt: 1,
                       }}
                     >
-                      <Chip 
-                        label="Ready" 
-                        color="success" 
-                        variant="outlined" 
-                        sx={{ fontWeight: 'bold', mx: 1 }} 
+                      <Chip
+                        label="Ready"
+                        color="success"
+                        variant="outlined"
+                        sx={{ fontWeight: 'bold', mx: 1 }}
                       />
-                      <Chip 
-                        label={`Waiting: ${formatWaitingTime()}`} 
-                        icon={<ScheduleIcon />} 
-                        color="primary" 
-                        variant="outlined" 
-                        sx={{ fontWeight: 'bold', mx: 1 }}  
+                      <Chip
+                        label={`Waiting: ${formatWaitingTime()}`}
+                        icon={<ScheduleIcon />}
+                        color="primary"
+                        variant="outlined"
+                        sx={{ fontWeight: 'bold', mx: 1 }}
                       />
                     </Box>
                   </Zoom>
-                  
+
                   {/* Status card */}
                   <Zoom in={true} timeout={1200}>
-                    <Card 
-                      sx={{ 
-                        mb: 4, 
-                        borderRadius: 2, 
+                    <Card
+                      sx={{
+                        mb: 4,
+                        borderRadius: 2,
                         boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
                         bgcolor: 'primary.light',
-                        color: 'white'
+                        color: 'white',
                       }}
                     >
                       <CardContent sx={{ textAlign: 'center', py: 2 }}>
-                        <Typography variant='h6' sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <GameIcon sx={{ mr: 1 }} /> Waiting for host to start the game...
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: 600,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <GameIcon sx={{ mr: 1 }} /> Waiting for host to start
+                          the game...
                         </Typography>
-                        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            mt: 2,
+                          }}
+                        >
                           <CircularProgress sx={{ color: 'white' }} />
                         </Box>
                       </CardContent>
                     </Card>
                   </Zoom>
-                  
+
                   {/* Tips section */}
                   <Divider sx={{ my: 3 }}>
                     <Chip label="Game Tips" color="primary" />
                   </Divider>
-                  
+
                   <Box sx={{ mb: 3 }}>
                     <Fade key={lobbyTip} in={true} timeout={500}>
-                      <Box sx={{ p: 2, bgcolor: 'rgba(25, 118, 210, 0.08)', borderRadius: 2 }}>
-                        <Typography 
-                          variant="body1" 
-                          align="center" 
-                          sx={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
+                      <Box
+                        sx={{
+                          p: 2,
+                          bgcolor: 'rgba(25, 118, 210, 0.08)',
+                          borderRadius: 2,
+                        }}
+                      >
+                        <Typography
+                          variant="body1"
+                          align="center"
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
                             justifyContent: 'center',
                             fontWeight: 'medium',
-                            color: 'primary.dark'
+                            color: 'primary.dark',
                           }}
                         >
-                          <LightbulbIcon sx={{ mr: 1, color: 'warning.main' }} />
+                          <LightbulbIcon
+                            sx={{ mr: 1, color: 'warning.main' }}
+                          />
                           {lobbyTips[lobbyTip]}
                         </Typography>
                       </Box>
                     </Fade>
                   </Box>
-                  
+
                   {/* How to play section */}
                   <Zoom in={true} timeout={1500}>
                     <Card sx={{ borderRadius: 2, mt: 3 }}>
                       <CardContent>
-                        <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, display: 'flex', alignItems: 'center' }}>
-                          <EmojiObjectsIcon sx={{ mr: 1, color: 'warning.main' }} /> How to Play
+                        <Typography
+                          variant="h6"
+                          gutterBottom
+                          sx={{
+                            fontWeight: 600,
+                            display: 'flex',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <EmojiObjectsIcon
+                            sx={{ mr: 1, color: 'warning.main' }}
+                          />{' '}
+                          How to Play
                         </Typography>
-                        
+
                         <List dense sx={{ bgcolor: 'background.paper' }}>
                           <ListItem>
                             <ListItemIcon>
                               <PsychologyIcon color="primary" />
                             </ListItemIcon>
-                            <ListItemText 
-                              primary="Answer questions as quickly as possible" 
+                            <ListItemText
+                              primary="Answer questions as quickly as possible"
                               secondary="Faster answers earn more points"
                             />
                           </ListItem>
-                          
+
                           <ListItem>
                             <ListItemIcon>
                               <ForumIcon color="primary" />
                             </ListItemIcon>
-                            <ListItemText 
-                              primary="Some questions have multiple answers" 
+                            <ListItemText
+                              primary="Some questions have multiple answers"
                               secondary="Select all that apply in these cases"
                             />
                           </ListItem>

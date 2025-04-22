@@ -146,9 +146,7 @@ export default function RegisterForm() {
                     size="small"
                   >
                     {showPassword ? (
-                      <VisibilityOff
-                        sx={{ fontSize: { xs: 18, sm: 24 } }}
-                      />
+                      <VisibilityOff sx={{ fontSize: { xs: 18, sm: 24 } }} />
                     ) : (
                       <Visibility sx={{ fontSize: { xs: 18, sm: 24 } }} />
                     )}
@@ -194,9 +192,7 @@ export default function RegisterForm() {
                     size="small"
                   >
                     {showConfirmPassword ? (
-                      <VisibilityOff
-                        sx={{ fontSize: { xs: 18, sm: 24 } }}
-                      />
+                      <VisibilityOff sx={{ fontSize: { xs: 18, sm: 24 } }} />
                     ) : (
                       <Visibility sx={{ fontSize: { xs: 18, sm: 24 } }} />
                     )}

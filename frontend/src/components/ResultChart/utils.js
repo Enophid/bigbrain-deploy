@@ -21,12 +21,12 @@ export const processQuestionPerformanceData = (results) => {
   }
 
   // Find player with most answers to determine total questions
-  const maxAnswersPlayer = [...results].sort((a, b) => 
-    (b.answers?.length || 0) - (a.answers?.length || 0)
+  const maxAnswersPlayer = [...results].sort(
+    (a, b) => (b.answers?.length || 0) - (a.answers?.length || 0)
   )[0];
 
   const totalQuestions = maxAnswersPlayer?.answers?.length || 0;
-  
+
   // Initialize data structures
   const questionLabels = [];
   const correctCount = [];
@@ -35,12 +35,12 @@ export const processQuestionPerformanceData = (results) => {
   // Process each question's performance data
   for (let i = 0; i < totalQuestions; i++) {
     questionLabels.push(`Q${i + 1}`);
-    
+
     let correct = 0;
     let incorrect = 0;
-    
+
     // Count correct/incorrect answers for this question across all players
-    results.forEach(player => {
+    results.forEach((player) => {
       if (player.answers && player.answers[i]) {
         if (player.answers[i].correct) {
           correct++;
@@ -49,7 +49,7 @@ export const processQuestionPerformanceData = (results) => {
         }
       }
     });
-    
+
     correctCount.push(correct);
     incorrectCount.push(incorrect);
   }
@@ -59,7 +59,7 @@ export const processQuestionPerformanceData = (results) => {
 
 /**
  * Processes game results data for response time visualization
- * @param {Array} results - Array of player results with answers 
+ * @param {Array} results - Array of player results with answers
  * @returns {Object} Object containing labels and average response times
  */
 export const processResponseTimeData = (results) => {
@@ -68,12 +68,12 @@ export const processResponseTimeData = (results) => {
   }
 
   // Find player with most answers to determine total questions
-  const maxAnswersPlayer = [...results].sort((a, b) => 
-    (b.answers?.length || 0) - (a.answers?.length || 0)
+  const maxAnswersPlayer = [...results].sort(
+    (a, b) => (b.answers?.length || 0) - (a.answers?.length || 0)
   )[0];
 
   const totalQuestions = maxAnswersPlayer?.answers?.length || 0;
-  
+
   // Initialize data structures
   const questionLabels = [];
   const averageResponseTimes = [];
@@ -81,30 +81,34 @@ export const processResponseTimeData = (results) => {
   // Process each question's response time data
   for (let i = 0; i < totalQuestions; i++) {
     questionLabels.push(`Q${i + 1}`);
-    
+
     let totalTime = 0;
     let responseCount = 0;
-    
+
     // Calculate average response time for this question
-    results.forEach(player => {
-      if (player.answers && player.answers[i] && 
-          player.answers[i].questionStartedAt && 
-          player.answers[i].answeredAt) {
-        
+    results.forEach((player) => {
+      if (
+        player.answers &&
+        player.answers[i] &&
+        player.answers[i].questionStartedAt &&
+        player.answers[i].answeredAt
+      ) {
         const responseTime = calculateResponseTime(
           player.answers[i].questionStartedAt,
           player.answers[i].answeredAt
         );
-        
+
         if (!isNaN(responseTime)) {
           totalTime += parseFloat(responseTime);
           responseCount++;
         }
       }
     });
-    
+
     // Add average or 0 if no valid responses
-    averageResponseTimes.push(responseCount > 0 ? (totalTime / responseCount).toFixed(1) : 0);
+    averageResponseTimes.push(
+      responseCount > 0 ? (totalTime / responseCount).toFixed(1) : 0
+    );
   }
 
   return { questionLabels, averageResponseTimes };
@@ -120,33 +124,35 @@ export const processResultsForBarChart = (results) => {
     return {
       dataset: [],
       xAxis: [],
-      series: []
+      series: [],
     };
   }
 
   // Sort players by score in descending order
-  const sortedResults = [...results].sort((a, b) => (b.score || 0) - (a.score || 0));
-  
+  const sortedResults = [...results].sort(
+    (a, b) => (b.score || 0) - (a.score || 0)
+  );
+
   // Take top 10 players for better visualization
   const topPlayers = sortedResults.slice(0, 10);
-  
+
   // Create dataset for chart
-  const dataset = topPlayers.map(player => ({
+  const dataset = topPlayers.map((player) => ({
     player: player.name || 'Anonymous',
-    score: player.score || 0
+    score: player.score || 0,
   }));
-  
+
   // Extract player names for x-axis
-  const xAxis = dataset.map(item => item.player);
-  
+  const xAxis = dataset.map((item) => item.player);
+
   // Create series configuration
   const series = [
     {
       dataKey: 'score',
       label: 'Score',
       valueFormatter: (value) => `${value} points`,
-    }
+    },
   ];
 
   return { dataset, xAxis, series };
-}; 
+};

@@ -24,7 +24,10 @@ function GameEndScreen({ handleViewResults }) {
         }}
       >
         <Box sx={{ textAlign: 'center' }}>
-          <Typography variant="h4" sx={{ color: 'white', mb: 3, fontWeight: 'bold' }}>
+          <Typography
+            variant="h4"
+            sx={{ color: 'white', mb: 3, fontWeight: 'bold' }}
+          >
             Game Complete!
           </Typography>
           <Button
@@ -38,7 +41,7 @@ function GameEndScreen({ handleViewResults }) {
               py: 1.5,
               textTransform: 'none',
               fontWeight: 'bold',
-              mb: 2
+              mb: 2,
             }}
           >
             View Results
@@ -53,4 +56,4 @@ GameEndScreen.propTypes = {
   handleViewResults: PropTypes.func.isRequired,
 };
 
-export default GameEndScreen; 
+export default GameEndScreen;

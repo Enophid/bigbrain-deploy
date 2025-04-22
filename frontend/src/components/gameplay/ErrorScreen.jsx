@@ -49,4 +49,4 @@ ErrorScreen.propTypes = {
   error: PropTypes.string.isRequired,
 };
 
-export default ErrorScreen; 
+export default ErrorScreen;

@@ -51,7 +51,7 @@ const PlayerPodium = ({ player, rank, color, size, order, marginTop }) => {
             px: rank === 1 ? 1 : 0,
           }}
         />
-        
+
         {player?.avgResponseTime && (
           <Chip
             icon={<TimerIcon fontSize="small" />}

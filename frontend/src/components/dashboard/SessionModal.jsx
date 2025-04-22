@@ -24,6 +24,7 @@ import {
   PlayArrow as PlayArrowIcon,
   Stop as StopIcon,
   Assessment as AssessmentIcon,
+  BarChart as BarChartIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import ApiCall from '../apiCall';
@@ -52,7 +53,8 @@ const DefaultSessionContent = ({
   playUrl,
   copied,
   handleCopyLink,
-  handleAdvanceToFirstQuestion,
+  handleStartGame,
+  onClose,
 }) => (
   <>
     <Typography variant="h6" sx={{ mb: 2 }}>
@@ -110,9 +112,15 @@ const DefaultSessionContent = ({
         fullWidth
         variant="contained"
         color="info"
-        onClick={() => handleAdvanceToFirstQuestion()}
+        onClick={() => {
+          handleStartGame();
+          // Only close modal for new sessions
+          if (isNewSession) {
+            onClose();
+          }
+        }}
       >
-        Advance to next question 🚀
+        {isNewSession ? 'Start game 🎮' : 'Advance to next question 🚀'}
       </Button>
     </Box>
 
@@ -266,6 +274,7 @@ const SessionEndedContent = ({ gameName }) => (
 const SessionEndedActions = ({
   onClose,
   handleViewResults,
+  handleViewCharts,
   initialFocusRef,
 }) => (
   <Box
@@ -275,18 +284,29 @@ const SessionEndedActions = ({
     }}
   >
     <Button variant="outlined" onClick={onClose} sx={styles.button}>
-      No, Close
+      Close
     </Button>
-    <Button
-      variant="contained"
-      color="info"
-      onClick={handleViewResults}
-      startIcon={<AssessmentIcon />}
-      sx={styles.button}
-      ref={initialFocusRef}
-    >
-      Yes, View Results
-    </Button>
+    <Box sx={{ display: 'flex', gap: 1 }}>
+      <Button
+        variant="outlined"
+        color="info"
+        onClick={handleViewCharts}
+        startIcon={<BarChartIcon />}
+        sx={styles.button}
+      >
+        View Charts
+      </Button>
+      <Button
+        variant="contained"
+        color="info"
+        onClick={handleViewResults}
+        startIcon={<AssessmentIcon />}
+        sx={styles.button}
+        ref={initialFocusRef}
+      >
+        View Results
+      </Button>
+    </Box>
   </Box>
 );
 
@@ -336,10 +356,10 @@ const SessionModal = ({
   /**
    * Advances the game to the first question
    */
-  const handleAdvanceToFirstQuestion = async () => {
+  const handleStartGame = async () => {
     if (!gameId) {
-      console.error('Cannot advance: Game ID is missing');
-      setError('Cannot advance: Game ID is missing');
+      console.error('Cannot start game: Game ID is missing');
+      setError('Cannot start game: Game ID is missing');
       return;
     }
     
@@ -350,7 +370,7 @@ const SessionModal = ({
     
     try {
       setIsAdvancing(true);
-      console.log('Advancing to first question for game:', gameId);
+      console.log('Starting game:', gameId);
       
       const data = await ApiCall(
         `/admin/game/${gameId}/mutate`,
@@ -360,21 +380,13 @@ const SessionModal = ({
         'POST'
       );
 
-      // No need to close the modal
-      console.log('Game advanced successfully:', data);
+      console.log('Game started successfully:', data);
       
-      // Show feedback to the user
-      setError({ 
-        severity: 'success', 
-        message: 'Advanced to the next question successfully!' 
-      });
-      
-      // Re-fetch game list would happen in the parent component
     } catch (e) {
-      console.error('Error advancing to question:', e);
+      console.error('Error starting game:', e);
       setError({ 
         severity: 'error', 
-        message: `Failed to advance: ${e.message || 'Unknown error'}` 
+        message: `Failed to start game: ${e.message || 'Unknown error'}` 
       });
     } finally {
       setIsAdvancing(false);
@@ -449,6 +461,18 @@ const SessionModal = ({
     }
   };
 
+  /**
+   * Navigates to the charts page for the session
+   */
+  const handleViewCharts = () => {
+    onClose();
+    if (sessionId) {
+      navigate(`/game-results/${sessionId}`);
+    } else {
+      console.error('Cannot navigate to charts: Session ID is missing.');
+    }
+  };
+
   // Regular close handler (used for non-end-session cases)
   const handleClose = (event, reason) => {
     // Prevent closing with backdrop or escape key during loading
@@ -496,6 +520,7 @@ const SessionModal = ({
           <SessionEndedActions
             onClose={handleCloseAfterEnd}
             handleViewResults={handleViewResults}
+            handleViewCharts={handleViewCharts}
             initialFocusRef={initialFocusRef}
           />
         ),
@@ -545,7 +570,8 @@ const SessionModal = ({
           playUrl={playUrl}
           copied={copied}
           handleCopyLink={handleCopyLink}
-          handleAdvanceToFirstQuestion={handleAdvanceToFirstQuestion}
+          handleStartGame={handleStartGame}
+          onClose={onClose}
         />
       ),
       actions: (
@@ -669,7 +695,8 @@ DefaultSessionContent.propTypes = {
   copied: PropTypes.bool.isRequired,
   handleCopyLink: PropTypes.func.isRequired,
   gameId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  handleAdvanceToFirstQuestion: PropTypes.func.isRequired,
+  handleStartGame: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
 DefaultSessionActions.propTypes = {
@@ -696,6 +723,7 @@ SessionEndedContent.propTypes = {
 SessionEndedActions.propTypes = {
   onClose: PropTypes.func,
   handleViewResults: PropTypes.func,
+  handleViewCharts: PropTypes.func,
   initialFocusRef: PropTypes.object,
 };
 

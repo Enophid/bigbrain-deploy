@@ -6,21 +6,7 @@ import {
   Box,
   Typography,
   TextField,
-  Button,
-  IconButton,
-  Divider,
-  Grid,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
 } from '@mui/material';
-import {
-  ArrowBack as ArrowBackIcon,
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  Save as SaveIcon,
-} from '@mui/icons-material';
 import bigBrainTheme from '../theme/bigBrainTheme';
 import GlobalStyles from '../theme/globalStyles';
 
@@ -28,7 +14,13 @@ import { findGame } from '../helper/helpers';
 
 import AlertMessage from './GameEditor/AlertMessage';
 
-import InputSwitcher from './GameEditor/InputSwitcher';
+// New component imports
+import QuestionEditorHeader from './QuestionEditor/components/QuestionEditorHeader';
+import QuestionMetadataForm from './QuestionEditor/components/QuestionMetadataForm';
+import JudgementAnswerOptions from './QuestionEditor/components/JudgementAnswerOptions';
+import MultipleChoiceAnswerOptions from './QuestionEditor/components/MultipleChoiceAnswerOptions';
+import MediaInputSection from './QuestionEditor/components/MediaInputSection';
+import QuestionEditorActions from './QuestionEditor/components/QuestionEditorActions';
 
 // Hooks
 import useAlert from '../hooks/useAlert';
@@ -44,6 +36,8 @@ function QuestionEditor() {
     points: 10,
     correctAnswers: [],
     answers: [{ id: 1, text: '', isCorrect: true }],
+    videoUrl: '',
+    imageUrl: '',
   });
   const { alertMessage, showAlert, displayAlert } = useAlert();
   const { game, question, updateQuestionData } = useQuestionData(
@@ -65,6 +59,8 @@ function QuestionEditor() {
             isCorrect: ans.isCorrect || false,
           }))
           : [{ id: Date.now(), text: '', isCorrect: true }],
+        videoUrl: currentQuestion.videoUrl || '',
+        imageUrl: currentQuestion.imageUrl || '',
       });
     } else {
       // Reset form for new question
@@ -76,6 +72,8 @@ function QuestionEditor() {
         points: 10,
         correctAnswers: [],
         answers: [{ id: now, text: '', isCorrect: true }],
+        videoUrl: '',
+        imageUrl: '',
       });
     }
   }, [currentQuestion]);
@@ -153,9 +151,26 @@ function QuestionEditor() {
     }));
   };
 
+  const handleMediaChange = (mediaData) => {
+    setNewQuestion((prev) => ({
+      ...prev,
+      videoUrl: mediaData.videoUrl || '',
+      imageUrl: mediaData.imageUrl || '',
+    }));
+  };
+
   const handleBackToGameEditor = () => {
     navigate(`/game/${gameId}`);
   };
+
+  // Determine if save should be disabled
+  const isSaveDisabled = () => {
+    if (!newQuestion.text) return true;
+    if (newQuestion.answers.some((a) => !a.text)) return true;
+    if (!newQuestion.answers.some((a) => a.isCorrect)) return true;
+    return false;
+  };
+
   return (
     <ThemeProvider theme={bigBrainTheme}>
       <CssBaseline />
@@ -195,45 +210,13 @@ function QuestionEditor() {
           {/* Alert Message */}
           <AlertMessage message={alertMessage} show={showAlert} />
 
-          {/* Header */}
-          <Box
-            sx={{
-              backgroundImage:
-                'linear-gradient(135deg, #2D3047 0%, #00B4D8 50%, #06D6A0 100%)',
-              backgroundColor: 'rgba(0, 0, 0, 0.3)',
-              backdropFilter: 'blur(8px)',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-              py: 2,
-              px: { xs: 2, sm: 4 },
-              mb: 4,
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <IconButton
-                color="inherit"
-                onClick={handleBackToGameEditor}
-                sx={{ mr: 2, color: 'white' }}
-              >
-                <ArrowBackIcon />
-              </IconButton>
-              <Typography
-                variant="h4"
-                sx={{
-                  color: '#fff',
-                  fontWeight: 700,
-                  textShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                  fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2.25rem' },
-                }}
-              >
-                Question Editor
-              </Typography>
-            </Box>
-          </Box>
+          {/* Header - Use new component */}
+          <QuestionEditorHeader
+            title="Question Editor"
+            onBack={handleBackToGameEditor}
+          />
 
-          <Box sx={{ p: 3, overflow: 'auto' }}>
+          <Box sx={{ p: 3, overflowY: 'auto', flexGrow: 1 }}>
             <TextField
               label="Question Text"
               multiline
@@ -243,242 +226,40 @@ function QuestionEditor() {
               fullWidth
               sx={{ mb: 3 }}
             />
-            <Grid container spacing={3} sx={{ mb: 3 }}>
-              <Grid item xs={12} sm={4}>
-                <FormControl fullWidth>
-                  <InputLabel id="question-type-label">
-                    Question Type
-                  </InputLabel>
-                  <Select
-                    labelId="question-type-label"
-                    id="question-type"
-                    value={newQuestion.type}
-                    label="Question Type"
-                    onChange={(e) =>
-                      handleQuestionChange('type', e.target.value)
-                    }
-                  >
-                    <MenuItem value="single">Single Choice</MenuItem>
-                    <MenuItem value="judgement">
-                      Judgement (True/False)
-                    </MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  label="Time Limit (seconds)"
-                  type="number"
-                  value={newQuestion.duration || ''}
-                  onChange={(e) =>
-                    handleQuestionChange(
-                      'duration',
-                      parseInt(e.target.value) || 0
-                    )
-                  }
-                  fullWidth
-                  slotProps={{ input: { min: 5, max: 300 } }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  label="Points"
-                  type="number"
-                  value={newQuestion.points || ''}
-                  onChange={(e) =>
-                    handleQuestionChange(
-                      'points',
-                      parseInt(e.target.value) || 0
-                    )
-                  }
-                  fullWidth
-                  slotProps={{ input: { min: 1, max: 100 } }}
-                />
-              </Grid>
-            </Grid>
+
+            {/* Metadata Form - Use new component */}
+            <QuestionMetadataForm
+              questionData={newQuestion}
+              onChange={handleQuestionChange}
+            />
+
             <Typography variant="h6" sx={{ mb: 2 }}>
               Answer Options
             </Typography>
 
+            {/* Conditional Rendering for Answer Options - Use new components */}
             {newQuestion.type === 'judgement' ? (
-              // Judgement (True/False) question type
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="body2" sx={{ mb: 2 }}>
-                  This is a true/false question. Select which option is the
-                  correct answer:
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 2 }}>
-                  <Button
-                    variant={
-                      newQuestion.answers.some(
-                        (a) => a.text === 'True' && a.isCorrect
-                      )
-                        ? 'contained'
-                        : 'outlined'
-                    }
-                    color={
-                      newQuestion.answers.some(
-                        (a) => a.text === 'True' && a.isCorrect
-                      )
-                        ? 'success'
-                        : 'primary'
-                    }
-                    onClick={() => {
-                      // Set "True" as the correct answer
-                      const updatedAnswers = [
-                        { id: 1, text: 'True', isCorrect: true },
-                        { id: 2, text: 'False', isCorrect: false },
-                      ];
-                      handleQuestionChange('answers', updatedAnswers);
-                    }}
-                    sx={{ minWidth: '100px', textTransform: 'none' }}
-                  >
-                    True
-                  </Button>
-                  <Button
-                    variant={
-                      newQuestion.answers.some(
-                        (a) => a.text === 'False' && a.isCorrect
-                      )
-                        ? 'contained'
-                        : 'outlined'
-                    }
-                    color={
-                      newQuestion.answers.some(
-                        (a) => a.text === 'False' && a.isCorrect
-                      )
-                        ? 'success'
-                        : 'primary'
-                    }
-                    onClick={() => {
-                      // Set "False" as the correct answer
-                      const updatedAnswers = [
-                        { id: 1, text: 'True', isCorrect: false },
-                        { id: 2, text: 'False', isCorrect: true },
-                      ];
-                      handleQuestionChange('answers', updatedAnswers);
-                    }}
-                    sx={{ minWidth: '100px', textTransform: 'none' }}
-                  >
-                    False
-                  </Button>
-                </Box>
-              </Box>
+              <JudgementAnswerOptions
+                answers={newQuestion.answers}
+                onChange={handleQuestionChange}
+              />
             ) : (
-              // Single choice question type - regular multiple options
-              <>
-                {newQuestion.answers.map((answer, index) => (
-                  <Box
-                    key={answer.id}
-                    sx={{
-                      mb: 2,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 2,
-                    }}
-                  >
-                    <TextField
-                      label={`Option ${index + 1}`}
-                      value={answer.text}
-                      onChange={(e) => {
-                        const updatedAnswers = [...newQuestion.answers];
-                        updatedAnswers[index].text = e.target.value;
-                        handleQuestionChange('answers', updatedAnswers);
-                      }}
-                      fullWidth
-                    />
-                    <Button
-                      variant={answer.isCorrect ? 'contained' : 'outlined'}
-                      color={answer.isCorrect ? 'success' : 'primary'}
-                      onClick={() => {
-                        const updatedAnswers = [...newQuestion.answers];
-                        updatedAnswers[index].isCorrect =
-                          !updatedAnswers[index].isCorrect;
-                        handleQuestionChange('answers', updatedAnswers);
-                      }}
-                      sx={{ minWidth: '80px', textTransform: 'none' }}
-                    >
-                      {answer.isCorrect ? 'Correct' : 'Wrong'}
-                    </Button>
-                    {newQuestion.answers.length > 1 && (
-                      <IconButton
-                        color="error"
-                        onClick={() => {
-                          const updatedAnswers = newQuestion.answers.filter(
-                            (_, i) => i !== index
-                          );
-                          handleQuestionChange('answers', updatedAnswers);
-                        }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    )}
-                  </Box>
-                ))}
-                <Button
-                  variant="outlined"
-                  startIcon={<AddIcon />}
-                  onClick={() => {
-                    if (newQuestion.answers.length > 5) {
-                      displayAlert(
-                        'Each question have a maximum of 6 answers.'
-                      );
-                    } else {
-                      // Use timestamp-based ID for new answers
-                      const newId = Date.now();
-                      handleQuestionChange('answers', [
-                        ...newQuestion.answers,
-                        { id: newId, text: '', isCorrect: false },
-                      ]);
-                    }
-                  }}
-                  sx={{ mb: 3, textTransform: 'none' }}
-                >
-                  Add Option
-                </Button>
-              </>
+              <MultipleChoiceAnswerOptions
+                answers={newQuestion.answers}
+                onChange={handleQuestionChange}
+                onMaxAnswersReached={displayAlert} // Pass displayAlert for feedback
+              />
             )}
 
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              URL Youtube Video/ Upload Photo (Optional)
-            </Typography>
-            <InputSwitcher
-              onChange={(data) => {
-                if (data.url) {
-                  handleQuestionChange('videoUrl', data.url);
-                  handleQuestionChange('imageUrl', '');
-                } else {
-                  handleQuestionChange('imageUrl', data.photo);
-                  handleQuestionChange('videoUrl', '');
-                }
-              }}
-            />
+            {/* Media Input - Use new component */}
+            <MediaInputSection onMediaChange={handleMediaChange} />
           </Box>
 
-          <Divider />
-          <Box
-            sx={{ p: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}
-          >
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<SaveIcon />}
-              onClick={handleSaveQuestion}
-              sx={{
-                borderRadius: 2,
-                px: 3,
-                textTransform: 'none',
-                fontWeight: 600,
-              }}
-              disabled={
-                !newQuestion.text ||
-                newQuestion.answers.some((a) => !a.text) ||
-                !newQuestion.answers.some((a) => a.isCorrect)
-              }
-            >
-              Save Question
-            </Button>
-          </Box>
+          {/* Actions - Use new component */}
+          <QuestionEditorActions
+            onSave={handleSaveQuestion}
+            isSaveDisabled={isSaveDisabled()}
+          />
         </Box>
       </Box>
     </ThemeProvider>

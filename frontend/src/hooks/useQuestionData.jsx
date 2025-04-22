@@ -23,14 +23,14 @@ const useQuestionData = (gameId, questionId) => {
       if (!gameData) {
         throw new Error('Game not found');
       }
-      
+
       const questionData = gameData.questions.find(
-        (q) => q.id.toString() === questionId,
+        (q) => q.id.toString() === questionId
       );
       if (!questionData) {
         throw new Error('Question not found');
       }
-      
+
       // Normalize the question structure for editing
       const normalizedQuestion = {
         ...questionData,
@@ -41,20 +41,20 @@ const useQuestionData = (gameId, questionId) => {
         duration: questionData.duration || 30,
         points: questionData.points || 10,
         // Make sure answers are properly structured
-        answers: Array.isArray(questionData.answers) 
+        answers: Array.isArray(questionData.answers)
           ? questionData.answers.map((answer, idx) => ({
             id: Date.now() + idx, // Ensure unique IDs
             text: answer.text || '',
-            isCorrect: answer.isCorrect === true
+            isCorrect: answer.isCorrect === true,
           }))
           : [{ id: Date.now(), text: '', isCorrect: true }],
         // Ensure correctAnswers exists
-        correctAnswers: Array.isArray(questionData.correctAnswers) 
-          ? questionData.correctAnswers 
-          : Array.isArray(questionData.answers) 
+        correctAnswers: Array.isArray(questionData.correctAnswers)
+          ? questionData.correctAnswers
+          : Array.isArray(questionData.answers)
             ? questionData.answers
-              .filter(ans => ans.isCorrect === true)
-              .map(ans => ans.text)
+              .filter((ans) => ans.isCorrect === true)
+              .map((ans) => ans.text)
             : [],
         // Include media URLs if present
         imageUrl: questionData.imageUrl || '',
@@ -74,7 +74,7 @@ const useQuestionData = (gameId, questionId) => {
     try {
       // Create a new array with all games, replacing the updated one
       const updatedGames = allGames.map((g) =>
-        g.id === updatedGame.id ? updatedGame : g,
+        g.id === updatedGame.id ? updatedGame : g
       );
 
       console.log('Updating all games:', updatedGames);
@@ -83,7 +83,7 @@ const useQuestionData = (gameId, questionId) => {
       const response = await ApiCall(
         '/admin/games',
         { games: updatedGames },
-        'PUT',
+        'PUT'
       );
 
       if (response.error) {

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 
-
 const useAlert = () => {
   const [alertMessage, setAlertMessage] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
@@ -26,4 +25,4 @@ const useAlert = () => {
   };
 };
 
-export default useAlert; 
+export default useAlert;

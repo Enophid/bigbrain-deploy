@@ -12,8 +12,11 @@ import PropTypes from 'prop-types';
 const PlayerStats = ({ totalScore, results, isMobile }) => {
   // Calculate additional stats
   const totalQuestions = results.length;
-  const correctAnswers = results.filter(result => result.correct).length;
-  const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+  const correctAnswers = results.filter((result) => result.correct).length;
+  const accuracy =
+    totalQuestions > 0
+      ? Math.round((correctAnswers / totalQuestions) * 100)
+      : 0;
 
   return (
     <Box sx={{ textAlign: 'center', mb: { xs: 3, sm: 4 } }}>

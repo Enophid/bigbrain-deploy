@@ -17,12 +17,16 @@ import {
   IconButton,
   Tooltip,
   useTheme,
+  Menu,
+  MenuItem,
 } from '@mui/material';
 import {
   History as HistoryIcon,
   AccessTime as TimeIcon,
   Assessment as AssessmentIcon,
   Close as CloseIcon,
+  BarChart as BarChartIcon,
+  MoreVert as MoreVertIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
@@ -38,11 +42,30 @@ const PastSessionsModal = ({
 }) => {
   const navigate = useNavigate();
   const theme = useTheme();
+  const [menuAnchorEl, setMenuAnchorEl] = React.useState(null);
+  const [selectedSessionId, setSelectedSessionId] = React.useState(null);
 
   const handleViewResults = (sessionId) => {
     // Navigate to the results page for this session
     navigate(`/results/${sessionId}`);
     onClose();
+  };
+
+  const handleViewCharts = (sessionId) => {
+    // Navigate to the detailed charts page for this session
+    navigate(`/game-results/${sessionId}`);
+    onClose();
+  };
+
+  const handleMenuOpen = (event, sessionId) => {
+    event.stopPropagation();
+    setMenuAnchorEl(event.currentTarget);
+    setSelectedSessionId(sessionId);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+    setSelectedSessionId(null);
   };
 
   const formatDate = (timestamp) => {
@@ -67,62 +90,53 @@ const PastSessionsModal = ({
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="sm"
       fullWidth
-      scroll="paper"
+      maxWidth="sm"
       PaperProps={{
         sx: {
-          borderRadius: 2,
-          boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+          borderRadius: 3,
+          backgroundImage: 'linear-gradient(to bottom, #ffffff, #f9f9f9)',
+          boxShadow: '0 8px 40px rgba(0,0,0,0.12)',
         },
       }}
-      aria-labelledby="past-sessions-dialog-title"
     >
       <DialogTitle
-        id="past-sessions-dialog-title"
         sx={{
-          bgcolor: theme.palette.info.main,
-          color: 'white',
           display: 'flex',
-          alignItems: 'center',
           justifyContent: 'space-between',
-          pb: 1,
+          alignItems: 'center',
+          px: 3,
+          py: 2,
+          backgroundColor: theme.palette.primary.main,
+          color: 'white',
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <HistoryIcon sx={{ mr: 1.5 }} />
-          <Typography variant="h6" component="div">
+          <HistoryIcon sx={{ mr: 1 }} />
+          <Typography variant="h6" component="span" sx={{ fontWeight: 600 }}>
             Past Sessions for {gameName}
           </Typography>
         </Box>
         <Tooltip title="Close">
-          <IconButton edge="end" color="inherit" onClick={onClose} aria-label="close">
+          <IconButton
+            edge="end"
+            color="inherit"
+            onClick={onClose}
+            aria-label="close"
+          >
             <CloseIcon />
           </IconButton>
         </Tooltip>
       </DialogTitle>
-
-      <DialogContent dividers>
-        {pastSessions.length === 0 ? (
-          <Box
-            sx={{
-              py: 4,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <HistoryIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-            <Typography variant="h6" color="text.secondary">
-              No past sessions found
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              Start a new game session to create history
+      <DialogContent sx={{ px: 2, py: 3 }}>
+        {sortedSessions.length === 0 ? (
+          <Box sx={{ textAlign: 'center', py: 4 }}>
+            <Typography variant="body1" color="text.secondary">
+              No past sessions available for this game.
             </Typography>
           </Box>
         ) : (
-          <List sx={{ width: '100%', pt: 1 }}>
+          <List>
             {sortedSessions.map((sessionId, index) => (
               <React.Fragment key={sessionId}>
                 {index > 0 && <Divider component="li" variant="inset" />}
@@ -146,16 +160,25 @@ const PastSessionsModal = ({
                     primary={
                       <Typography variant="subtitle1" component="span" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontWeight: 'medium' }}>
                         <span>Session #{sessionId}</span>
-                        <Chip
-                          size="small"
-                          label="View Results"
-                          color="info"
-                          variant="outlined"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleViewResults(sessionId);
-                          }}
-                        />
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Chip
+                            size="small"
+                            label="View Results"
+                            color="info"
+                            variant="outlined"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleViewResults(sessionId);
+                            }}
+                            sx={{ mr: 1 }}
+                          />
+                          <IconButton
+                            size="small"
+                            onClick={(e) => handleMenuOpen(e, sessionId)}
+                          >
+                            <MoreVertIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
                       </Typography>
                     }
                     secondary={
@@ -171,12 +194,46 @@ const PastSessionsModal = ({
           </List>
         )}
       </DialogContent>
-
-      <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button onClick={onClose} variant="outlined" sx={{ borderRadius: 2 }}>
+      <DialogActions sx={{ px: 3, py: 2, justifyContent: 'flex-end' }}>
+        <Button
+          variant="outlined"
+          onClick={onClose}
+          sx={{ borderRadius: 2 }}
+        >
           Close
         </Button>
       </DialogActions>
+
+      {/* Session options menu */}
+      <Menu
+        anchorEl={menuAnchorEl}
+        open={Boolean(menuAnchorEl)}
+        onClose={handleMenuClose}
+        elevation={3}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+      >
+        <MenuItem onClick={() => {
+          handleViewResults(selectedSessionId);
+          handleMenuClose();
+        }}>
+          <AssessmentIcon fontSize="small" sx={{ mr: 1 }} />
+          View Results
+        </MenuItem>
+        <MenuItem onClick={() => {
+          handleViewCharts(selectedSessionId);
+          handleMenuClose();
+        }}>
+          <BarChartIcon fontSize="small" sx={{ mr: 1 }} />
+          View Detailed Charts
+        </MenuItem>
+      </Menu>
     </Dialog>
   );
 };

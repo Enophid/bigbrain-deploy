@@ -1,8 +1,15 @@
 import { useState } from 'react';
-import { Box, Typography, Card, CardContent, Button, Stack } from '@mui/material';
-import { 
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Button,
+  Stack,
+} from '@mui/material';
+import {
   Edit as EditIcon,
-  FileUpload as FileUploadIcon 
+  FileUpload as FileUploadIcon,
 } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 import GameUploadModal from './GameUploadModal';
@@ -144,7 +151,7 @@ const GameInfoTab = ({ game, onEditMetadata, onImportGame }) => {
                 >
                   Edit Game Details
                 </Button>
-                
+
                 <Button
                   variant="outlined"
                   color="primary"
@@ -165,7 +172,7 @@ const GameInfoTab = ({ game, onEditMetadata, onImportGame }) => {
           </CardContent>
         </Card>
       </Box>
-      
+
       {/* Game Upload Modal */}
       <GameUploadModal
         open={uploadModalOpen}

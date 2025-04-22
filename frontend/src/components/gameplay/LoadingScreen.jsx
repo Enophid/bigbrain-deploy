@@ -23,7 +23,10 @@ function LoadingScreen() {
         }}
       >
         <Box sx={{ textAlign: 'center' }}>
-          <Typography variant="h4" sx={{ color: 'white', mb: 3, fontWeight: 'bold' }}>
+          <Typography
+            variant="h4"
+            sx={{ color: 'white', mb: 3, fontWeight: 'bold' }}
+          >
             BigBrain
           </Typography>
           <CircularProgress size={60} sx={{ color: '#fff' }} />
@@ -36,4 +39,4 @@ function LoadingScreen() {
   );
 }
 
-export default LoadingScreen; 
+export default LoadingScreen;

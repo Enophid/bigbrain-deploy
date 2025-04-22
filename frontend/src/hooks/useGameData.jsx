@@ -31,10 +31,10 @@ const useGameData = (gameId) => {
       if (gameData.questions && gameData.questions.length > 0) {
         gameData.questions = gameData.questions.map((question, index) => {
           // If a question lacks an ID, assign a unique timestamp-based one
-          const questionWithId = !question.id 
-            ? { ...question, id: Date.now() + index } 
+          const questionWithId = !question.id
+            ? { ...question, id: Date.now() + index }
             : question;
-          
+
           // Make sure all required fields are present with proper format
           // This handles both API responses and imported JSON structures
           return {
@@ -46,20 +46,20 @@ const useGameData = (gameId) => {
             duration: questionWithId.duration || 30,
             points: questionWithId.points || 10,
             // Map answers to the expected format
-            answers: Array.isArray(questionWithId.answers) 
+            answers: Array.isArray(questionWithId.answers)
               ? questionWithId.answers.map((answer, idx) => ({
                 id: Date.now() + index + idx, // Ensure unique IDs
                 text: answer.text || '',
-                isCorrect: answer.isCorrect === true
+                isCorrect: answer.isCorrect === true,
               }))
               : [{ id: Date.now() + index, text: '', isCorrect: true }],
             // Ensure correctAnswers exists (needed for editing)
-            correctAnswers: Array.isArray(questionWithId.correctAnswers) 
-              ? questionWithId.correctAnswers 
-              : questionWithId.answers 
+            correctAnswers: Array.isArray(questionWithId.correctAnswers)
+              ? questionWithId.correctAnswers
+              : questionWithId.answers
                 ? questionWithId.answers
-                  .filter(ans => ans.isCorrect === true)
-                  .map(ans => ans.text)
+                  .filter((ans) => ans.isCorrect === true)
+                  .map((ans) => ans.text)
                 : [],
             // Include media URLs if present
             imageUrl: questionWithId.imageUrl || '',
@@ -82,12 +82,12 @@ const useGameData = (gameId) => {
   const updateGame = async (updatedGame) => {
     try {
       // Create a new array with all games, replacing the updated one
-      const updatedGames = allGames.map(g => 
+      const updatedGames = allGames.map((g) =>
         g.id === updatedGame.id ? updatedGame : g
       );
-      
+
       console.log('Updating all games:', updatedGames);
-      
+
       // Update the games using the bulk update endpoint
       const response = await ApiCall(
         '/admin/games',
@@ -117,4 +117,4 @@ const useGameData = (gameId) => {
   return { game, loading, error, updateGame, fetchGameData };
 };
 
-export default useGameData; 
+export default useGameData;

@@ -1,22 +1,18 @@
 import PropTypes from 'prop-types';
-import {
-  Box,
-  Typography,
-  LinearProgress,
-} from '@mui/material';
+import { Box, Typography, LinearProgress } from '@mui/material';
 
-function QuestionDisplay({ 
-  currentQuestion, 
-  timeLeft, 
-  showResults, 
-  calculateRemainingTimePercent, 
-  getTimerColor, 
-  formatTimeLeft 
+function QuestionDisplay({
+  currentQuestion,
+  timeLeft,
+  showResults,
+  calculateRemainingTimePercent,
+  getTimerColor,
+  formatTimeLeft,
 }) {
   return (
     <Box sx={{ width: '100%', mb: 4 }}>
       {/* Timer display and question badge */}
-      <Box 
+      <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
@@ -30,29 +26,36 @@ function QuestionDisplay({
             variant="determinate"
             value={calculateRemainingTimePercent()}
             color={showResults ? 'secondary' : getTimerColor()}
-            sx={{ 
-              height: 10, 
+            sx={{
+              height: 10,
               borderRadius: 5,
               '& .MuiLinearProgress-bar': {
                 transition: 'transform 1s linear',
-              }
+              },
             }}
           />
         </Box>
-        
-        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+
+        <Box
+          sx={{
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
           {/* Timer display */}
-          <Typography 
-            variant="h6" 
+          <Typography
+            variant="h6"
             component="div"
             color={showResults ? 'secondary.main' : getTimerColor()} // Use color prop directly
-            sx={{ 
+            sx={{
               fontWeight: 'bold',
               fontSize: { xs: '0.9rem', sm: '1.1rem' },
-              transition: 'color 0.3s ease'
+              transition: 'color 0.3s ease',
             }}
           >
-            {showResults ? "Results" : formatTimeLeft(timeLeft)}
+            {showResults ? 'Results' : formatTimeLeft(timeLeft)}
           </Typography>
         </Box>
       </Box>
@@ -74,7 +77,7 @@ function QuestionDisplay({
         {/* Media content (image or video) */}
         {currentQuestion?.imageUrl && (
           <Box
-            sx={{ 
+            sx={{
               position: 'relative',
               mb: 4,
               borderRadius: 3,
@@ -100,7 +103,7 @@ function QuestionDisplay({
 
         {currentQuestion?.videoUrl && (
           <Box
-            sx={{ 
+            sx={{
               position: 'relative',
               mb: 4,
               borderRadius: 3,
@@ -147,4 +150,4 @@ QuestionDisplay.propTypes = {
   formatTimeLeft: PropTypes.func.isRequired,
 };
 
-export default QuestionDisplay; 
+export default QuestionDisplay;

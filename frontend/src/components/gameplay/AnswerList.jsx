@@ -1,24 +1,17 @@
 import PropTypes from 'prop-types';
-import {
-  Box,
-  Button,
-  Avatar,
-  Typography,
-  Zoom,
-} from '@mui/material';
+import { Box, Button, Avatar, Typography, Zoom } from '@mui/material';
 
-
-function AnswerList({ 
-  answers, 
-  selectedAnswers, 
-  correctAnswers, 
-  handleAnswerSelect, 
-  showResults, 
+function AnswerList({
+  answers,
+  selectedAnswers,
+  correctAnswers,
+  handleAnswerSelect,
+  showResults,
   answerPeriodEnded,
   getButtonColor,
   getResultIcon,
   getAvatarBgColor,
-  getAnswerBoxBgColor
+  getAnswerBoxBgColor,
 }) {
   const letterOptions = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
@@ -33,9 +26,13 @@ function AnswerList({
       {answers?.map((answer, index) => {
         const isSelected = selectedAnswers.includes(answer.text);
         const isCorrect = correctAnswers.includes(answer.text);
-        
+
         return (
-          <Zoom in={true} timeout={300 + index * 100} key={`answer-${answer.text}-${index}`}>
+          <Zoom
+            in={true}
+            timeout={300 + index * 100}
+            key={`answer-${answer.text}-${index}`}
+          >
             <Button
               variant={isSelected ? 'contained' : 'outlined'}
               color={getButtonColor(answer, isSelected, isCorrect, showResults)}
@@ -52,23 +49,38 @@ function AnswerList({
                 transition: 'all 0.2s',
                 boxShadow: isSelected ? 4 : 0,
                 '&:hover': {
-                  transform: showResults || answerPeriodEnded ? 'none' : 'translateY(-3px)',
+                  transform:
+                    showResults || answerPeriodEnded
+                      ? 'none'
+                      : 'translateY(-3px)',
                   boxShadow: showResults || answerPeriodEnded ? 0 : 6,
                 },
               }}
             >
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                width: '100%', 
-                p: 0,
-                position: 'relative',
-                backgroundColor: getAnswerBoxBgColor(showResults, isCorrect),
-              }}>
-                <Avatar 
-                  sx={{ 
-                    bgcolor: getAvatarBgColor(isSelected, showResults, isCorrect),
-                    color: isSelected ? '#fff' : (showResults ? (isCorrect ? '#4caf50' : '#f44336') : '#1976d2'), // Adjust color based on state
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  width: '100%',
+                  p: 0,
+                  position: 'relative',
+                  backgroundColor: getAnswerBoxBgColor(showResults, isCorrect),
+                }}
+              >
+                <Avatar
+                  sx={{
+                    bgcolor: getAvatarBgColor(
+                      isSelected,
+                      showResults,
+                      isCorrect
+                    ),
+                    color: isSelected
+                      ? '#fff'
+                      : showResults
+                        ? isCorrect
+                          ? '#4caf50'
+                          : '#f44336'
+                        : '#1976d2', // Adjust color based on state
                     m: 1.5,
                     transition: 'all 0.2s',
                     fontWeight: 'bold',
@@ -76,7 +88,7 @@ function AnswerList({
                 >
                   {letterOptions[index]}
                 </Avatar>
-                
+
                 <Typography
                   sx={{
                     flex: 1,
@@ -89,7 +101,7 @@ function AnswerList({
                 >
                   {answer.text}
                 </Typography>
-                
+
                 {getResultIcon(answer, isSelected, isCorrect, showResults) && (
                   <Box sx={{ position: 'absolute', right: 12 }}>
                     {getResultIcon(answer, isSelected, isCorrect, showResults)}
@@ -105,9 +117,11 @@ function AnswerList({
 }
 
 AnswerList.propTypes = {
-  answers: PropTypes.arrayOf(PropTypes.shape({
-    text: PropTypes.string.isRequired,
-  })).isRequired,
+  answers: PropTypes.arrayOf(
+    PropTypes.shape({
+      text: PropTypes.string.isRequired,
+    })
+  ).isRequired,
   selectedAnswers: PropTypes.arrayOf(PropTypes.string).isRequired,
   correctAnswers: PropTypes.arrayOf(PropTypes.string).isRequired,
   handleAnswerSelect: PropTypes.func.isRequired,
@@ -119,4 +133,4 @@ AnswerList.propTypes = {
   getAnswerBoxBgColor: PropTypes.func.isRequired,
 };
 
-export default AnswerList; 
+export default AnswerList;

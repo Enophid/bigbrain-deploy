@@ -281,13 +281,15 @@ function Dashboard() {
 
       const gameName = game.name || 'Game';
 
-      // If the game is already active, just show the session modal with current session ID
+      // If the game is already active, check if it has ended
       if (game.active) {
+        // Set the current session
         setCurrentSession({
           id: game.active,
           gameName,
           isNewSession: false,
           gameId: gameId,
+          // We'll check if the session has ended inside the modal component
         });
         setSessionModalOpen(true);
         return;

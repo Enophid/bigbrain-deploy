@@ -71,11 +71,11 @@ const ResultsHeader = ({ onBack, title = 'Game Results', error = null }) => (
         }}
       />
     </Box>
-    
+
     {error && (
-      <Alert 
-        severity="error" 
-        sx={{ 
+      <Alert
+        severity="error"
+        sx={{
           mx: { xs: 2, sm: 4 },
           mt: 0,
           mb: 4,

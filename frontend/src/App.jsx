@@ -10,7 +10,6 @@ import PlayerGameResults from './components/PlayerGameResults/index.jsx';
 import QuestionEditor from './components/QuestionEditor';
 import GlobalStyles from './theme/globalStyles';
 import { Box } from '@mui/material';
-import GameResultsPage from './components/ResultChart/GameResultsPage.jsx';
 
 function App() {
   return (
@@ -35,7 +34,6 @@ function App() {
           />
           <Route path='/session/:sessionId' element={<GameResults />} />
           <Route path='/results/:sessionId' element={<GameResults />} />
-          <Route path='/game-results/:sessionId' element={<GameResultsPage />} />
           {/* Add other authenticated routes here */}
 
           {/* Redirect to login for any other paths */}

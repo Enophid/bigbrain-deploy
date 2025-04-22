@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   Dialog,
@@ -28,6 +28,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import ApiCall from '../apiCall';
+import React from 'react';
 
 // Common styles
 const styles = {
@@ -55,6 +56,7 @@ const DefaultSessionContent = ({
   handleCopyLink,
   handleStartGame,
   onClose,
+  isAdvancing,
 }) => (
   <>
     <Typography variant="h6" sx={{ mb: 2 }}>
@@ -112,13 +114,21 @@ const DefaultSessionContent = ({
         fullWidth
         variant="contained"
         color="info"
-        onClick={() => {
+        onClick={(e) => {
+          // Prevent any double-click issues
+          e.preventDefault();
+          console.log('Advance button clicked');
+          
+          // Call the handler function
           handleStartGame();
+          
           // Only close modal for new sessions
           if (isNewSession) {
+            console.log('Closing modal for new session');
             onClose();
           }
         }}
+        disabled={isAdvancing} // Disable button while advancing
       >
         {isNewSession ? 'Start game 🎮' : 'Advance to next question 🚀'}
       </Button>
@@ -262,8 +272,22 @@ const SessionEndedContent = ({ gameName }) => (
     <Typography variant="h6" sx={{ mb: 2 }}>
       Session for {gameName} has ended
     </Typography>
-    <Typography variant="body1" sx={{ mb: 3 }}>
-      Would you like to view the results for this session?
+    <Typography variant="body1" sx={{ mb: 2 }}>
+      You can now view the results and statistics for this session:
+    </Typography>
+    <Box sx={{ mb: 3, pl: 2 }}>
+      <Typography variant="body2" component="p" sx={{ mb: 1 }}>
+        • View top 5 players and their scores
+      </Typography>
+      <Typography variant="body2" component="p" sx={{ mb: 1 }}>
+        • See question performance statistics
+      </Typography>
+      <Typography variant="body2" component="p">
+        • Analyze average response times
+      </Typography>
+    </Box>
+    <Typography variant="body2" color="primary" fontWeight="medium">
+      Would you like to view these results now?
     </Typography>
   </>
 );
@@ -276,39 +300,57 @@ const SessionEndedActions = ({
   handleViewResults,
   handleViewCharts,
   initialFocusRef,
-}) => (
-  <Box
-    sx={{
-      ...styles.actionContainer,
-      justifyContent: 'space-between',
-    }}
-  >
-    <Button variant="outlined" onClick={onClose} sx={styles.button}>
-      Close
-    </Button>
-    <Box sx={{ display: 'flex', gap: 1 }}>
-      <Button
-        variant="outlined"
-        color="info"
-        onClick={handleViewCharts}
-        startIcon={<BarChartIcon />}
-        sx={styles.button}
-      >
-        View Charts
+}) => {
+  // Use useEffect to ensure the focus gets set correctly when component mounts
+  React.useEffect(() => {
+    if (initialFocusRef && initialFocusRef.current) {
+      setTimeout(() => initialFocusRef.current.focus(), 100);
+    }
+  }, [initialFocusRef]);
+
+  return (
+    <Box
+      sx={{
+        ...styles.actionContainer,
+        justifyContent: 'space-between',
+      }}
+    >
+      <Button variant="outlined" onClick={onClose} sx={styles.button}>
+        Close
       </Button>
-      <Button
-        variant="contained"
-        color="info"
-        onClick={handleViewResults}
-        startIcon={<AssessmentIcon />}
-        sx={styles.button}
-        ref={initialFocusRef}
-      >
-        View Results
-      </Button>
+      <Box sx={{ display: 'flex', gap: 1 }}>
+        <Button
+          variant="outlined"
+          color="info"
+          onClick={handleViewCharts}
+          startIcon={<BarChartIcon />}
+          sx={styles.button}
+        >
+          View Charts
+        </Button>
+        <Button
+          variant="contained"
+          color="info"
+          onClick={handleViewResults}
+          startIcon={<AssessmentIcon />}
+          sx={{
+            ...styles.button,
+            fontWeight: 'bold',
+            px: 2.5,
+            boxShadow: (theme) => theme.shadows[4],
+            '&:hover': {
+              boxShadow: (theme) => theme.shadows[6],
+            }
+          }}
+          ref={initialFocusRef}
+          autoFocus
+        >
+          View Results
+        </Button>
+      </Box>
     </Box>
-  </Box>
-);
+  );
+};
 
 /**
  * Component that displays the content while a session is ending
@@ -353,25 +395,47 @@ const SessionModal = ({
     ? `${baseAppUrl}/play?session=${sessionId}`
     : `${baseAppUrl}/play`;
 
+
+
   /**
    * Advances the game to the first question
    */
   const handleStartGame = async () => {
     if (!gameId) {
       console.error('Cannot start game: Game ID is missing');
-      setError('Cannot start game: Game ID is missing');
+      setError({
+        severity: 'error',
+        message: 'Cannot start game: Game ID is missing'
+      });
       return;
     }
 
     // Prevent multiple clicks
     if (isAdvancing) {
+      console.log('Ignoring click - already processing advance request');
       return;
     }
 
     try {
       setIsAdvancing(true);
-      console.log('Starting game:', gameId);
+      console.log('Advancing to next question for game:', gameId);
 
+      // First check if the game is still active using the games endpoint
+      const gamesData = await ApiCall(`/admin/games`, {}, 'GET');
+      const game = gamesData.games?.find(g => g.id === gameId);
+      
+      if (!game) {
+        throw new Error('Game not found');
+      }
+      
+      if (!game.active) {
+        console.log('Game has already ended. Showing results options.');
+        setIsEnding(false);
+        setIsEnded(true);
+        return;
+      }
+
+      // If the game is still active, try to advance it
       const data = await ApiCall(
         `/admin/game/${gameId}/mutate`,
         {
@@ -380,15 +444,46 @@ const SessionModal = ({
         'POST'
       );
 
-      console.log('Game started successfully:', data);
+      console.log('Game advancement result:', data);
+      
+      // Check if the response indicates that the game has ended
+      if (data.error === 'Game has no active session' || 
+          (data.error && data.error.includes('no active session'))) {
+        console.log('Game has automatically ended. Showing results options.');
+        
+        // Use setTimeout to ensure state updates properly with React's batching
+        setTimeout(() => {
+          setIsEnded(true);
+          console.log('isEnded state set to true due to auto-end detection');
+        }, 50);
+      } else if (!data.error) {
+        console.log('Successfully advanced to next question');
+      }
     } catch (e) {
-      console.error('Error starting game:', e);
-      setError({
-        severity: 'error',
-        message: `Failed to start game: ${e.message || 'Unknown error'}`,
-      });
+      console.error('Error advancing game:', e);
+      
+      // Check if error message indicates the game has ended
+      if (e.message === 'Game has no active session' || 
+          (e.message && e.message.includes('no active session'))) {
+        console.log('Game has automatically ended. Showing results options.');
+        
+        // Show Session Ended view
+        setTimeout(() => {
+          setIsEnded(true);
+          console.log('isEnded state set to true due to auto-end detection');
+        }, 50);
+      } else {
+        setError({
+          severity: 'error',
+          message: `Failed to advance game: ${e.message || 'Unknown error'}`,
+        });
+      }
     } finally {
-      setIsAdvancing(false);
+      // Add a small delay before allowing another click to prevent rapid multiple clicks
+      setTimeout(() => {
+        setIsAdvancing(false);
+        console.log('Ready for next advance');
+      }, 500);
     }
   };
 
@@ -427,24 +522,36 @@ const SessionModal = ({
     setShowEndConfirm(false);
     try {
       setIsEnding(true);
+      console.log('Ending session process started...');
 
       // Call the onEndSession function from props
       if (onEndSession) {
         const success = await onEndSession();
+        console.log('Session end API result:', success);
 
         if (success) {
-          // Show the Session Ended view
-          setIsEnded(true);
+          console.log('Session ended successfully, showing result options');
+          // Ensure we set states in correct order
+          setIsEnding(false); 
+          // Use setTimeout to ensure state updates properly with React's batching
+          setTimeout(() => {
+            setIsEnded(true);
+            console.log('isEnded state set to true');
+          }, 50);
         } else {
-          // If session ending failed, just close the modal
+          console.log('Session ending failed');
+          setIsEnding(false);
           onClose();
         }
+      } else {
+        console.error('No onEndSession handler provided');
+        setIsEnding(false);
+        onClose();
       }
     } catch (error) {
       console.error('Error ending session:', error);
-      onClose(); // Close on error
-    } finally {
       setIsEnding(false);
+      onClose(); // Close on error
     }
   };
 
@@ -452,11 +559,18 @@ const SessionModal = ({
    * Navigates to the results page for the session
    */
   const handleViewResults = () => {
-    onClose();
+    console.log('Navigating to results for session:', sessionId);
     if (sessionId) {
-      navigate(`/session/${sessionId}`);
+      // Close modal first to avoid state conflicts
+      onClose();
+      // Use small timeout to ensure modal closing completes before navigation
+      setTimeout(() => {
+        console.log('Navigating to:', `/session/${sessionId}`);
+        navigate(`/session/${sessionId}`);
+      }, 150);
     } else {
       console.error('Cannot navigate to results: Session ID is missing.');
+      onClose();
     }
   };
 
@@ -464,21 +578,28 @@ const SessionModal = ({
    * Navigates to the charts page for the session
    */
   const handleViewCharts = () => {
-    onClose();
+    console.log('Navigating to charts for session:', sessionId);
     if (sessionId) {
-      navigate(`/game-results/${sessionId}`);
+      // Close modal first to avoid state conflicts
+      onClose();
+      // Use small timeout to ensure modal closing completes before navigation
+      setTimeout(() => {
+        console.log('Navigating to:', `/game-results/${sessionId}`);
+        navigate(`/game-results/${sessionId}`);
+      }, 150);
     } else {
       console.error('Cannot navigate to charts: Session ID is missing.');
+      onClose();
     }
   };
 
   // Regular close handler (used for non-end-session cases)
   const handleClose = (event, reason) => {
-    // Prevent closing with backdrop or escape key during loading
-    if (
-      isEnding &&
-      (reason === 'backdropClick' || reason === 'escapeKeyDown')
-    ) {
+    console.log('Handle close triggered, reason:', reason);
+    
+    // Prevent closing with backdrop or escape key during loading or when showing results
+    if ((isEnding || isEnded) && (reason === 'backdropClick' || reason === 'escapeKeyDown')) {
+      console.log('Preventing close during loading/results state');
       return;
     }
 
@@ -492,12 +613,14 @@ const SessionModal = ({
 
   // Special handler for "No, Close" in Session Ended view
   const handleCloseAfterEnd = () => {
+    console.log('Closing modal after session ended');
     onClose();
   };
 
   // Reset session ended state when the modal is closed or reopened
   const handleModalOnExited = () => {
     // Reset all local state after the closing animation completes
+    console.log('Modal fully closed, resetting states');
     setIsEnded(false);
     setShowEndConfirm(false);
     setIsEnding(false);
@@ -571,6 +694,7 @@ const SessionModal = ({
           handleCopyLink={handleCopyLink}
           handleStartGame={handleStartGame}
           onClose={onClose}
+          isAdvancing={isAdvancing}
         />
       ),
       actions: (
@@ -602,15 +726,18 @@ const SessionModal = ({
               borderRadius: 2,
               boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
               margin: { xs: '16px', sm: '32px' },
-              width: { xs: 'calc(100% - 32px)', sm: '500px' },
-              maxWidth: { xs: 'calc(100% - 32px)', sm: '500px' },
+              width: { xs: 'calc(100% - 32px)', sm: isEnded ? '550px' : '500px' },
+              maxWidth: { xs: 'calc(100% - 32px)', sm: isEnded ? '550px' : '500px' },
             },
           },
           transition: {
             onExited: handleModalOnExited, // Reset state when modal is fully closed
           },
+          backdrop: {
+            onClick: (isEnding || isEnded) ? (e) => e.stopPropagation() : undefined,
+          },
         }}
-        disableEscapeKeyDown={isEnding}
+        disableEscapeKeyDown={isEnding || isEnded}
         keepMounted={false}
         aria-labelledby="session-modal-title"
       >
@@ -696,6 +823,7 @@ DefaultSessionContent.propTypes = {
   gameId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   handleStartGame: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
+  isAdvancing: PropTypes.bool,
 };
 
 DefaultSessionActions.propTypes = {

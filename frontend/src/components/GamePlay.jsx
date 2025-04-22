@@ -8,25 +8,26 @@ import {
   ThemeProvider,
   CssBaseline,
   CircularProgress,
-  LinearProgress,
-  Alert,
-  Button,
-  Card,
-  CardContent,
-  Chip,
-  Zoom,
   Fade,
-  Avatar,
-  Stack,
 } from '@mui/material';
 import {
-  CheckCircle as CheckCircleIcon,
-  Cancel as CancelIcon,
-  QuestionAnswer as QuestionIcon,
+  CheckCircle as CheckCircleIcon, 
+  Cancel as CancelIcon, 
 } from '@mui/icons-material';
 import ApiCall from './apiCall';
 import bigBrainTheme from '../theme/bigBrainTheme';
 import GlobalStyles from '../theme/globalStyles';
+
+// Import the new screen components
+import LoadingScreen from './gameplay/LoadingScreen';
+import ErrorScreen from './gameplay/ErrorScreen';
+import WaitingScreen from './gameplay/WaitingScreen';
+import GameEndScreen from './gameplay/GameEndScreen';
+
+// Gameplay content components
+import QuestionDisplay from './gameplay/QuestionDisplay';
+import AnswerList from './gameplay/AnswerList';
+import ResultOverlay from './gameplay/ResultOverlay';
 
 /**
  * GamePlay component where players interact with the active game
@@ -50,6 +51,31 @@ function GamePlay() {
   const [lastPollTime, setLastPollTime] = useState(Date.now());
   const [gameEnded, setGameEnded] = useState(false);
   const [playerResults, setPlayerResults] = useState(null);
+
+  /**
+   * Handles the specific error case where the game session has ended.
+   * Attempts to fetch the final results.
+   */
+  const handleGameEndedError = async () => {
+    console.log('Game session has ended, fetching final results...');
+    try {
+      const resultsData = await ApiCall(`/play/${playerId}/results`, {}, 'GET');
+      if (resultsData) {
+        console.log('Successfully retrieved final results:', resultsData);
+        setPlayerResults(resultsData);
+        setGameEnded(true);
+        setWaitingForNextQuestion(false); // Ensure waiting state is cleared
+        // Loading might already be false, but set it just in case
+        setLoading(false); 
+      }
+      // If resultsData is null/undefined but no error, maybe the game just ended without results?
+      // Consider how to handle this case if necessary.
+    } catch (resultsErr) {
+      console.error('Error fetching final results:', resultsErr.message);
+      setError('Game has ended, but we could not retrieve your results. Please try again later.');
+      setLoading(false);
+    }
+  };
 
   /**
    * Calculate remaining time based on server's start time and time limit
@@ -140,35 +166,20 @@ function GamePlay() {
       setLastPollTime(Date.now());
     } catch (err) {
       if (err.message === 'Session has not started yet') {
-        // Handle the case where we're waiting for the game to start
         setWaitingForNextQuestion(true);
-      } else if (err.message.includes('not an active session') || 
-                err.message.includes('No active session') || 
-                err.message.includes('Session is not active')) {
-        // Game has ended - try to fetch final results
-        console.log('Game session has ended, fetching final results...');
-        
-        try {
-          const resultsData = await ApiCall(`/play/${playerId}/results`, {}, 'GET');
-          if (resultsData) {
-            console.log('Successfully retrieved final results:', resultsData);
-            setPlayerResults(resultsData);
-            
-            // Set game as ended and clear waiting state
-            setGameEnded(true);
-            setWaitingForNextQuestion(false);
-            setLoading(false);
-          }
-        } catch (resultsErr) {
-          console.error('Error fetching final results:', resultsErr.message);
-          setError('Game has ended, but we could not retrieve your results. Please try again later.');
-          setLoading(false);
-        }
+      } else if (
+        err.message.includes('not an active session') ||
+        err.message.includes('No active session') ||
+        err.message.includes('Session is not active')
+      ) {
+        // Call the extracted handler
+        handleGameEndedError();
       } else {
         setError(err.message || 'Failed to fetch question data.');
         setLoading(false);
       }
-      setLastPollTime(Date.now());
+      // Ensure lastPollTime is updated even if there was an error
+      setLastPollTime(Date.now()); 
     }
   }, [playerId, currentQuestion]);
 
@@ -242,13 +253,81 @@ function GamePlay() {
   }, [timeLeft, showResults]);
 
   /**
+   * Calculates response time, speed points, and logs the result for the current question.
+   */
+  const calculateAndRecordQuestionResult = (question, answersFromApi, selected, submitted, lastSubmission) => {
+    // Added parameters for clarity
+    const currentQ = question;
+    if (!currentQ) return; // Guard clause
+
+    try {
+      const isCorrect = answersFromApi.some(answer => selected.includes(answer));
+      let responseTime = null;
+
+      if (currentQ.isoTimeLastQuestionStarted) {
+        const startTime = new Date(currentQ.isoTimeLastQuestionStarted).getTime();
+        let endTime;
+        if (submitted && lastSubmission && lastSubmission.timestamp) {
+          endTime = new Date(lastSubmission.timestamp || Date.now()).getTime();
+        } else {
+          endTime = new Date().getTime();
+        }
+        responseTime = (endTime - startTime) / 1000;
+        currentQ.responseTime = responseTime; // Mutating prop, consider returning new object if preferred
+      }
+
+      let finalPoints = 0;
+      if (isCorrect && responseTime !== null) { // Check responseTime is calculated
+        const basePoints = parseInt(currentQ.points || 10, 10);
+        const questionDuration = parseInt(currentQ.duration || 30, 10);
+        
+        // Use the imported helper function
+        const pointsData = calculateSpeedPoints(
+          responseTime,
+          questionDuration,
+          basePoints
+        );
+        
+        currentQ.basePoints = basePoints;
+        currentQ.speedMultiplier = pointsData.speedMultiplier;
+        currentQ.finalPoints = pointsData.finalPoints;
+        finalPoints = pointsData.finalPoints;
+
+        console.log('Points calculation:', {
+          basePoints,
+          responseTime,
+          questionDuration,
+          speedMultiplier: pointsData.speedMultiplier,
+          finalPoints: pointsData.finalPoints
+        });
+      } else {
+        currentQ.finalPoints = 0;
+      }
+      
+      console.log('Question result:', {
+        question: currentQ.text,
+        position: currentQ.position,
+        points: finalPoints,
+        responseTime: responseTime ? Math.round(responseTime * 10) / 10 : null,
+        correct: isCorrect,
+        questionPoints: parseInt(currentQ.points || 10, 10),
+        speedMultiplier: isCorrect ? currentQ.speedMultiplier : 0
+      });
+
+    } catch (err) {
+      console.error('Error calculating points:', err);
+      // Set default values in case of error
+      currentQ.basePoints = parseInt(currentQ.points || 10, 10);
+      currentQ.finalPoints = 0;
+      // Optionally re-throw or handle differently
+    }
+  };
+
+  /**
    * Get correct answers and results when time expires
    */
   const getAnswerResults = async () => {
     try {
-      // Only get answer results if:
-      // 1. We haven't already shown results
-      // 2. And timer has actually expired (timeLeft is 0) or answer period has ended
       if (!showResults && (timeLeft === 0 || answerPeriodEnded)) {
         console.log('Attempting to get answer results...');
         
@@ -256,125 +335,48 @@ function GamePlay() {
 
         if (data.error) {
           if (data.error.includes("Answers are not available yet")) {
-            // If answers aren't available yet, try again after a short delay
             console.log("Answers not yet available, retrying in 2 seconds...");
-            setTimeout(() => getAnswerResults(), 2000);
+            setTimeout(getAnswerResults, 2000); // Pass function reference
             return;
           }
           setAnswerError(data.error);
-          throw new Error(data.error);
+          // Consider if throwing here is needed, or just setting error and returning
+          // throw new Error(data.error); 
+          return; // Exit if there was an API error getting answers
         }
 
         console.log('Successfully retrieved answers:', data.answers);
         
-        // Add null check for data.answers
-        if (!data.answers || !Array.isArray(data.answers)) {
+        const answersFromApi = data.answers;
+        if (!answersFromApi || !Array.isArray(answersFromApi)) {
           console.error('No valid answers data received from server');
-          // Use empty array as fallback
           setCorrectAnswers([]);
-          setShowResults(true);
-          setWaitingForNextQuestion(true);
-          return;
+          // Still show results page, but with no correct answers marked
+        } else {
+          setCorrectAnswers(answersFromApi || []);
+          // Calculate points only if we received valid answers
+          calculateAndRecordQuestionResult(
+            currentQuestion, 
+            answersFromApi, 
+            selectedAnswers, 
+            answerSubmitted, 
+            lastSubmittedAnswer
+          );
         }
         
-        setCorrectAnswers(data.answers || []);
-        
-        // Calculate speed-based points for this question
-        if (currentQuestion) {
-          try {
-            // Get if the player got the answer correct - safely check with try/catch
-            const isCorrect = data.answers.some(answer => selectedAnswers.includes(answer));
-            
-            // Calculate response time (if available)
-            let responseTime = null;
-            if (currentQuestion.isoTimeLastQuestionStarted) {
-              const startTime = new Date(currentQuestion.isoTimeLastQuestionStarted).getTime();
-              
-              // Instead of using current time, use the time when the answer was submitted
-              // Only use current time as fallback
-              let endTime;
-              if (answerSubmitted && lastSubmittedAnswer && lastSubmittedAnswer.timestamp) {
-                // Get actual submission time from when the answer was submitted
-                // This is more accurate than using the current time
-                endTime = new Date(lastSubmittedAnswer.timestamp || Date.now()).getTime();
-              } else {
-                // If no answer was submitted, use current time
-                endTime = new Date().getTime();
-              }
-              
-              responseTime = (endTime - startTime) / 1000;
-              
-              // Store for future reference
-              currentQuestion.responseTime = responseTime;
-            }
-            
-            // Calculate points if the answer is correct
-            let finalPoints = 0;
-            if (isCorrect && responseTime) {
-              // Ensure we have numeric values for calculations
-              const basePoints = parseInt(currentQuestion.points || 10, 10);
-              const questionDuration = parseInt(currentQuestion.duration || 30, 10);
-              
-              const pointsData = calculateSpeedPoints(
-                responseTime,
-                questionDuration,
-                basePoints
-              );
-              
-              // Store the points data in the current question
-              currentQuestion.basePoints = basePoints;
-              currentQuestion.speedMultiplier = pointsData.speedMultiplier;
-              currentQuestion.finalPoints = pointsData.finalPoints;
-              finalPoints = pointsData.finalPoints;
-              
-              // Log the points calculation for debugging
-              console.log('Points calculation:', {
-                basePoints,
-                responseTime,
-                questionDuration,
-                speedMultiplier: pointsData.speedMultiplier,
-                finalPoints: pointsData.finalPoints
-              });
-            } else {
-              // If answer is incorrect, set points to 0
-              currentQuestion.finalPoints = 0;
-            }
-            
-            // Log question result for debugging
-            console.log('Question result:', {
-              question: currentQuestion.text,
-              position: currentQuestion.position,
-              points: finalPoints,
-              responseTime: responseTime ? Math.round(responseTime * 10) / 10 : null,
-              correct: isCorrect,
-              questionPoints: parseInt(currentQuestion.points || 10, 10),
-              speedMultiplier: isCorrect ? currentQuestion.speedMultiplier : 0
-            });
-            
-            // Results are stored on the server and will be fetched via API
-            // in the PlayerGameResults component. No need to store them in localStorage.
-            
-          } catch (err) {
-            console.error('Error calculating points:', err);
-            // Set default values in case of error
-            currentQuestion.basePoints = parseInt(currentQuestion.points || 10, 10);
-            currentQuestion.finalPoints = 0;
-          }
-        }
-        
+        // Always show results and move to waiting state after attempting to get answers
         setShowResults(true);
-
-        // After showing results, we're waiting for next question
         setWaitingForNextQuestion(true);
+
       } else if (!showResults) {
         console.log('Not checking answers yet - timer still running or results already shown');
       }
     } catch (err) {
       console.error('Failed to get answer results:', err);
-      // If there's an error, try again after a short delay, but only if timer has expired
+      // If the API call itself fails (network error, etc.)
       if (!showResults && (timeLeft === 0 || answerPeriodEnded)) {
-        console.log('Retrying to get answer results in 2 seconds...');
-        setTimeout(() => getAnswerResults(), 2000);
+        console.log('Retrying to get answer results in 2 seconds due to fetch error...');
+        setTimeout(getAnswerResults, 2000); // Pass function reference
       }
     }
   };
@@ -607,36 +609,12 @@ function GamePlay() {
     navigate(`/player-results/${playerId}`);
   };
 
-
-
   /**
    * Render loading state
    */
   if (loading) {
     return (
-      <ThemeProvider theme={bigBrainTheme}>
-        <CssBaseline />
-        <GlobalStyles />
-        <Box
-          sx={{
-            minHeight: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'linear-gradient(135deg, #1a237e 0%, #0d47a1 100%)',
-          }}
-        >
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="h4" sx={{ color: 'white', mb: 3, fontWeight: 'bold' }}>
-              BigBrain
-            </Typography>
-            <CircularProgress size={60} sx={{ color: '#fff' }} />
-            <Typography variant="body1" sx={{ color: 'white', mt: 2 }}>
-              Loading your game...
-            </Typography>
-          </Box>
-        </Box>
-      </ThemeProvider>
+      <LoadingScreen />
     );
   }
 
@@ -645,35 +623,7 @@ function GamePlay() {
    */
   if (error) {
     return (
-      <ThemeProvider theme={bigBrainTheme}>
-        <CssBaseline />
-        <GlobalStyles />
-        <Box
-          sx={{
-            minHeight: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'linear-gradient(135deg, #1a237e 0%, #0d47a1 100%)',
-          }}
-        >
-          <Container maxWidth="sm">
-            <Fade in={true} timeout={800}>
-              <Alert 
-                severity="error" 
-                variant="filled"
-                sx={{ 
-                  borderRadius: 2,
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-                }}
-              >
-                <Typography variant="h6">Oops!</Typography>
-                {error}
-              </Alert>
-            </Fade>
-          </Container>
-        </Box>
-      </ThemeProvider>
+      <ErrorScreen error={error} />
     );
   }
 
@@ -682,70 +632,7 @@ function GamePlay() {
    */
   if (waitingForNextQuestion && !currentQuestion) {
     return (
-      <ThemeProvider theme={bigBrainTheme}>
-        <CssBaseline />
-        <GlobalStyles />
-        <Box
-          sx={{
-            minHeight: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundImage:
-              'linear-gradient(135deg, #2D3047 0%, #00B4D8 50%, #06D6A0 100%)',
-            backgroundSize: '400% 400%',
-            animation: 'gradient 15s ease infinite',
-            '@keyframes gradient': {
-              '0%': { backgroundPosition: '0% 50%' },
-              '50%': { backgroundPosition: '100% 50%' },
-              '100%': { backgroundPosition: '0% 50%' },
-            },
-          }}
-        >
-          <Container maxWidth="sm">
-            <Zoom in={true} timeout={500}>
-              <Card
-                sx={{
-                  p: 4,
-                  borderRadius: 3,
-                  boxShadow: '0 16px 48px rgba(0,0,0,0.25)',
-                  background: 'rgba(255, 255, 255, 0.95)',
-                  backdropFilter: 'blur(10px)',
-                }}
-              >
-                <CardContent sx={{ textAlign: 'center' }}>
-                  <QuestionIcon sx={{ fontSize: 60, color: '#00B4D8', mb: 2 }} />
-                  <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
-                    Get Ready!
-                  </Typography>
-                  <Typography variant="body1" sx={{ mb: 4, fontSize: '1.1rem' }}>
-                    Waiting for the host to start the game or advance to the next
-                    question.
-                  </Typography>
-                  <CircularProgress 
-                    sx={{ 
-                      color: '#00B4D8',
-                      '& .MuiCircularProgress-circle': {
-                        strokeLinecap: 'round',
-                      },
-                      mb: 3
-                    }} 
-                  />
-                  
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={handleViewResults}
-                    sx={{ mt: 2 }}
-                  >
-                    View Current Results
-                  </Button>
-                </CardContent>
-              </Card>
-            </Zoom>
-          </Container>
-        </Box>
-      </ThemeProvider>
+      <WaitingScreen handleViewResults={handleViewResults} />
     );
   }
 
@@ -754,41 +641,7 @@ function GamePlay() {
    */
   if (gameEnded && playerResults) {
     return (
-      <ThemeProvider theme={bigBrainTheme}>
-        <CssBaseline />
-        <GlobalStyles />
-        <Box
-          sx={{
-            minHeight: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'linear-gradient(135deg, #1a237e 0%, #0d47a1 100%)',
-          }}
-        >
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="h4" sx={{ color: 'white', mb: 3, fontWeight: 'bold' }}>
-              Game Complete!
-            </Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              onClick={handleViewResults}
-              sx={{ 
-                borderRadius: 2,
-                px: 4,
-                py: 1.5,
-                textTransform: 'none',
-                fontWeight: 'bold',
-                mb: 2
-              }}
-            >
-              View Results
-            </Button>
-          </Box>
-        </Box>
-      </ThemeProvider>
+      <GameEndScreen handleViewResults={handleViewResults} />
     );
   }
 
@@ -844,269 +697,40 @@ function GamePlay() {
                 height: 'fit-content',
               }}
             >
-              {/* Timer display and question badge */}
-              <Box 
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  width: '100%',
-                  mb: 2,
-                }}
-              >
-                <Box sx={{ width: '100%', mb: 1 }}>
-                  <LinearProgress
-                    variant="determinate"
-                    value={calculateRemainingTimePercent()}
-                    color={showResults ? 'secondary' : getTimerColor()}
-                    sx={{ 
-                      height: 10, 
-                      borderRadius: 5,
-                      '& .MuiLinearProgress-bar': {
-                        transition: 'transform 1s linear',
-                      }
-                    }}
-                  />
-                </Box>
-                
-                <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  {/* Timer display */}
-                  <Typography 
-                    variant="h6" 
-                    component="div"
-                    color={showResults ? 'secondary.main' : getTimerColor()}
-                    sx={{ 
-                      fontWeight: 'bold',
-                      fontSize: { xs: '0.9rem', sm: '1.1rem' },
-                      transition: 'color 0.3s ease'
-                    }}
-                  >
-                    {showResults ? "Results" : formatTimeLeft(timeLeft)}
-                  </Typography>
-                  
-
-                </Box>
-              </Box>
-
-              {/* Question content */}
-              <Box sx={{ mb: 4 }}>
-                <Typography
-                  variant="h4"
-                  sx={{
-                    fontWeight: 'bold',
-                    mb: 3,
-                    color: '#1a237e',
-                    lineHeight: 1.3,
-                  }}
-                >
-                  {currentQuestion?.text || 'Question'}
-                </Typography>
-
-                {/* Media content (image or video) */}
-                {currentQuestion?.imageUrl && (
-                  <Box
-                    sx={{ 
-                      position: 'relative',
-                      mb: 4,
-                      borderRadius: 3,
-                      overflow: 'hidden',
-                      boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                      textAlign: 'center',
-                    }}
-                  >
-                    <Box
-                      component="img"
-                      src={currentQuestion.imageUrl}
-                      alt="Question media"
-                      sx={{
-                        width: '100%',
-                        maxHeight: '400px',
-                        objectFit: 'contain',
-                        display: 'block',
-                        margin: '0 auto',
-                      }}
-                    />
-                  </Box>
-                )}
-
-                {currentQuestion?.videoUrl && (
-                  <Box
-                    sx={{ 
-                      position: 'relative',
-                      mb: 4,
-                      borderRadius: 3,
-                      overflow: 'hidden',
-                      boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                      paddingTop: '56.25%', // 16:9 aspect ratio
-                      height: 0,
-                    }}
-                  >
-                    <Box
-                      component="iframe"
-                      src={currentQuestion.videoUrl}
-                      title="Question video"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      sx={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        display: 'block',
-                      }}
-                    />
-                  </Box>
-                )}
-              </Box>
-
-              {/* Results message (if showing results) */}
+              {/* Use QuestionDisplay component */}
+              <QuestionDisplay 
+                currentQuestion={currentQuestion}
+                timeLeft={timeLeft}
+                showResults={showResults}
+                calculateRemainingTimePercent={calculateRemainingTimePercent}
+                getTimerColor={getTimerColor}
+                formatTimeLeft={formatTimeLeft}
+              />
+              
+              {/* Use ResultOverlay component */}
               {showResults && (
-                <Fade in={true} timeout={800}>
-                  <Box
-                    sx={{
-                      mb: 4,
-                      p: 3,
-                      borderRadius: 3,
-                      backgroundColor: correctAnswers.some(ans => selectedAnswers.includes(ans)) 
-                        ? 'rgba(76, 175, 80, 0.1)' 
-                        : 'rgba(244, 67, 54, 0.1)',
-                      border: `1px solid ${correctAnswers.some(ans => selectedAnswers.includes(ans)) 
-                        ? 'rgba(76, 175, 80, 0.3)' 
-                        : 'rgba(244, 67, 54, 0.3)'}`,
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      {selectedAnswers.length > 0 && correctAnswers.some(ans => selectedAnswers.includes(ans)) ? (
-                        <CheckCircleIcon sx={{ color: '#4caf50', fontSize: 28, mr: 1.5 }} />
-                      ) : (
-                        <CancelIcon sx={{ color: '#f44336', fontSize: 28, mr: 1.5 }} />
-                      )}
-                      <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                        {getResultMessage()}
-                      </Typography>
-                    </Box>
-
-                    {/* Show points calculation if correct */}
-                    {selectedAnswers.length > 0 && correctAnswers.some(ans => selectedAnswers.includes(ans)) && 
-                      currentQuestion && currentQuestion.speedMultiplier && (
-                      <Box sx={{ mb: 2, p: 1.5, bgcolor: 'rgba(76, 175, 80, 0.05)', borderRadius: 2 }}>
-                        <Typography variant="body1" sx={{ mb: 1, fontWeight: 'medium' }}>
-                          Points Calculation:
-                        </Typography>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                          <Typography variant="body2">
-                            Base Points: {currentQuestion.basePoints || 10}
-                          </Typography>
-                          <Typography variant="body2">
-                            Speed Multiplier: {currentQuestion.speedMultiplier}x (responded in {currentQuestion.responseTime.toFixed(1)}s)
-                          </Typography>
-                          <Typography variant="body1" sx={{ fontWeight: 'bold', mt: 0.5 }}>
-                            Final Points: {currentQuestion.finalPoints}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    )}
-
-                    <Typography variant="body1" sx={{ mb: 1.5, fontWeight: 'medium' }}>
-                      Correct answer{correctAnswers.length > 1 ? 's' : ''}:
-                    </Typography>
-
-                    <Stack direction="row" flexWrap="wrap" gap={1}>
-                      {correctAnswers.map((answer, idx) => (
-                        <Chip
-                          key={idx}
-                          label={answer}
-                          color="success"
-                          sx={{ fontWeight: 'bold', px: 1 }}
-                        />
-                      ))}
-                    </Stack>
-                  </Box>
-                </Fade>
+                <ResultOverlay 
+                  selectedAnswers={selectedAnswers}
+                  correctAnswers={correctAnswers}
+                  currentQuestion={currentQuestion} // Pass relevant parts if needed for points display
+                  getResultMessage={getResultMessage} 
+                />
               )}
 
-              {/* Answer options */}
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-                  gap: 2.5,
-                }}
-              >
-                {currentQuestion?.answers?.map((answer, index) => {
-                  const isSelected = selectedAnswers.includes(answer.text);
-                  const isCorrect = correctAnswers.includes(answer.text);
-                  const letterOptions = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-                  
-                  return (
-                    <Zoom in={true} timeout={300 + index * 100} key={`answer-${answer.text}-${index}`}>
-                      <Button
-                        variant={isSelected ? 'contained' : 'outlined'}
-                        color={getButtonColor(answer)}
-                        onClick={() => handleAnswerSelect(answer.text)}
-                        disabled={showResults || answerPeriodEnded}
-                        sx={{
-                          height: 'auto',
-                          minHeight: 72,
-                          padding: 0,
-                          position: 'relative',
-                          textTransform: 'none',
-                          borderRadius: 3,
-                          overflow: 'hidden',
-                          transition: 'all 0.2s',
-                          boxShadow: isSelected ? 4 : 0,
-                          '&:hover': {
-                            transform: showResults ? 'none' : 'translateY(-3px)',
-                            boxShadow: showResults ? 0 : 6,
-                          },
-                        }}
-                      >
-                        <Box sx={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          width: '100%', 
-                          p: 0,
-                          position: 'relative',
-                          backgroundColor: getAnswerBoxBgColor(showResults, isCorrect),
-                        }}>
-                          <Avatar 
-                            sx={{ 
-                              bgcolor: getAvatarBgColor(isSelected, showResults, isCorrect),
-                              color: isSelected ? '#fff' : '#1976d2',
-                              m: 1.5,
-                              transition: 'all 0.2s',
-                              fontWeight: 'bold',
-                            }}
-                          >
-                            {letterOptions[index]}
-                          </Avatar>
-                          
-                          <Typography
-                            sx={{
-                              flex: 1,
-                              textAlign: 'left',
-                              p: 2,
-                              pr: 3,
-                              fontWeight: 'medium',
-                              fontSize: '1rem',
-                            }}
-                          >
-                            {answer.text}
-                          </Typography>
-                          
-                          {getResultIcon(answer) && (
-                            <Box sx={{ position: 'absolute', right: 12 }}>
-                              {getResultIcon(answer)}
-                            </Box>
-                          )}
-                        </Box>
-                      </Button>
-                    </Zoom>
-                  );
-                })}
-              </Box>
+              {/* Use AnswerList component */}
+              <AnswerList 
+                answers={currentQuestion?.answers}
+                selectedAnswers={selectedAnswers}
+                correctAnswers={correctAnswers}
+                handleAnswerSelect={handleAnswerSelect}
+                showResults={showResults}
+                answerPeriodEnded={answerPeriodEnded}
+                // Pass helper functions as props
+                getButtonColor={getButtonColor}
+                getResultIcon={getResultIcon}
+                getAvatarBgColor={getAvatarBgColor}
+                getAnswerBoxBgColor={getAnswerBoxBgColor}
+              />
 
               {/* Status message */}
               {answerSubmitted && !showResults && (

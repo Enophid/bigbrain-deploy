@@ -42,6 +42,6 @@ export default function useLogout() {
     isLoggingOut,
     handleOpenDialog,
     handleCloseDialog,
-    handleLogout
+    handleLogout,
   };
 }

@@ -158,7 +158,7 @@ function Dashboard() {
       const response = await ApiCall(
         '/admin/games',
         { games: updatedGames },
-        'PUT',
+        'PUT'
       );
 
       if (response.error) {
@@ -220,7 +220,7 @@ function Dashboard() {
       // Check if the game is active
       if (gameToDelete.active) {
         throw new Error(
-          'Cannot delete a game with an active session. End the session first.',
+          'Cannot delete a game with an active session. End the session first.'
         );
       }
 
@@ -244,7 +244,7 @@ function Dashboard() {
       const response = await ApiCall(
         '/admin/games',
         { games: gamesWithOwner },
-        'PUT',
+        'PUT'
       );
 
       if (response.error) {
@@ -297,7 +297,7 @@ function Dashboard() {
       const response = await ApiCall(
         `/admin/game/${gameId}/mutate`,
         { mutationType: 'START' },
-        'POST',
+        'POST'
       );
 
       if (response.error) {
@@ -321,7 +321,7 @@ function Dashboard() {
 
       console.log(
         'Game started successfully, session:',
-        response.data.sessionId,
+        response.data.sessionId
       );
     } catch (err) {
       console.error('Failed to start game:', err.message);
@@ -339,7 +339,7 @@ function Dashboard() {
       const response = await ApiCall(
         `/admin/game/${currentSession.gameId}/mutate`,
         { mutationType: 'END' },
-        'POST',
+        'POST'
       );
 
       if (response.error) {
@@ -361,7 +361,7 @@ function Dashboard() {
 
   const handleCloseSessionModal = async () => {
     setSessionModalOpen(false);
-    
+
     // Refresh games list when modal is closed to ensure we have the latest state
     try {
       const refreshData = await ApiCall('/admin/games', {}, 'GET');
@@ -369,7 +369,10 @@ function Dashboard() {
         setGames(refreshData.games);
       }
     } catch (err) {
-      console.error('Failed to refresh games after closing session modal:', err.message);
+      console.error(
+        'Failed to refresh games after closing session modal:',
+        err.message
+      );
     }
   };
 
@@ -412,13 +415,13 @@ function Dashboard() {
     try {
       // Get the current user's email from localStorage
       const userEmail = localStorage.getItem('admin');
-      
+
       if (!userEmail) {
         throw new Error('User not authenticated. Please log in again.');
       }
 
       // Process and normalize the game data
-      const normalizedQuestions = gameData.questions 
+      const normalizedQuestions = gameData.questions
         ? gameData.questions.map((question, index) => ({
           id: Date.now() + index, // Ensure ID is unique
           text: question.text || '',
@@ -506,10 +509,13 @@ function Dashboard() {
         }}
       >
         {/* Header Section */}
-        <Header onCreateGame={handleOpenModal} onUploadGame={handleOpenUploadModal} />
+        <Header
+          onCreateGame={handleOpenModal}
+          onUploadGame={handleOpenUploadModal}
+        />
 
         <Container
-          maxWidth='xl'
+          maxWidth="xl"
           sx={{
             flexGrow: 1,
             mb: 5,
@@ -527,7 +533,7 @@ function Dashboard() {
             }}
           >
             <Typography
-              variant='h3'
+              variant="h3"
               sx={{
                 color: '#fff',
                 fontWeight: 700,
@@ -541,7 +547,10 @@ function Dashboard() {
 
           {/* Games Display */}
           {games.length === 0 ? (
-            <EmptyState onCreateGame={handleOpenModal} onUploadGame={handleOpenUploadModal} />
+            <EmptyState
+              onCreateGame={handleOpenModal}
+              onUploadGame={handleOpenUploadModal}
+            />
           ) : (
             <Grid
               sx={{
@@ -562,7 +571,7 @@ function Dashboard() {
                 .slice() // Create a shallow copy to avoid mutating the original array
                 .sort(
                   (a, b) =>
-                    new Date(b.createAt || 0) - new Date(a.createAt || 0),
+                    new Date(b.createAt || 0) - new Date(a.createAt || 0)
                 ) // Sort by creation date (newest first)
                 .map((game, index) => (
                   <GameCard
@@ -623,7 +632,7 @@ function Dashboard() {
         autoHideDuration={5000}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <Alert severity={alertSeverity} variant='filled' sx={{ width: '100%' }}>
+        <Alert severity={alertSeverity} variant="filled" sx={{ width: '100%' }}>
           {alertMessage}
         </Alert>
       </Snackbar>

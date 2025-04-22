@@ -52,4 +52,4 @@ QuestionEditorHeader.propTypes = {
   onBack: PropTypes.func.isRequired,
 };
 
-export default QuestionEditorHeader; 
+export default QuestionEditorHeader;

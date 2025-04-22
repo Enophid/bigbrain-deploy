@@ -55,4 +55,4 @@ JudgementAnswerOptions.propTypes = {
   onChange: PropTypes.func.isRequired,
 };
 
-export default JudgementAnswerOptions; 
+export default JudgementAnswerOptions;

@@ -68,10 +68,7 @@ function MultipleChoiceAnswerOptions({
             {answer.isCorrect ? 'Correct' : 'Wrong'}
           </Button>
           {answers.length > 1 && (
-            <IconButton
-              color="error"
-              onClick={() => handleRemoveAnswer(index)}
-            >
+            <IconButton color="error" onClick={() => handleRemoveAnswer(index)}>
               <DeleteIcon />
             </IconButton>
           )}
@@ -102,4 +99,4 @@ MultipleChoiceAnswerOptions.propTypes = {
   onMaxAnswersReached: PropTypes.func.isRequired,
 };
 
-export default MultipleChoiceAnswerOptions; 
+export default MultipleChoiceAnswerOptions;

@@ -34,9 +34,7 @@ function QuestionMetadataForm({ questionData, onChange }) {
           label="Time Limit (seconds)"
           type="number"
           value={questionData.duration || ''}
-          onChange={(e) =>
-            onChange('duration', parseInt(e.target.value) || 0)
-          }
+          onChange={(e) => onChange('duration', parseInt(e.target.value) || 0)}
           fullWidth
           slotProps={{ input: { min: 5, max: 300 } }}
         />
@@ -64,4 +62,4 @@ QuestionMetadataForm.propTypes = {
   onChange: PropTypes.func.isRequired,
 };
 
-export default QuestionMetadataForm; 
+export default QuestionMetadataForm;

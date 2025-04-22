@@ -9,9 +9,7 @@ function QuestionEditorActions({ onSave, isSaveDisabled }) {
   return (
     <>
       <Divider />
-      <Box
-        sx={{ p: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}
-      >
+      <Box sx={{ p: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
         <Button
           variant="contained"
           color="primary"
@@ -37,4 +35,4 @@ QuestionEditorActions.propTypes = {
   isSaveDisabled: PropTypes.bool.isRequired,
 };
 
-export default QuestionEditorActions; 
+export default QuestionEditorActions;

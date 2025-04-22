@@ -28,4 +28,4 @@ MediaInputSection.propTypes = {
   onMediaChange: PropTypes.func.isRequired,
 };
 
-export default MediaInputSection; 
+export default MediaInputSection;

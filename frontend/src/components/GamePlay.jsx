@@ -11,8 +11,8 @@ import {
   Fade,
 } from '@mui/material';
 import {
-  CheckCircle as CheckCircleIcon, 
-  Cancel as CancelIcon, 
+  CheckCircle as CheckCircleIcon,
+  Cancel as CancelIcon,
 } from '@mui/icons-material';
 import ApiCall from './apiCall';
 import bigBrainTheme from '../theme/bigBrainTheme';
@@ -66,13 +66,15 @@ function GamePlay() {
         setGameEnded(true);
         setWaitingForNextQuestion(false); // Ensure waiting state is cleared
         // Loading might already be false, but set it just in case
-        setLoading(false); 
+        setLoading(false);
       }
       // If resultsData is null/undefined but no error, maybe the game just ended without results?
       // Consider how to handle this case if necessary.
     } catch (resultsErr) {
       console.error('Error fetching final results:', resultsErr.message);
-      setError('Game has ended, but we could not retrieve your results. Please try again later.');
+      setError(
+        'Game has ended, but we could not retrieve your results. Please try again later.'
+      );
       setLoading(false);
     }
   };
@@ -82,20 +84,20 @@ function GamePlay() {
    */
   const calculateRemainingTime = (question) => {
     if (!question || !question.isoTimeLastQuestionStarted) return 30;
-    
+
     // Get timestamps
     const startTime = new Date(question.isoTimeLastQuestionStarted).getTime();
     const currentTime = new Date().getTime();
     const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
-    
+
     // Use the question's duration property with proper fallback
     const duration = parseInt(question.duration || 30, 10);
-    
+
     console.log(`Question duration: ${duration}s, elapsed: ${elapsedSeconds}s`);
-    
+
     // Calculate remaining time WITHOUT any buffer so users see the full time
     const remainingTime = Math.max(0, duration - elapsedSeconds);
-    
+
     return remainingTime;
   };
 
@@ -104,20 +106,21 @@ function GamePlay() {
    */
   const checkForQuestionUpdate = (newQuestion) => {
     if (!newQuestion || !currentQuestion) return true;
-    
+
     // Compare key properties to determine if it's a different question
     if (
       newQuestion.position !== currentQuestion.position ||
       newQuestion.text !== currentQuestion.text ||
-      newQuestion.isoTimeLastQuestionStarted !== currentQuestion.isoTimeLastQuestionStarted
+      newQuestion.isoTimeLastQuestionStarted !==
+        currentQuestion.isoTimeLastQuestionStarted
     ) {
-      console.log('New question detected', { 
-        current: currentQuestion.position, 
-        new: newQuestion.position 
+      console.log('New question detected', {
+        current: currentQuestion.position,
+        new: newQuestion.position,
       });
       return true;
     }
-    
+
     return false;
   };
 
@@ -147,11 +150,13 @@ function GamePlay() {
 
         // Set the new question and its timer
         setCurrentQuestion(response.question);
-        
+
         // Calculate remaining time with buffer
         const remainingTime = calculateRemainingTime(response.question);
-        console.log(`Question started, ${remainingTime}s remaining (with buffer)`);
-        
+        console.log(
+          `Question started, ${remainingTime}s remaining (with buffer)`
+        );
+
         // If time has expired or nearly expired, mark answer period as ended
         if (remainingTime <= 0) {
           setAnswerPeriodEnded(true);
@@ -179,7 +184,7 @@ function GamePlay() {
         setLoading(false);
       }
       // Ensure lastPollTime is updated even if there was an error
-      setLastPollTime(Date.now()); 
+      setLastPollTime(Date.now());
     }
   }, [playerId, currentQuestion]);
 
@@ -208,7 +213,7 @@ function GamePlay() {
       const intervalId = setInterval(() => {
         fetchQuestionData();
       }, 3000);
-      
+
       return () => clearInterval(intervalId);
     }
   }, [fetchQuestionData, waitingForNextQuestion]);
@@ -237,7 +242,7 @@ function GamePlay() {
       const timer = setInterval(() => {
         setTimeLeft((prevTime) => {
           const newTime = prevTime > 0 ? prevTime - 1 : 0;
-          
+
           // When timer hits 0, get results and mark answer period as ended
           if (newTime === 0 && !showResults) {
             console.log('Timer reached zero, ending answer period...');
@@ -255,17 +260,27 @@ function GamePlay() {
   /**
    * Calculates response time, speed points, and logs the result for the current question.
    */
-  const calculateAndRecordQuestionResult = (question, answersFromApi, selected, submitted, lastSubmission) => {
+  const calculateAndRecordQuestionResult = (
+    question,
+    answersFromApi,
+    selected,
+    submitted,
+    lastSubmission
+  ) => {
     // Added parameters for clarity
     const currentQ = question;
     if (!currentQ) return; // Guard clause
 
     try {
-      const isCorrect = answersFromApi.some(answer => selected.includes(answer));
+      const isCorrect = answersFromApi.some((answer) =>
+        selected.includes(answer)
+      );
       let responseTime = null;
 
       if (currentQ.isoTimeLastQuestionStarted) {
-        const startTime = new Date(currentQ.isoTimeLastQuestionStarted).getTime();
+        const startTime = new Date(
+          currentQ.isoTimeLastQuestionStarted
+        ).getTime();
         let endTime;
         if (submitted && lastSubmission && lastSubmission.timestamp) {
           endTime = new Date(lastSubmission.timestamp || Date.now()).getTime();
@@ -277,17 +292,18 @@ function GamePlay() {
       }
 
       let finalPoints = 0;
-      if (isCorrect && responseTime !== null) { // Check responseTime is calculated
+      if (isCorrect && responseTime !== null) {
+        // Check responseTime is calculated
         const basePoints = parseInt(currentQ.points || 10, 10);
         const questionDuration = parseInt(currentQ.duration || 30, 10);
-        
+
         // Use the imported helper function
         const pointsData = calculateSpeedPoints(
           responseTime,
           questionDuration,
           basePoints
         );
-        
+
         currentQ.basePoints = basePoints;
         currentQ.speedMultiplier = pointsData.speedMultiplier;
         currentQ.finalPoints = pointsData.finalPoints;
@@ -298,12 +314,12 @@ function GamePlay() {
           responseTime,
           questionDuration,
           speedMultiplier: pointsData.speedMultiplier,
-          finalPoints: pointsData.finalPoints
+          finalPoints: pointsData.finalPoints,
         });
       } else {
         currentQ.finalPoints = 0;
       }
-      
+
       console.log('Question result:', {
         question: currentQ.text,
         position: currentQ.position,
@@ -311,9 +327,8 @@ function GamePlay() {
         responseTime: responseTime ? Math.round(responseTime * 10) / 10 : null,
         correct: isCorrect,
         questionPoints: parseInt(currentQ.points || 10, 10),
-        speedMultiplier: isCorrect ? currentQ.speedMultiplier : 0
+        speedMultiplier: isCorrect ? currentQ.speedMultiplier : 0,
       });
-
     } catch (err) {
       console.error('Error calculating points:', err);
       // Set default values in case of error
@@ -330,23 +345,23 @@ function GamePlay() {
     try {
       if (!showResults && (timeLeft === 0 || answerPeriodEnded)) {
         console.log('Attempting to get answer results...');
-        
+
         const data = await ApiCall(`/play/${playerId}/answer`, {}, 'GET');
 
         if (data.error) {
-          if (data.error.includes("Answers are not available yet")) {
-            console.log("Answers not yet available, retrying in 2 seconds...");
+          if (data.error.includes('Answers are not available yet')) {
+            console.log('Answers not yet available, retrying in 2 seconds...');
             setTimeout(getAnswerResults, 2000); // Pass function reference
             return;
           }
           setAnswerError(data.error);
           // Consider if throwing here is needed, or just setting error and returning
-          // throw new Error(data.error); 
+          // throw new Error(data.error);
           return; // Exit if there was an API error getting answers
         }
 
         console.log('Successfully retrieved answers:', data.answers);
-        
+
         const answersFromApi = data.answers;
         if (!answersFromApi || !Array.isArray(answersFromApi)) {
           console.error('No valid answers data received from server');
@@ -356,26 +371,29 @@ function GamePlay() {
           setCorrectAnswers(answersFromApi || []);
           // Calculate points only if we received valid answers
           calculateAndRecordQuestionResult(
-            currentQuestion, 
-            answersFromApi, 
-            selectedAnswers, 
-            answerSubmitted, 
+            currentQuestion,
+            answersFromApi,
+            selectedAnswers,
+            answerSubmitted,
             lastSubmittedAnswer
           );
         }
-        
+
         // Always show results and move to waiting state after attempting to get answers
         setShowResults(true);
         setWaitingForNextQuestion(true);
-
       } else if (!showResults) {
-        console.log('Not checking answers yet - timer still running or results already shown');
+        console.log(
+          'Not checking answers yet - timer still running or results already shown'
+        );
       }
     } catch (err) {
       console.error('Failed to get answer results:', err);
       // If the API call itself fails (network error, etc.)
       if (!showResults && (timeLeft === 0 || answerPeriodEnded)) {
-        console.log('Retrying to get answer results in 2 seconds due to fetch error...');
+        console.log(
+          'Retrying to get answer results in 2 seconds due to fetch error...'
+        );
         setTimeout(getAnswerResults, 2000); // Pass function reference
       }
     }
@@ -386,57 +404,62 @@ function GamePlay() {
    */
   const submitAnswer = async (answerArray) => {
     // Remove the submission buffer check to allow submitting until timer hits 0
-    
+
     // Additional checks
     if (answerPeriodEnded || showResults) {
       console.log('Not submitting - answer period ended or showing results');
       return false;
     }
-    
+
     if (!answerArray || answerArray.length === 0) {
       console.log('Not submitting - empty answers array');
       return false;
     }
-    
-    if (lastSubmittedAnswer && lastSubmittedAnswer.answers && 
-        JSON.stringify(answerArray) === JSON.stringify(lastSubmittedAnswer.answers)) {
+
+    if (
+      lastSubmittedAnswer &&
+      lastSubmittedAnswer.answers &&
+      JSON.stringify(answerArray) ===
+        JSON.stringify(lastSubmittedAnswer.answers)
+    ) {
       console.log('Not submitting - same as previous submission');
       return false;
     }
 
     try {
       console.log('Submitting answer:', answerArray);
-      
+
       // Update UI state immediately
       setSelectedAnswers(answerArray);
-      setLastSubmittedAnswer({ answers: answerArray, timestamp: new Date().toISOString() });
+      setLastSubmittedAnswer({
+        answers: answerArray,
+        timestamp: new Date().toISOString(),
+      });
       setAnswerSubmitted(true);
 
       // Use ApiCall instead of fetch directly
       const payload = {
         answers: answerArray,
       };
-      
+
       console.log('Submitting answer:', payload);
       console.log('Player ID:', playerId);
-      const data = await ApiCall(
-        `/play/${playerId}/answer`,
-        payload,
-        'PUT'
-      );
+      const data = await ApiCall(`/play/${playerId}/answer`, payload, 'PUT');
 
       if (data.error) {
-        if (data.error.includes("Can't answer question once answer is available")) {
+        if (
+          data.error.includes("Can't answer question once answer is available")
+        ) {
           console.log('Answer period has ended on the server');
           setAnswerPeriodEnded(true);
           return false;
         }
-        
+
         console.error('Error submitting answer:', data.error);
         setAnswerError(data.error);
         return false;
       }
-      
+
       console.log('Answer submitted successfully!');
       setAnswerError('');
       return true;
@@ -453,10 +476,10 @@ function GamePlay() {
   const handleAnswerSelect = (answerText) => {
     console.log('Attempting to select answer:', answerText);
     console.log('Current state:', { timeLeft, showResults, answerPeriodEnded });
-    
+
     // Check if the user can select an answer (only when timer > 0 and not showing results)
     const shouldNotSelect = timeLeft <= 0 || showResults || answerPeriodEnded;
-    
+
     if (shouldNotSelect) {
       console.log('Cannot select answer - timer expired or results shown');
       return;
@@ -483,10 +506,10 @@ function GamePlay() {
     }
 
     console.log('New selected answers:', newSelectedAnswers);
-    
+
     // Update UI immediately
     setSelectedAnswers(newSelectedAnswers);
-    
+
     // Submit immediately if we have answers
     if (newSelectedAnswers.length > 0) {
       submitAnswer(newSelectedAnswers);
@@ -501,9 +524,12 @@ function GamePlay() {
 
   const getResultIcon = (answer) => {
     if (!showResults) return null;
-    if (correctAnswers.includes(answer.text)) 
+    if (correctAnswers.includes(answer.text))
       return <CheckCircleIcon color="success" />;
-    if (selectedAnswers.includes(answer.text) && !correctAnswers.includes(answer.text)) 
+    if (
+      selectedAnswers.includes(answer.text) &&
+      !correctAnswers.includes(answer.text)
+    )
       return <CancelIcon color="error" />;
     return null;
   };
@@ -515,7 +541,7 @@ function GamePlay() {
     if (selectedAnswers.length === 0) {
       return "Time's up! You didn't select an answer.";
     }
-    
+
     return correctAnswers.some((ans) => selectedAnswers.includes(ans))
       ? 'Good job! Your answer is correct.'
       : "Sorry, that's not correct.";
@@ -526,11 +552,11 @@ function GamePlay() {
    */
   const getAvatarBgColor = (isSelected, showResults, isCorrect) => {
     if (!isSelected) return 'rgba(0,0,0,0.08)';
-    
+
     if (showResults) {
       return isCorrect ? '#4caf50' : '#f44336';
     }
-    
+
     return '#1976d2';
   };
 
@@ -570,7 +596,9 @@ function GamePlay() {
     if (seconds < 0) return '00:00';
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, '0')}:${secs
+      .toString()
+      .padStart(2, '0')}`;
   };
 
   /**
@@ -583,24 +611,24 @@ function GamePlay() {
     // Default values
     basePoints = basePoints || 10;
     questionDuration = questionDuration || 30;
-    
+
     // Calculate speed ratio (how quickly they answered)
     // A value of 1 means they used all the time, 0 means they answered instantly
     const speedRatio = Math.min(responseTime / questionDuration, 1);
-    
+
     // Calculate speed multiplier from 0.5 to 2.0
     // Faster answers get higher multipliers (up to 2x for instant answers)
     // Even the slowest answer gets at least 0.5x
-    const speedMultiplier = 2 - (1.5 * speedRatio);
-    
+    const speedMultiplier = 2 - 1.5 * speedRatio;
+
     // Calculate final points
     const finalPoints = Math.round(basePoints * speedMultiplier);
-    
+
     return {
       basePoints,
       speedMultiplier: Math.round(speedMultiplier * 100) / 100,
       finalPoints,
-      responseTime: Math.round(responseTime * 10) / 10
+      responseTime: Math.round(responseTime * 10) / 10,
     };
   };
 
@@ -613,36 +641,28 @@ function GamePlay() {
    * Render loading state
    */
   if (loading) {
-    return (
-      <LoadingScreen />
-    );
+    return <LoadingScreen />;
   }
 
   /**
    * Render error state
    */
   if (error) {
-    return (
-      <ErrorScreen error={error} />
-    );
+    return <ErrorScreen error={error} />;
   }
 
   /**
    * Render waiting for game to start or next question
    */
   if (waitingForNextQuestion && !currentQuestion) {
-    return (
-      <WaitingScreen handleViewResults={handleViewResults} />
-    );
+    return <WaitingScreen handleViewResults={handleViewResults} />;
   }
 
   /**
    * Render player performance results after game end
    */
   if (gameEnded && playerResults) {
-    return (
-      <GameEndScreen handleViewResults={handleViewResults} />
-    );
+    return <GameEndScreen handleViewResults={handleViewResults} />;
   }
 
   /**
@@ -657,7 +677,8 @@ function GamePlay() {
           minHeight: '100vh',
           display: 'flex',
           flexDirection: 'column',
-          backgroundImage: 'linear-gradient(135deg, #2D3047 0%, #00B4D8 50%, #06D6A0 100%)',
+          backgroundImage:
+            'linear-gradient(135deg, #2D3047 0%, #00B4D8 50%, #06D6A0 100%)',
           backgroundSize: '400% 400%',
           backgroundAttachment: 'fixed',
           animation: 'gradient 15s ease infinite',
@@ -670,15 +691,21 @@ function GamePlay() {
           pb: 5,
           overflowX: 'hidden',
           flex: 1,
-          justifyContent: currentQuestion?.imageUrl || currentQuestion?.videoUrl ? 'flex-start' : 'center',
+          justifyContent:
+            currentQuestion?.imageUrl || currentQuestion?.videoUrl
+              ? 'flex-start'
+              : 'center',
         }}
       >
-        <Container maxWidth="md" sx={{ 
-          display: 'flex', 
-          flexDirection: 'column',
-          flex: 1, 
-          py: { xs: 2, sm: 3 },
-        }}>
+        <Container
+          maxWidth="md"
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            flex: 1,
+            py: { xs: 2, sm: 3 },
+          }}
+        >
           <Fade in={true} timeout={600}>
             <Paper
               elevation={10}
@@ -698,7 +725,7 @@ function GamePlay() {
               }}
             >
               {/* Use QuestionDisplay component */}
-              <QuestionDisplay 
+              <QuestionDisplay
                 currentQuestion={currentQuestion}
                 timeLeft={timeLeft}
                 showResults={showResults}
@@ -706,19 +733,19 @@ function GamePlay() {
                 getTimerColor={getTimerColor}
                 formatTimeLeft={formatTimeLeft}
               />
-              
+
               {/* Use ResultOverlay component */}
               {showResults && (
-                <ResultOverlay 
+                <ResultOverlay
                   selectedAnswers={selectedAnswers}
                   correctAnswers={correctAnswers}
                   currentQuestion={currentQuestion} // Pass relevant parts if needed for points display
-                  getResultMessage={getResultMessage} 
+                  getResultMessage={getResultMessage}
                 />
               )}
 
               {/* Use AnswerList component */}
-              <AnswerList 
+              <AnswerList
                 answers={currentQuestion?.answers}
                 selectedAnswers={selectedAnswers}
                 correctAnswers={correctAnswers}
@@ -740,8 +767,8 @@ function GamePlay() {
                     color="primary"
                     sx={{ mt: 3, textAlign: 'center', fontWeight: 'medium' }}
                   >
-                    Your answer has been submitted. You can change it until the timer
-                    expires.
+                    Your answer has been submitted. You can change it until the
+                    timer expires.
                   </Typography>
                 </Fade>
               )}
@@ -760,16 +787,21 @@ function GamePlay() {
 
               {showResults && (
                 <Fade in={true} timeout={800}>
-                  <Box sx={{ 
-                    mt: 4, 
-                    p: 2, 
-                    borderRadius: 2, 
-                    backgroundColor: 'rgba(0,0,0,0.04)',
-                    textAlign: 'center'
-                  }}>
+                  <Box
+                    sx={{
+                      mt: 4,
+                      p: 2,
+                      borderRadius: 2,
+                      backgroundColor: 'rgba(0,0,0,0.04)',
+                      textAlign: 'center',
+                    }}
+                  >
                     <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
                       <CircularProgress size={18} sx={{ mr: 1.5 }} />
-                      <Typography color="text.secondary" sx={{ fontWeight: 'medium' }}>
+                      <Typography
+                        color="text.secondary"
+                        sx={{ fontWeight: 'medium' }}
+                      >
                         Waiting for the host to advance to the next question...
                       </Typography>
                     </Box>

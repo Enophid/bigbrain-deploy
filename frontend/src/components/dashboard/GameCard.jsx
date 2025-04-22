@@ -230,8 +230,10 @@ const GameCardInfo = ({ game, isActive }) => {
         )}
         <Chip label={gameDate} size="small" variant="outlined" />
         {hasPastSessions && (
-          <Chip 
-            label={`${game.oldSessions.length} Past Session${game.oldSessions.length > 1 ? 's' : ''}`} 
+          <Chip
+            label={`${game.oldSessions.length} Past Session${
+              game.oldSessions.length > 1 ? 's' : ''
+            }`}
             size="small"
             color="info"
             variant="outlined"
@@ -290,7 +292,7 @@ const GameCardFooter = ({ game, onStart, onViewPastSessions }) => {
         >
           {isActive ? 'View Active Session' : 'Start Game'}
         </Button>
-        
+
         {hasPastSessions && (
           <Button
             variant="outlined"
@@ -303,7 +305,9 @@ const GameCardFooter = ({ game, onStart, onViewPastSessions }) => {
               minWidth: 'auto',
               width: '48px',
             }}
-            onClick={() => onViewPastSessions(game.id, game.name, game.oldSessions)}
+            onClick={() =>
+              onViewPastSessions(game.id, game.name, game.oldSessions)
+            }
             title="View Past Sessions"
           >
             <HistoryIcon />
@@ -314,13 +318,31 @@ const GameCardFooter = ({ game, onStart, onViewPastSessions }) => {
   );
 };
 
-const GameCard = ({ game, index, onEdit, onDelete, onStart, onViewPastSessions, displayAlert }) => {
+const GameCard = ({
+  game,
+  index,
+  onEdit,
+  onDelete,
+  onStart,
+  onViewPastSessions,
+  displayAlert,
+}) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isActive = Boolean(game.active);
 
   return (
-    <Grid sx={{ gridColumn: { xs: 'span 1', sm: 'span 1', md: 'span 1', lg: 'span 1', xl: 'span 1' } }}>
+    <Grid
+      sx={{
+        gridColumn: {
+          xs: 'span 1',
+          sm: 'span 1',
+          md: 'span 1',
+          lg: 'span 1',
+          xl: 'span 1',
+        },
+      }}
+    >
       <Fade in={true} timeout={300 + index * 100}>
         <Card
           sx={{
@@ -352,9 +374,9 @@ const GameCard = ({ game, index, onEdit, onDelete, onStart, onViewPastSessions, 
           />
           <GameCardMedia game={game} isActive={isActive} theme={theme} />
           <GameCardInfo game={game} isActive={isActive} />
-          <GameCardFooter 
-            game={game} 
-            onStart={onStart} 
+          <GameCardFooter
+            game={game}
+            onStart={onStart}
             onViewPastSessions={onViewPastSessions}
           />
         </Card>

@@ -156,7 +156,49 @@ const LobbyView = ({
           </Fade>
         </Box>
 
-        
+        {/* How to play section */}
+        <Zoom in={true} timeout={1500}>
+          <Card sx={{ borderRadius: 2, mt: 3 }}>
+            <CardContent>
+              <Typography
+                variant="h6"
+                gutterBottom
+                sx={{
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <EmojiObjectsIcon sx={{ mr: 1, color: 'warning.main' }} /> How
+                to Play
+              </Typography>
+
+              <List dense sx={{ bgcolor: 'background.paper' }}>
+                <ListItem>
+                  <ListItemIcon>
+                    <PsychologyIcon color="primary" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="Answer questions as quickly as possible"
+                    secondary="Faster answers earn more points"
+                  />
+                </ListItem>
+
+                <ListItem>
+                  <ListItemIcon>
+                    <ForumIcon color="primary" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="Some questions have multiple answers"
+                    secondary="Select all that apply in these cases"
+                  />
+                </ListItem>
+              </List>
+            </CardContent>
+          </Card>
+        </Zoom>
+      </Box>
+    </Fade>
   );
 };
 

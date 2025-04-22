@@ -34,12 +34,7 @@ import { useNavigate } from 'react-router-dom';
  * Component to display a list of past sessions for a game
  * and allow navigating to view their results
  */
-const PastSessionsModal = ({
-  open,
-  onClose,
-  gameName,
-  pastSessions = [],
-}) => {
+const PastSessionsModal = ({ open, onClose, gameName, pastSessions = [] }) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const [menuAnchorEl, setMenuAnchorEl] = React.useState(null);
@@ -70,7 +65,7 @@ const PastSessionsModal = ({
 
   const formatDate = (timestamp) => {
     if (!timestamp) return 'Unknown date';
-    
+
     try {
       const date = new Date(timestamp);
       return new Intl.DateTimeFormat('default', {
@@ -158,7 +153,16 @@ const PastSessionsModal = ({
                   </ListItemIcon>
                   <ListItemText
                     primary={
-                      <Typography variant="subtitle1" component="span" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontWeight: 'medium' }}>
+                      <Typography
+                        variant="subtitle1"
+                        component="span"
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          fontWeight: 'medium',
+                        }}
+                      >
                         <span>Session #{sessionId}</span>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                           <Chip
@@ -182,9 +186,24 @@ const PastSessionsModal = ({
                       </Typography>
                     }
                     secondary={
-                      <Typography variant="body2" color="text.secondary" component="span" sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
-                        <TimeIcon fontSize="small" sx={{ mr: 0.5, fontSize: '0.9rem', color: 'text.secondary' }} />
-                        <span>Ended on {formatDate(Date.now() - index * 8640000)}</span> {/* Mock dates for display */}
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        component="span"
+                        sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}
+                      >
+                        <TimeIcon
+                          fontSize="small"
+                          sx={{
+                            mr: 0.5,
+                            fontSize: '0.9rem',
+                            color: 'text.secondary',
+                          }}
+                        />
+                        <span>
+                          Ended on {formatDate(Date.now() - index * 8640000)}
+                        </span>{' '}
+                        {/* Mock dates for display */}
                       </Typography>
                     }
                   />
@@ -195,11 +214,7 @@ const PastSessionsModal = ({
         )}
       </DialogContent>
       <DialogActions sx={{ px: 3, py: 2, justifyContent: 'flex-end' }}>
-        <Button
-          variant="outlined"
-          onClick={onClose}
-          sx={{ borderRadius: 2 }}
-        >
+        <Button variant="outlined" onClick={onClose} sx={{ borderRadius: 2 }}>
           Close
         </Button>
       </DialogActions>
@@ -219,17 +234,21 @@ const PastSessionsModal = ({
           horizontal: 'right',
         }}
       >
-        <MenuItem onClick={() => {
-          handleViewResults(selectedSessionId);
-          handleMenuClose();
-        }}>
+        <MenuItem
+          onClick={() => {
+            handleViewResults(selectedSessionId);
+            handleMenuClose();
+          }}
+        >
           <AssessmentIcon fontSize="small" sx={{ mr: 1 }} />
           View Results
         </MenuItem>
-        <MenuItem onClick={() => {
-          handleViewCharts(selectedSessionId);
-          handleMenuClose();
-        }}>
+        <MenuItem
+          onClick={() => {
+            handleViewCharts(selectedSessionId);
+            handleMenuClose();
+          }}
+        >
           <BarChartIcon fontSize="small" sx={{ mr: 1 }} />
           View Detailed Charts
         </MenuItem>
@@ -245,4 +264,4 @@ PastSessionsModal.propTypes = {
   pastSessions: PropTypes.array,
 };
 
-export default PastSessionsModal; 
+export default PastSessionsModal;

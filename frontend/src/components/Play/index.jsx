@@ -180,6 +180,65 @@ function Play() {
           },
         }}
       >
- 
+        <Container maxWidth="sm">
+          <Paper
+            elevation={10}
+            sx={{
+              p: 4,
+              borderRadius: 3,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+              backdropFilter: 'blur(8px)',
+              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            }}
+          >
+            <Typography
+              variant="h4"
+              component="h1"
+              gutterBottom
+              align="center"
+              sx={{
+                fontWeight: 700,
+                color: bigBrainTheme.palette.primary.main,
+              }}
+            >
+              {joined ? 'Game Lobby' : 'Join Game Session'}
+            </Typography>
+
+            {sessionId && (
+              <Typography
+                variant="subtitle1"
+                align="center"
+                sx={{ mb: 3, fontWeight: 500 }}
+              >
+                Session ID:{' '}
+                <Box component="span" sx={{ fontWeight: 700 }}>
+                  {sessionId}
+                </Box>
+              </Typography>
+            )}
+
+            {!joined ? (
+              <JoinForm
+                sessionId={sessionId}
+                playerName={playerName}
+                onPlayerNameChange={(e) => setPlayerName(e.target.value)}
+                onSubmit={handleJoinGame}
+                loading={loading}
+                error={error}
+              />
+            ) : (
+              <LobbyView
+                playerInfo={playerInfo}
+                waitingTime={waitingTime}
+                formatWaitingTime={formatWaitingTime}
+                lobbyTipIndex={lobbyTipIndex}
+                lobbyTips={lobbyTips}
+              />
+            )}
+          </Paper>
+        </Container>
+      </Box>
+    </ThemeProvider>
+  );
 }
 export default Play; 

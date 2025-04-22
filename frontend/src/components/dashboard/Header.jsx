@@ -1,21 +1,21 @@
 import { useState } from 'react';
-import { 
-  Box, 
-  Container, 
-  Typography, 
-  IconButton, 
-  Menu, 
-  MenuItem, 
-  useMediaQuery, 
+import {
+  Box,
+  Container,
+  Typography,
+  IconButton,
+  Menu,
+  MenuItem,
+  useMediaQuery,
   Divider,
   ListItemIcon,
   ListItemText,
-  Tooltip
+  Tooltip,
 } from '@mui/material';
-import { 
-  Add as AddIcon, 
+import {
+  Add as AddIcon,
   FileUpload as FileUploadIcon,
-  Menu as MenuIcon
+  Menu as MenuIcon,
 } from '@mui/icons-material';
 import Logout from '../Logout/index.jsx';
 import SessionSearchBar from '../SessionSearchBar';
@@ -24,20 +24,20 @@ import PropTypes from 'prop-types';
 const Header = ({ onCreateGame, onUploadGame }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const isMobile = useMediaQuery('(max-width:768px)');
-  
+
   const handleOpenMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  
+
   const handleCloseMenu = () => {
     setAnchorEl(null);
   };
-  
+
   const handleCreateGame = () => {
     handleCloseMenu();
     onCreateGame();
   };
-  
+
   const handleUploadGame = () => {
     handleCloseMenu();
     onUploadGame();
@@ -81,12 +81,12 @@ const Header = ({ onCreateGame, onUploadGame }) => {
 
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
             <SessionSearchBar />
-            
+
             <Tooltip title="Menu">
-              <IconButton 
+              <IconButton
                 color="inherit"
                 onClick={handleOpenMenu}
-                sx={{ 
+                sx={{
                   color: 'white',
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   '&:hover': {
@@ -99,7 +99,7 @@ const Header = ({ onCreateGame, onUploadGame }) => {
                 <MenuIcon />
               </IconButton>
             </Tooltip>
-            
+
             <Menu
               anchorEl={anchorEl}
               open={Boolean(anchorEl)}
@@ -110,7 +110,7 @@ const Header = ({ onCreateGame, onUploadGame }) => {
                   minWidth: isMobile ? 180 : 220,
                   borderRadius: 2,
                   boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
-                }
+                },
               }}
               transformOrigin={{ horizontal: 'right', vertical: 'top' }}
               anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
@@ -121,16 +121,16 @@ const Header = ({ onCreateGame, onUploadGame }) => {
                 </ListItemIcon>
                 <ListItemText primary="Create New Game" />
               </MenuItem>
-              
+
               <MenuItem onClick={handleUploadGame}>
                 <ListItemIcon>
                   <FileUploadIcon fontSize="small" color="secondary" />
                 </ListItemIcon>
                 <ListItemText primary="Upload JSON Game" />
               </MenuItem>
-              
+
               <Divider />
-              
+
               <Box sx={{ px: 1, py: 0.5 }}>
                 <Logout />
               </Box>

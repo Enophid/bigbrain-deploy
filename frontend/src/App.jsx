@@ -3,7 +3,7 @@ import Register from './components/Register/index.jsx';
 import Login from './components/Login/index.jsx';
 import Dashboard from './components/dashboard';
 import GameEditor from './components/GameEditor';
-import Play from './components/Play';
+import Play from './components/Play/index.jsx';
 import GamePlay from './components/GamePlay';
 import GameResults from './components/GameResults/index.jsx';
 import PlayerGameResults from './components/PlayerGameResults/index.jsx';

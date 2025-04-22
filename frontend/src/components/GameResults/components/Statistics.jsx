@@ -169,11 +169,11 @@ const Statistics = ({ results = [] }) => {
 
       <Box sx={{ p: 4 }}>
         <ChartSection title="Performance by Question">
-          <ResultBarChart />
+          <ResultBarChart results={results} />
         </ChartSection>
 
         <ChartSection title="Score Distribution">
-          <ResultLineChart />
+          <ResultLineChart results={results} />
         </ChartSection>
       </Box>
     </Box>

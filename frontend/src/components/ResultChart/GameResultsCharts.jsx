@@ -1,5 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, CircularProgress, Alert, Container, Paper } from '@mui/material';
+import {
+  Box,
+  Typography,
+  CircularProgress,
+  Alert,
+  Container,
+  Paper,
+} from '@mui/material';
 import PropTypes from 'prop-types';
 import ResultBarChart from './ResultBarChart';
 import ResultLineChart from './ResultLineChart';
@@ -24,13 +31,13 @@ const GameResultsCharts = ({ sessionId }) => {
       try {
         setLoading(true);
         setError(null);
-        
+
         const data = await ApiCall(
           `/admin/session/${sessionId}/results`,
           {},
           'GET'
         );
-        
+
         if (data && data.results) {
           console.log('Fetched game results:', data.results);
           setResults(data.results);
@@ -53,7 +60,15 @@ const GameResultsCharts = ({ sessionId }) => {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }} aria-live="polite">
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '300px',
+        }}
+        aria-live="polite"
+      >
         <CircularProgress />
       </Box>
     );
@@ -81,7 +96,7 @@ const GameResultsCharts = ({ sessionId }) => {
         <Typography variant="h4" align="center" gutterBottom sx={{ mb: 4 }}>
           Game Results - Session #{sessionId}
         </Typography>
-        
+
         <ResultBarChart results={results} />
         <ResultLineChart results={results} />
       </Paper>
@@ -90,7 +105,8 @@ const GameResultsCharts = ({ sessionId }) => {
 };
 
 GameResultsCharts.propTypes = {
-  sessionId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  sessionId: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    .isRequired,
 };
 
-export default GameResultsCharts; 
+export default GameResultsCharts;

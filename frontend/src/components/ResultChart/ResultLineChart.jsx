@@ -10,9 +10,10 @@ const ResultLineChart = ({ results = [] }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
-  
+
   // Get processed data from utility function
-  const { questionLabels, averageResponseTimes } = processResponseTimeData(results);
+  const { questionLabels, averageResponseTimes } =
+    processResponseTimeData(results);
 
   const chartHeight = isMobile ? 250 : 300;
   const chartWidth = isMobile ? 300 : isTablet ? 400 : 500;
@@ -33,29 +34,36 @@ const ResultLineChart = ({ results = [] }) => {
       aria-describedby="response-time-chart-desc"
       tabIndex={0}
     >
-      <Typography 
+      <Typography
         id="response-time-chart-title"
-        variant="h4" 
+        variant="h4"
         component="h2"
         sx={{ mb: 3, fontSize: { xs: '1.5rem', sm: '2rem' } }}
       >
         Average Response Time (seconds)
       </Typography>
-      <Typography 
+      <Typography
         id="response-time-chart-desc"
-        variant="body2" 
-        color="text.secondary" 
+        variant="body2"
+        color="text.secondary"
         paragraph
       >
         This chart shows the average time taken to answer each question
       </Typography>
-      <Box sx={{ height: { xs: 300, sm: 400 }, width: '100%', display: 'flex', justifyContent: 'center' }}>
+      <Box
+        sx={{
+          height: { xs: 300, sm: 400 },
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+        }}
+      >
         <LineChart
           xAxis={[
-            { 
-              scaleType: 'point', 
+            {
+              scaleType: 'point',
               data: questionLabels,
-              label: 'Questions'
+              label: 'Questions',
             },
           ]}
           series={[
@@ -69,15 +77,15 @@ const ResultLineChart = ({ results = [] }) => {
           ]}
           height={chartHeight}
           width={chartWidth}
-          legend={{ 
+          legend={{
             position: { vertical: 'top', horizontal: 'middle' },
             padding: 20,
           }}
-          margin={{ 
-            top: 40, 
-            bottom: 40, 
-            left: isMobile ? 30 : 40, 
-            right: isMobile ? 30 : 40 
+          margin={{
+            top: 40,
+            bottom: 40,
+            left: isMobile ? 30 : 40,
+            right: isMobile ? 30 : 40,
           }}
           aria-labelledby="response-time-chart-title"
         />

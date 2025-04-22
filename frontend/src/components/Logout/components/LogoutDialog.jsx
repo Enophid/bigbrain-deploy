@@ -11,7 +11,12 @@ import {
 } from '@mui/material';
 import PropTypes from 'prop-types';
 
-export default function LogoutDialog({ open, isLoggingOut, onClose, onConfirm }) {
+export default function LogoutDialog({
+  open,
+  isLoggingOut,
+  onClose,
+  onConfirm,
+}) {
   const theme = useTheme();
 
   return (
@@ -114,4 +119,3 @@ LogoutDialog.propTypes = {
   onClose: PropTypes.func.isRequired,
   onConfirm: PropTypes.func.isRequired,
 };
-

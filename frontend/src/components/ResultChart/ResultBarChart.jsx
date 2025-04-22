@@ -10,10 +10,10 @@ const ResultBarChart = ({ results }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
-  
+
   // Responsive chart dimensions
   const chartHeight = isMobile ? 250 : 400;
-  
+
   // Determine chart width based on screen size
   let chartWidth = 700; // Default for desktop
   if (isMobile) {
@@ -21,70 +21,76 @@ const ResultBarChart = ({ results }) => {
   } else if (isTablet) {
     chartWidth = 500;
   }
-  
+
   // Get question performance data
-  const { questionLabels, correctCount, incorrectCount } = processQuestionPerformanceData(results);
-  
+  const { questionLabels, correctCount, incorrectCount } =
+    processQuestionPerformanceData(results);
+
   // Create dataset for chart
   const dataset = questionLabels.map((label, index) => ({
     question: label,
     correct: correctCount[index],
-    incorrect: incorrectCount[index]
+    incorrect: incorrectCount[index],
   }));
-  
+
   if (!questionLabels.length) {
     return (
       <Box sx={{ mb: 4, textAlign: 'center' }}>
-        <Typography variant="body1">Insufficient data for bar chart visualization</Typography>
+        <Typography variant="body1">
+          Insufficient data for bar chart visualization
+        </Typography>
       </Box>
     );
   }
 
   return (
-    <Box 
-      sx={{ 
-        mb: 6, 
+    <Box
+      sx={{
+        mb: 6,
         textAlign: 'center',
         p: isMobile ? 1 : 3,
-        overflowX: 'auto'
+        overflowX: 'auto',
       }}
       aria-describedby="performance-chart-desc"
       tabIndex={0}
     >
-      <Typography 
+      <Typography
         id="performance-chart-title"
-        variant={isMobile ? 'h6' : 'h5'} 
-        component="h2" 
+        variant={isMobile ? 'h6' : 'h5'}
+        component="h2"
         gutterBottom
       >
         Performance by Question
       </Typography>
-      <Typography 
+      <Typography
         id="performance-chart-desc"
-        variant="body2" 
-        color="text.secondary" 
+        variant="body2"
+        color="text.secondary"
         paragraph
       >
-        This chart shows the number of correct/incorrect responses for each question
+        This chart shows the number of correct/incorrect responses for each
+        question
       </Typography>
-      
-      <Box 
-        sx={{ 
-          display: 'flex', 
+
+      <Box
+        sx={{
+          display: 'flex',
           justifyContent: 'center',
-          minWidth: chartWidth
+          minWidth: chartWidth,
         }}
       >
         <BarChart
           dataset={dataset}
-          xAxis={[{ 
-            scaleType: 'band', 
-            dataKey: 'question',
-            label: 'Questions',
-            labelStyle: {
-              fontSize: isMobile ? 14 : 16,
-            }
-          }]}
+          xAxis={[
+            {
+              scaleType: 'band',
+              dataKey: 'question',
+              label: 'Questions',
+              labelStyle: {
+                fontSize: isMobile ? 14 : 16,
+              },
+            },
+          ]}
           series={[
             {
               dataKey: 'correct',
@@ -97,7 +103,7 @@ const ResultBarChart = ({ results }) => {
               label: 'Incorrect',
               color: '#f44336',
               valueFormatter: (value) => `${value} responses`,
-            }
+            },
           ]}
           height={chartHeight}
           width={chartWidth}
@@ -112,10 +118,10 @@ const ResultBarChart = ({ results }) => {
             legend: {
               labelStyle: {
                 fontSize: isMobile ? 12 : 14,
-              }
-            }
+              },
+            },
           }}
-          legend={{ 
+          legend={{
             position: { vertical: 'top', horizontal: 'middle' },
             padding: 20,
           }}

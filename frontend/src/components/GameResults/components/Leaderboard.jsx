@@ -12,45 +12,54 @@ const Leaderboard = ({ results }) => {
   const processedResults = useMemo(() => {
     if (!results || !results.length) return [];
 
-    return results
-      .map(player => {
-        // Calculate correct answers
-        const correctAnswers = player.answers.filter(answer => answer.correct).length;
-        // Calculate total possible answers
-        const totalQuestions = player.answers.length;
-        // Calculate score as percentage
-        const scorePercentage = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
-        // Calculate average response time (in seconds)
-        const responseTimes = player.answers
-          .filter(a => a.answeredAt && a.questionStartedAt)
-          .map(a => {
-            const startTime = new Date(a.questionStartedAt).getTime();
-            const endTime = new Date(a.answeredAt).getTime();
-            return (endTime - startTime) / 1000;
-          });
-        
-        const avgResponseTime = responseTimes.length > 0
-          ? responseTimes.reduce((sum, time) => sum + time, 0) / responseTimes.length
-          : null;
+    return (
+      results
+        .map((player) => {
+          // Calculate correct answers
+          const correctAnswers = player.answers.filter(
+            (answer) => answer.correct
+          ).length;
+          // Calculate total possible answers
+          const totalQuestions = player.answers.length;
+          // Calculate score as percentage
+          const scorePercentage =
+            totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
+          // Calculate average response time (in seconds)
+          const responseTimes = player.answers
+            .filter((a) => a.answeredAt && a.questionStartedAt)
+            .map((a) => {
+              const startTime = new Date(a.questionStartedAt).getTime();
+              const endTime = new Date(a.answeredAt).getTime();
+              return (endTime - startTime) / 1000;
+            });
 
-        return {
-          name: player.name,
-          score: correctAnswers,
-          totalQuestions,
-          scorePercentage,
-          avgResponseTime: avgResponseTime ? Math.round(avgResponseTime * 10) / 10 : null, // Round to 1 decimal
-          answers: player.answers,
-        };
-      })
-      // Sort by score (descending) then by avg response time (ascending)
-      .sort((a, b) => {
-        if (b.score !== a.score) return b.score - a.score;
-        // For tie-breakers, faster response time wins
-        if (a.avgResponseTime !== null && b.avgResponseTime !== null) {
-          return a.avgResponseTime - b.avgResponseTime;
-        }
-        return 0;
-      });
+          const avgResponseTime =
+            responseTimes.length > 0
+              ? responseTimes.reduce((sum, time) => sum + time, 0) /
+                responseTimes.length
+              : null;
+
+          return {
+            name: player.name,
+            score: correctAnswers,
+            totalQuestions,
+            scorePercentage,
+            avgResponseTime: avgResponseTime
+              ? Math.round(avgResponseTime * 10) / 10
+              : null, // Round to 1 decimal
+            answers: player.answers,
+          };
+        })
+        // Sort by score (descending) then by avg response time (ascending)
+        .sort((a, b) => {
+          if (b.score !== a.score) return b.score - a.score;
+          // For tie-breakers, faster response time wins
+          if (a.avgResponseTime !== null && b.avgResponseTime !== null) {
+            return a.avgResponseTime - b.avgResponseTime;
+          }
+          return 0;
+        })
+    );
   }, [results]);
 
   return (

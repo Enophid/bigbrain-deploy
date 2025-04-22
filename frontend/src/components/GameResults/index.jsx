@@ -42,7 +42,7 @@ const GameResult = () => {
           'GET'
         );
         if (data && data.results) {
-          console.log("Fetched game results:", data.results);
+          console.log('Fetched game results:', data.results);
           setResult(data.results);
         } else {
           console.error('Invalid results data:', data);
@@ -69,10 +69,10 @@ const GameResult = () => {
       <CssBaseline />
       <GlobalStyles />
       <Background>
-        <ResultsHeader 
-          onBack={handleBackToGameEditor} 
+        <ResultsHeader
+          onBack={handleBackToGameEditor}
           title={`Session #${sessionId} Results`}
-          error={error} 
+          error={error}
         />
         <ResultsTabs value={showStats ? 1 : 0} onChange={toggleView} />
 
@@ -81,7 +81,11 @@ const GameResult = () => {
         ) : (
           <Fade in={true} timeout={800}>
             <Box sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
-              {!showStats ? <Leaderboard results={result} /> : <Statistics results={result} />}
+              {!showStats ? (
+                <Leaderboard results={result} />
+              ) : (
+                <Statistics results={result} />
+              )}
             </Box>
           </Fade>
         )}

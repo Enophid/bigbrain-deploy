@@ -362,16 +362,16 @@ const SessionModal = ({
       setError('Cannot start game: Game ID is missing');
       return;
     }
-    
+
     // Prevent multiple clicks
     if (isAdvancing) {
       return;
     }
-    
+
     try {
       setIsAdvancing(true);
       console.log('Starting game:', gameId);
-      
+
       const data = await ApiCall(
         `/admin/game/${gameId}/mutate`,
         {
@@ -381,12 +381,11 @@ const SessionModal = ({
       );
 
       console.log('Game started successfully:', data);
-      
     } catch (e) {
       console.error('Error starting game:', e);
-      setError({ 
-        severity: 'error', 
-        message: `Failed to start game: ${e.message || 'Unknown error'}` 
+      setError({
+        severity: 'error',
+        message: `Failed to start game: ${e.message || 'Unknown error'}`,
       });
     } finally {
       setIsAdvancing(false);
@@ -402,9 +401,9 @@ const SessionModal = ({
         setTimeout(() => setCopied(false), 2000);
       })
       .catch(() => {
-        setError({ 
-          severity: 'error', 
-          message: 'Failed to copy to clipboard. Please try again.' 
+        setError({
+          severity: 'error',
+          message: 'Failed to copy to clipboard. Please try again.',
         });
       });
   };
@@ -674,9 +673,9 @@ const SessionModal = ({
         onClose={handleCloseAlert}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <Alert 
-          onClose={handleCloseAlert} 
-          severity={error?.severity || 'error'} 
+        <Alert
+          onClose={handleCloseAlert}
+          severity={error?.severity || 'error'}
           sx={{ width: '100%' }}
         >
           {error?.message || 'An error occurred'}

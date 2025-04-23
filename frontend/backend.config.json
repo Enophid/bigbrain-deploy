@@ -1,4 +1,4 @@
 {
   "BACKEND_PORT": 5005,
-  "BACKEND_URL": "https://bigbrain-deploy-z4f9-8k0jb2q0v-tris-projects-db78a764.vercel.app/"
+  "BACKEND_URL": "https://bigbrain-deploy-z4f9.vercel.app/"
 }

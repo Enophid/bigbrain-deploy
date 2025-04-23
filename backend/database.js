@@ -1,71 +1,50 @@
 const fs = require('fs');
 const redisAdapter = require('./redisAdapter');
 
-// Determine if we're in production (Vercel)
+// Check if running in production (Vercel)
 const isProduction = process.env.NODE_ENV === 'production';
 
-// Database operations
-const db = {
-  // Read database
-  read: async () => {
-    if (isProduction) {
-      return await redisAdapter.read();
-    } else {
-      // Original file-based implementation
-      try {
-        const data = JSON.parse(fs.readFileSync('./database.json'));
-        return data;
-      } catch (err) {
-        return { games: [] };
-      }
-    }
-  },
-
-  // Write to database
-  write: async (data) => {
-    if (isProduction) {
-      return await redisAdapter.write(data);
-    } else {
-      // Original file-based implementation
-      try {
-        fs.writeFileSync('./database.json', JSON.stringify(data, null, 2));
-        return true;
-      } catch (err) {
-        return false;
-      }
-    }
-  },
-
-  // Clear database
-  clear: async () => {
-    if (isProduction) {
-      return await redisAdapter.clear();
-    } else {
-      // Original file-based implementation
-      try {
-        fs.writeFileSync('./database.json', JSON.stringify({ games: [] }, null, 2));
-        return true;
-      } catch (err) {
-        return false;
-      }
-    }
-  },
-
-  // Reset database to initial state
-  reset: async () => {
-    if (isProduction) {
-      return await redisAdapter.reset();
-    } else {
-      // Original file-based implementation
-      try {
-        const defaultData = JSON.parse(fs.readFileSync('./database.default.json'));
-        fs.writeFileSync('./database.json', JSON.stringify(defaultData, null, 2));
-        return true;
-      } catch (err) {
-        return false;
-      }
-    }
-  }
+// Initial data structure
+const initialData = {
+  users: [],
+  games: []
 };
 
-module.exports = db;
+// Load data from Redis in production or from file in development
+async function getData() {
+  if (isProduction) {
+    // In production, use Redis
+    const data = await redisAdapter.get('database');
+    return data || initialData;
+  } else {
+    // In development, use file system
+    try {
+      return JSON.parse(fs.readFileSync('./database.json', 'utf8'));
+    } catch (error) {
+      console.log('Error reading database file, using initial data');
+      return initialData;
+    }
+  }
+}
+
+// Save data to Redis in production or to file in development
+async function saveData(data) {
+  if (isProduction) {
+    // In production, use Redis
+    return await redisAdapter.set('database', data);
+  } else {
+    // In development, use file system
+    try {
+      fs.writeFileSync('./database.json', JSON.stringify(data, null, 2));
+      return true;
+    } catch (error) {
+      console.error('Error saving database file:', error);
+      return false;
+    }
+  }
+}
+
+module.exports = {
+  getData,
+  saveData
+};

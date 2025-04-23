@@ -1,15 +1,43 @@
 const Redis = require('ioredis');
 
-// Connect to Redis
-const redis = process.env.UPSTASH_REDIS_URL 
-  ? new Redis(process.env.UPSTASH_REDIS_URL)
-  : new Redis(); // fallback to local for development
+// Initialize Redis client
+const redis = new Redis(process.env.UPSTASH_REDIS_URL);
 
 // Database key
 const DB_KEY = 'bigbrain_data';
 
 // Database operations
 const redisAdapter = {
+  async get(key) {
+    try {
+      const value = await redis.get(key);
+      return value ? JSON.parse(value) : null;
+    } catch (error) {
+      console.error('Redis GET error:', error);
+      return null;
+    }
+  },
+  
+  async set(key, value) {
+    try {
+      await redis.set(key, JSON.stringify(value));
+      return true;
+    } catch (error) {
+      console.error('Redis SET error:', error);
+      return false;
+    }
+  },
+  
+  async delete(key) {
+    try {
+      await redis.del(key);
+      return true;
+    } catch (error) {
+      console.error('Redis DELETE error:', error);
+      return false;
+    }
+  },
+
   // Read database
   read: async () => {
     try {

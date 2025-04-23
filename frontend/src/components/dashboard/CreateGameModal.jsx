@@ -84,7 +84,7 @@ const CreateGameModal = ({
             />
 
             <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 500 }}>
-              Game Thumbnail
+              Game Thumbnail (Optional)
             </Typography>
 
             <Box
@@ -184,7 +184,7 @@ const CreateGameModal = ({
               color="primary"
               onClick={onCreateGame}
               startIcon={<AddIcon />}
-              disabled={!gameDetails.name || !gameDetails.thumbnail}
+              disabled={!gameDetails.name}
               sx={{
                 borderRadius: 2,
                 px: 3,

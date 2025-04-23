@@ -3,6 +3,7 @@ import ResultBarChart from '../../ResultChart/ResultBarChart';
 import ResultLineChart from '../../ResultChart/ResultLineChart';
 import SectionHeader from './SectionHeader';
 import ChartSection from './ChartSection';
+import PointsSystemExplanation from './PointsSystemExplanation';
 import PropTypes from 'prop-types';
 import {
   EmojiEvents as TrophyIcon,
@@ -164,6 +165,13 @@ const Statistics = ({ results = [] }) => {
           />
         </Box>
       </Paper>
+
+      <Divider />
+      
+      {/* Points System Explanation */}
+      <Box sx={{ p: 3 }}>
+        <PointsSystemExplanation />
+      </Box>
 
       <Divider />
 

@@ -77,7 +77,6 @@ const useQuestionData = (gameId, questionId) => {
         g.id === updatedGame.id ? updatedGame : g
       );
 
-      console.log('Updating all games:', updatedGames);
 
       // Update the games using the bulk update endpoint
       const response = await ApiCall(
@@ -94,7 +93,6 @@ const useQuestionData = (gameId, questionId) => {
       await getQuestionData();
       return true;
     } catch (err) {
-      console.error('Failed to update game:', err.message);
       setError(err.message);
       return false;
     }

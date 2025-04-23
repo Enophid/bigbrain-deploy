@@ -57,11 +57,9 @@ function GamePlay() {
    * Attempts to fetch the final results.
    */
   const handleGameEndedError = async () => {
-    console.log('Game session has ended, fetching final results...');
     try {
       const resultsData = await ApiCall(`/play/${playerId}/results`, {}, 'GET');
       if (resultsData) {
-        console.log('Successfully retrieved final results:', resultsData);
         setPlayerResults(resultsData);
         setGameEnded(true);
         setWaitingForNextQuestion(false); // Ensure waiting state is cleared
@@ -71,9 +69,8 @@ function GamePlay() {
       // If resultsData is null/undefined but no error, maybe the game just ended without results?
       // Consider how to handle this case if necessary.
     } catch (resultsErr) {
-      console.error('Error fetching final results:', resultsErr.message);
       setError(
-        'Game has ended, but we could not retrieve your results. Please try again later.'
+        resultsErr.message
       );
       setLoading(false);
     }
@@ -92,8 +89,6 @@ function GamePlay() {
 
     // Use the question's duration property with proper fallback
     const duration = parseInt(question.duration || 30, 10);
-
-    console.log(`Question duration: ${duration}s, elapsed: ${elapsedSeconds}s`);
 
     // Calculate remaining time WITHOUT any buffer so users see the full time
     const remainingTime = Math.max(0, duration - elapsedSeconds);
@@ -114,10 +109,6 @@ function GamePlay() {
       newQuestion.isoTimeLastQuestionStarted !==
         currentQuestion.isoTimeLastQuestionStarted
     ) {
-      console.log('New question detected', {
-        current: currentQuestion.position,
-        new: newQuestion.position,
-      });
       return true;
     }
 
@@ -153,9 +144,6 @@ function GamePlay() {
 
         // Calculate remaining time with buffer
         const remainingTime = calculateRemainingTime(response.question);
-        console.log(
-          `Question started, ${remainingTime}s remaining (with buffer)`
-        );
 
         // If time has expired or nearly expired, mark answer period as ended
         if (remainingTime <= 0) {
@@ -245,7 +233,6 @@ function GamePlay() {
 
           // When timer hits 0, get results and mark answer period as ended
           if (newTime === 0 && !showResults) {
-            console.log('Timer reached zero, ending answer period...');
             setAnswerPeriodEnded(true);
             // Set flag to check answers rather than calling directly
             setShouldCheckAnswers(true);
@@ -291,7 +278,6 @@ function GamePlay() {
         currentQ.responseTime = responseTime; // Mutating prop, consider returning new object if preferred
       }
 
-      let finalPoints = 0;
       if (isCorrect && responseTime !== null) {
         // Check responseTime is calculated
         const basePoints = parseInt(currentQ.points || 10, 10);
@@ -307,30 +293,11 @@ function GamePlay() {
         currentQ.basePoints = basePoints;
         currentQ.speedMultiplier = pointsData.speedMultiplier;
         currentQ.finalPoints = pointsData.finalPoints;
-        finalPoints = pointsData.finalPoints;
-
-        console.log('Points calculation:', {
-          basePoints,
-          responseTime,
-          questionDuration,
-          speedMultiplier: pointsData.speedMultiplier,
-          finalPoints: pointsData.finalPoints,
-        });
       } else {
         currentQ.finalPoints = 0;
       }
 
-      console.log('Question result:', {
-        question: currentQ.text,
-        position: currentQ.position,
-        points: finalPoints,
-        responseTime: responseTime ? Math.round(responseTime * 10) / 10 : null,
-        correct: isCorrect,
-        questionPoints: parseInt(currentQ.points || 10, 10),
-        speedMultiplier: isCorrect ? currentQ.speedMultiplier : 0,
-      });
-    } catch (err) {
-      console.error('Error calculating points:', err);
+    } catch (_err) {
       // Set default values in case of error
       currentQ.basePoints = parseInt(currentQ.points || 10, 10);
       currentQ.finalPoints = 0;
@@ -344,13 +311,11 @@ function GamePlay() {
   const getAnswerResults = async () => {
     try {
       if (!showResults && (timeLeft === 0 || answerPeriodEnded)) {
-        console.log('Attempting to get answer results...');
 
         const data = await ApiCall(`/play/${playerId}/answer`, {}, 'GET');
 
         if (data.error) {
           if (data.error.includes('Answers are not available yet')) {
-            console.log('Answers not yet available, retrying in 2 seconds...');
             setTimeout(getAnswerResults, 2000); // Pass function reference
             return;
           }
@@ -360,11 +325,8 @@ function GamePlay() {
           return; // Exit if there was an API error getting answers
         }
 
-        console.log('Successfully retrieved answers:', data.answers);
-
         const answersFromApi = data.answers;
         if (!answersFromApi || !Array.isArray(answersFromApi)) {
-          console.error('No valid answers data received from server');
           setCorrectAnswers([]);
           // Still show results page, but with no correct answers marked
         } else {
@@ -382,18 +344,11 @@ function GamePlay() {
         // Always show results and move to waiting state after attempting to get answers
         setShowResults(true);
         setWaitingForNextQuestion(true);
-      } else if (!showResults) {
-        console.log(
-          'Not checking answers yet - timer still running or results already shown'
-        );
       }
     } catch (err) {
       console.error('Failed to get answer results:', err);
       // If the API call itself fails (network error, etc.)
       if (!showResults && (timeLeft === 0 || answerPeriodEnded)) {
-        console.log(
-          'Retrying to get answer results in 2 seconds due to fetch error...'
-        );
         setTimeout(getAnswerResults, 2000); // Pass function reference
       }
     }
@@ -407,12 +362,10 @@ function GamePlay() {
 
     // Additional checks
     if (answerPeriodEnded || showResults) {
-      console.log('Not submitting - answer period ended or showing results');
       return false;
     }
 
     if (!answerArray || answerArray.length === 0) {
-      console.log('Not submitting - empty answers array');
       return false;
     }
 
@@ -422,13 +375,12 @@ function GamePlay() {
       JSON.stringify(answerArray) ===
         JSON.stringify(lastSubmittedAnswer.answers)
     ) {
-      console.log('Not submitting - same as previous submission');
       return false;
     }
 
     try {
-      console.log('Submitting answer:', answerArray);
-
+      // Update UI state immediately
+      setSelectedAnswers(answerArray);
       // Update UI state immediately
       setSelectedAnswers(answerArray);
       setLastSubmittedAnswer({
@@ -442,29 +394,22 @@ function GamePlay() {
         answers: answerArray,
       };
 
-      console.log('Submitting answer:', payload);
-      console.log('Player ID:', playerId);
       const data = await ApiCall(`/play/${playerId}/answer`, payload, 'PUT');
 
       if (data.error) {
         if (
           data.error.includes("Can't answer question once answer is available")
         ) {
-          console.log('Answer period has ended on the server');
           setAnswerPeriodEnded(true);
           return false;
         }
-
-        console.error('Error submitting answer:', data.error);
         setAnswerError(data.error);
         return false;
       }
 
-      console.log('Answer submitted successfully!');
       setAnswerError('');
       return true;
     } catch (error) {
-      console.error('Network error in submitAnswer:', error);
       setAnswerError(`Network error: ${error.message || 'Unknown error'}`);
       return false;
     }
@@ -474,14 +419,10 @@ function GamePlay() {
    * Handle answer selection
    */
   const handleAnswerSelect = (answerText) => {
-    console.log('Attempting to select answer:', answerText);
-    console.log('Current state:', { timeLeft, showResults, answerPeriodEnded });
-
     // Check if the user can select an answer (only when timer > 0 and not showing results)
     const shouldNotSelect = timeLeft <= 0 || showResults || answerPeriodEnded;
 
     if (shouldNotSelect) {
-      console.log('Cannot select answer - timer expired or results shown');
       return;
     }
 
@@ -505,7 +446,6 @@ function GamePlay() {
       }
     }
 
-    console.log('New selected answers:', newSelectedAnswers);
 
     // Update UI immediately
     setSelectedAnswers(newSelectedAnswers);

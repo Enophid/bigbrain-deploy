@@ -42,15 +42,12 @@ const GameResult = () => {
           'GET'
         );
         if (data && data.results) {
-          console.log('Fetched game results:', data.results);
           setResult(data.results);
         } else {
-          console.error('Invalid results data:', data);
           setError('No results data available');
           setResult([]); // Set an empty array if results are invalid
         }
       } catch (error) {
-        console.error('Error fetching results:', error);
         setError(error.message || 'Failed to fetch results');
         setResult([]); // Handle error gracefully by resetting state
       } finally {

@@ -153,7 +153,6 @@ const QuestionModal = ({
       // Call the onSave handler from parent
       await onSave(updatedQuestions);
     } catch (err) {
-      console.error('Failed to save question:', err.message);
       displayAlert(`Error saving question: ${err.message}`);
     }
   };

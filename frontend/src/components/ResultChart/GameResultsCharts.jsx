@@ -39,15 +39,12 @@ const GameResultsCharts = ({ sessionId }) => {
         );
 
         if (data && data.results) {
-          console.log('Fetched game results:', data.results);
           setResults(data.results);
         } else {
-          console.error('Invalid results data:', data);
           setError('No results data available');
           setResults([]);
         }
       } catch (error) {
-        console.error('Error fetching results:', error);
         setError(error.message || 'Failed to fetch results');
         setResults([]);
       } finally {

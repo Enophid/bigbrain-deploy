@@ -172,7 +172,6 @@ function Dashboard() {
       }
 
       setGames(refreshData.games);
-      console.log('New game created successfully');
     } catch (err) {
       console.error('Failed to save game:', err.message);
       // Revert local state if backend failed - but still fetch fresh data
@@ -238,7 +237,6 @@ function Dashboard() {
 
       setGames(gamesWithOwner);
 
-      console.log('Deleting game ID:', gameId);
 
       // Save to backend
       const response = await ApiCall(
@@ -251,11 +249,7 @@ function Dashboard() {
         throw new Error(response.error);
       }
 
-      console.log('Game deleted successfully');
     } catch (err) {
-      console.error('Failed to delete game:', err.message);
-      // Show an alert to the user
-      alert(`Failed to delete game: ${err.message}`);
       // Show an alert to the user
       alert(`Failed to delete game: ${err.message}`);
     }
@@ -321,12 +315,7 @@ function Dashboard() {
       });
       setSessionModalOpen(true);
 
-      console.log(
-        'Game started successfully, session:',
-        response.data.sessionId
-      );
     } catch (err) {
-      console.error('Failed to start game:', err.message);
       alert(`Failed to start game: ${err.message}`);
     }
   };
@@ -478,7 +467,6 @@ function Dashboard() {
         displayAlert('Game imported successfully!', 'success');
       }
     } catch (error) {
-      console.error('Failed to import game:', error);
       displayAlert(`Failed to import game: ${error.message}`, 'error');
     }
   };

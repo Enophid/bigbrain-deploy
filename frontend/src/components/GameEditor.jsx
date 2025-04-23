@@ -111,7 +111,6 @@ function GameEditor() {
       }
     } catch (error) {
       displayAlert(`Failed to import game: ${error.message}`, 'error');
-      console.error('Import game error:', error);
     }
   };
 

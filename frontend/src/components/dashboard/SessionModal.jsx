@@ -117,14 +117,12 @@ const DefaultSessionContent = ({
         onClick={(e) => {
           // Prevent any double-click issues
           e.preventDefault();
-          console.log('Advance button clicked');
 
           // Call the handler function
           handleStartGame();
 
           // Only close modal for new sessions
           if (isNewSession) {
-            console.log('Closing modal for new session');
             onClose();
           }
         }}
@@ -397,7 +395,6 @@ const SessionModal = ({
 
   // Log state changes for debugging
   useEffect(() => {
-    console.log('Modal state:', { isEnded, isEnding, showEndConfirm });
   }, [isEnded, isEnding, showEndConfirm]);
 
   // Check if session has already ended when the modal opens (for auto-ended sessions)
@@ -405,11 +402,6 @@ const SessionModal = ({
     const checkSessionStatus = async () => {
       // Only run this check for active sessions and when modal is open
       if (!open || isNewSession || !gameId || !sessionId) return;
-
-      console.log(
-        'Checking session status for potentially auto-ended session:',
-        sessionId
-      );
 
       try {
         // Use the games endpoint instead of individual game endpoint
@@ -420,17 +412,9 @@ const SessionModal = ({
 
         // Check if the game has no active session
         if (game && !game.active) {
-          console.log(
-            'Session has automatically ended (detected via game data), showing results options'
-          );
-
           // Show the Session Ended view
           setIsEnding(false);
           setIsEnded(true);
-        } else if (game) {
-          console.log('Session is still active:', game.active);
-        } else {
-          console.log('Game not found in response');
         }
       } catch (error) {
         console.error('Error checking session status:', error);
@@ -447,7 +431,6 @@ const SessionModal = ({
   useEffect(() => {
     // When the modal opens for an existing session, check if it has the active field
     if (open && !isNewSession && gameId && sessionId) {
-      console.log('Checking if session was previously ended:', sessionId);
 
       // Make API call to get current game state using games endpoint
       ApiCall(`/admin/games`, {}, 'GET')
@@ -457,14 +440,7 @@ const SessionModal = ({
 
           // If the game doesn't have an active session when we expect it to
           if (game && !game.active) {
-            console.log(
-              'Found previously ended session, showing results options'
-            );
             setIsEnded(true);
-          } else if (game) {
-            console.log('Active session confirmed:', game.active);
-          } else {
-            console.log('Game not found in response');
           }
         })
         .catch((err) => {
@@ -478,7 +454,6 @@ const SessionModal = ({
    */
   const handleStartGame = async () => {
     if (!gameId) {
-      console.error('Cannot start game: Game ID is missing');
       setError({
         severity: 'error',
         message: 'Cannot start game: Game ID is missing',
@@ -488,13 +463,11 @@ const SessionModal = ({
 
     // Prevent multiple clicks
     if (isAdvancing) {
-      console.log('Ignoring click - already processing advance request');
       return;
     }
 
     try {
       setIsAdvancing(true);
-      console.log('Advancing to next question for game:', gameId);
 
       // First check if the game is still active using the games endpoint
       const gamesData = await ApiCall(`/admin/games`, {}, 'GET');
@@ -505,7 +478,6 @@ const SessionModal = ({
       }
 
       if (!game.active) {
-        console.log('Game has already ended. Showing results options.');
         setIsEnding(false);
         setIsEnded(true);
         return;
@@ -520,22 +492,17 @@ const SessionModal = ({
         'POST'
       );
 
-      console.log('Game advancement result:', data);
 
       // Check if the response indicates that the game has ended
       if (
         data.error === 'Game has no active session' ||
         (data.error && data.error.includes('no active session'))
       ) {
-        console.log('Game has automatically ended. Showing results options.');
 
         // Use setTimeout to ensure state updates properly with React's batching
         setTimeout(() => {
           setIsEnded(true);
-          console.log('isEnded state set to true due to auto-end detection');
         }, 50);
-      } else if (!data.error) {
-        console.log('Successfully advanced to next question');
       }
     } catch (e) {
       console.error('Error advancing game:', e);
@@ -545,12 +512,10 @@ const SessionModal = ({
         e.message === 'Game has no active session' ||
         (e.message && e.message.includes('no active session'))
       ) {
-        console.log('Game has automatically ended. Showing results options.');
 
         // Show Session Ended view
         setTimeout(() => {
           setIsEnded(true);
-          console.log('isEnded state set to true due to auto-end detection');
         }, 50);
       } else {
         setError({
@@ -562,7 +527,6 @@ const SessionModal = ({
       // Add a small delay before allowing another click to prevent rapid multiple clicks
       setTimeout(() => {
         setIsAdvancing(false);
-        console.log('Ready for next advance');
       }, 500);
     }
   };
@@ -602,29 +566,22 @@ const SessionModal = ({
     setShowEndConfirm(false);
     try {
       setIsEnding(true);
-      console.log('Ending session process started...');
-
       // Call the onEndSession function from props
       if (onEndSession) {
         const success = await onEndSession();
-        console.log('Session end API result:', success);
 
         if (success) {
-          console.log('Session ended successfully, showing result options');
           // Ensure we set states in correct order
           setIsEnding(false);
           // Use setTimeout to ensure state updates properly with React's batching
           setTimeout(() => {
             setIsEnded(true);
-            console.log('isEnded state set to true');
           }, 50);
         } else {
-          console.log('Session ending failed');
           setIsEnding(false);
           onClose();
         }
       } else {
-        console.error('No onEndSession handler provided');
         setIsEnding(false);
         onClose();
       }
@@ -647,7 +604,6 @@ const SessionModal = ({
         navigate(`/session/${sessionId}`);
       }, 150);
     } else {
-      console.error('Cannot navigate to results: Session ID is missing.');
       onClose();
     }
   };
@@ -656,7 +612,6 @@ const SessionModal = ({
    * Navigates to the charts page for the session
    */
   const handleViewCharts = () => {
-    console.log('Navigating to charts for session:', sessionId);
     if (sessionId) {
       // Close modal first to avoid state conflicts
       onClose();
@@ -665,21 +620,17 @@ const SessionModal = ({
         navigate(`/results/${sessionId}`);
       }, 150);
     } else {
-      console.error('Cannot navigate to charts: Session ID is missing.');
       onClose();
     }
   };
 
   // Regular close handler (used for non-end-session cases)
   const handleClose = (event, reason) => {
-    console.log('Handle close triggered, reason:', reason);
-
     // Prevent closing with backdrop or escape key during loading or when showing results
     if (
       (isEnding || isEnded) &&
       (reason === 'backdropClick' || reason === 'escapeKeyDown')
     ) {
-      console.log('Preventing close during loading/results state');
       return;
     }
 
@@ -693,14 +644,12 @@ const SessionModal = ({
 
   // Special handler for "No, Close" in Session Ended view
   const handleCloseAfterEnd = () => {
-    console.log('Closing modal after session ended');
     onClose();
   };
 
   // Reset session ended state when the modal is closed or reopened
   const handleModalOnExited = () => {
     // Reset all local state after the closing animation completes
-    console.log('Modal fully closed, resetting states');
     setIsEnded(false);
     setShowEndConfirm(false);
     setIsEnding(false);

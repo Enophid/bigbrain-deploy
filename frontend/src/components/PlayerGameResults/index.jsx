@@ -45,8 +45,6 @@ const PlayerGameResults = () => {
       totalPoints += result.points || 0;
     });
 
-    console.log(`Calculated total score: ${totalPoints}`);
-
     return {
       totalScore: totalPoints,
     };
@@ -69,8 +67,6 @@ const PlayerGameResults = () => {
           throw new Error(response.error || 'Failed to load game results');
         }
 
-        console.log('API Response:', response); // Log the full response for debugging
-
         // The API response structure might be different - adapt based on actual response
         let resultsData = [];
 
@@ -90,7 +86,6 @@ const PlayerGameResults = () => {
           }
           // If response has a different structure
           else {
-            console.log('Unexpected API response structure:', response);
             // Try to extract useful data anyway if possible
             resultsData = Object.values(response).filter(
               (item) =>
@@ -104,21 +99,6 @@ const PlayerGameResults = () => {
         }
 
         if (resultsData.length > 0) {
-          console.log('Processed results data:', resultsData);
-
-          // Debug: Log raw data structure for response times
-          console.log(
-            'Response time fields in API data:',
-            resultsData.map((item) => ({
-              responseTime: item.responseTime,
-              timeTaken: item.timeTaken,
-              answerTime: item.answerTime,
-              timeSpent: item.timeSpent,
-              questionStartedAt: item.questionStartedAt,
-              answeredAt: item.answeredAt,
-            }))
-          );
-
           // Ensure each result has the required fields for display
           const formattedResults = resultsData.map((result, index) => {
             // Process response time with proper fallbacks
@@ -129,11 +109,6 @@ const PlayerGameResults = () => {
               const startTime = new Date(result.questionStartedAt).getTime();
               const endTime = new Date(result.answeredAt).getTime();
               responseTime = (endTime - startTime) / 1000; // Convert to seconds
-              console.log(
-                `Calculated response time from timestamps: ${responseTime}s for question ${
-                  index + 1
-                }`
-              );
             }
             // Fall back to direct responseTime fields if timestamps not available
             else if (result.responseTime !== undefined) {
@@ -182,17 +157,11 @@ const PlayerGameResults = () => {
               const speedRatio = Math.min(responseTime / questionDuration, 1);
               // Calculate multiplier from 0.5 to 2.0
               speedMultiplier = Math.round((2 - 1.5 * speedRatio) * 100) / 100;
-              console.log(
-                `Calculated speed multiplier: ${speedMultiplier}x for response time ${responseTime}s`
-              );
             }
 
             // If no points but we have speedMultiplier and it's a correct answer, calculate points
             if (!points && speedMultiplier && isCorrect) {
               points = Math.round(basePoints * speedMultiplier);
-              console.log(
-                `Calculated points: ${points} (${basePoints} × ${speedMultiplier})`
-              );
             }
 
             return {

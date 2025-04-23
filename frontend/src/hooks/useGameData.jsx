@@ -86,7 +86,6 @@ const useGameData = (gameId) => {
         g.id === updatedGame.id ? updatedGame : g
       );
 
-      console.log('Updating all games:', updatedGames);
 
       // Update the games using the bulk update endpoint
       const response = await ApiCall(

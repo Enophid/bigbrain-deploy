@@ -133,12 +133,10 @@ function QuestionEditor() {
         updatedQuestions.push({ ...newQuestion, id: newId });
       }
 
-      console.log(updatedQuestions);
       // Call the onSave handler from parent
       await updateQuestionData({ ...game, questions: updatedQuestions });
       handleBackToGameEditor();
     } catch (err) {
-      console.error('Failed to save question:', err.message);
       displayAlert(`Error saving question: ${err.message}`);
     }
   };

@@ -31,7 +31,7 @@ redis.on('reconnecting', () => {
 });
 
 // Database key
-const DB_KEY = 'bigbrain_data';
+const DB_KEY = 'bigbraindb';
 
 // Database operations
 const redisAdapter = {

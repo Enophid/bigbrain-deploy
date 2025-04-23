@@ -1,12 +1,11 @@
 import AsyncLock from "async-lock";
-import fs from "fs";
 import jwt from "jsonwebtoken";
 import { AccessError, InputError } from "./error";
+import redisAdapter from "../redisAdapter.js";
 
 const lock = new AsyncLock();
 
 const JWT_SECRET = "llamallamaduck";
-const DATABASE_FILE = "./database.json";
 
 /***************************************************************
                       State Management
@@ -20,44 +19,47 @@ const sessionTimeouts = {};
 
 const update = (admins, games, sessions) =>
   new Promise((resolve, reject) => {
-    lock.acquire("saveData", () => {
+    lock.acquire("saveData", async () => {
       try {
-        fs.writeFileSync(
-          DATABASE_FILE,
-          JSON.stringify(
-            {
-              admins,
-              games,
-              sessions,
-            },
-            null,
-            2
-          )
-        );
+        await redisAdapter.write({
+          admins,
+          games,
+          sessions,
+        });
         resolve();
-      } catch {
+      } catch (err) {
+        console.error("Writing to Redis failed:", err);
         reject(new Error("Writing to database failed"));
       }
     });
   });
 
 export const save = () => update(admins, games, sessions);
-export const reset = () => {
-  update({}, {}, {});
+export const reset = async () => {
+  await redisAdapter.reset();
   admins = {};
   games = {};
   sessions = {};
 };
 
-try {
-  const data = JSON.parse(fs.readFileSync(DATABASE_FILE));
-  admins = data.admins;
-  games = data.games;
-  sessions = data.sessions;
-} catch {
-  console.log("WARNING: No database found, create a new one");
-  save();
-}
+// Initialize data from Redis
+(async () => {
+  try {
+    const data = await redisAdapter.read();
+    if (data) {
+      admins = data.admins || {};
+      games = data.games || {};
+      sessions = data.sessions || {};
+    } else {
+      console.log("WARNING: No database found, creating a new one");
+      save();
+    }
+  } catch (error) {
+    console.error("Error loading data from Redis:", error);
+    console.log("WARNING: No database found, creating a new one");
+    save();
+  }
+})();
 
 /***************************************************************
                       Helper Functions

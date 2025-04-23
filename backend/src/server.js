@@ -1,7 +1,6 @@
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import express from 'express';
-import fs from 'fs';
 import swaggerUi from 'swagger-ui-express';
 
 import swaggerDocument from '../swagger.json';
@@ -29,15 +28,11 @@ import {
 
 const app = express();
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://z5481840-bigbrain-fe-deploy.vercel.app');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
-});
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
+}));
 
 app.use(bodyParser.urlencoded({ extended: true, }));
 app.use(bodyParser.json({ limit: '100mb', }));
@@ -175,12 +170,16 @@ app.get('/', (req, res) => res.redirect('/docs'));
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-const configData = JSON.parse(fs.readFileSync('../frontend/backend.config.json', 'utf8'));
-const port = 'BACKEND_PORT' in configData ? configData.BACKEND_PORT : 5000;
+// Use environment port or default to 5000
+const port = process.env.PORT || 5000;
 
-const server = app.listen(port, () => {
-  console.log(`Backend is now listening on port ${port}!`);
-  console.log(`For API docs, navigate to http://localhost:${port}`);
-});
+// Only start server if not in a serverless environment (like Vercel)
+if (process.env.NODE_ENV !== 'production') {
+  const server = app.listen(port, () => {
+    console.log(`Backend is now listening on port ${port}!`);
+    console.log(`For API docs, navigate to http://localhost:${port}`);
+  });
+}
 
-export default server;
+// For Vercel, we export the app
+export default app;

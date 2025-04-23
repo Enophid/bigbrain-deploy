@@ -1,15 +1,53 @@
 const Redis = require('ioredis');
 
-// Initialize Redis client
-const redis = new Redis(process.env.UPSTASH_REDIS_URL);
+// Validate Redis URL
+if (!process.env.UPSTASH_REDIS_URL) {
+  console.error('ERROR: UPSTASH_REDIS_URL environment variable is not set!');
+  console.error('Please set this variable with your Redis connection string.');
+}
+
+// Initialize Redis client with options
+const redis = new Redis(process.env.UPSTASH_REDIS_URL, {
+  connectTimeout: 10000,
+  maxRetriesPerRequest: 5,
+  retryStrategy: (times) => {
+    const delay = Math.min(times * 100, 3000);
+    console.log(`Redis connection retry attempt ${times}, waiting ${delay}ms`);
+    return delay;
+  }
+});
+
+// Connection events
+redis.on('connect', () => {
+  console.log('Successfully connected to Redis');
+});
+
+redis.on('error', (err) => {
+  console.error('Redis connection error:', err);
+});
+
+redis.on('reconnecting', () => {
+  console.log('Reconnecting to Redis...');
+});
 
 // Database key
 const DB_KEY = 'bigbrain_data';
 
 // Database operations
 const redisAdapter = {
+  async isConnected() {
+    try {
+      const pong = await redis.ping();
+      return pong === 'PONG';
+    } catch (error) {
+      console.error('Redis connection check failed:', error);
+      return false;
+    }
+  },
+
   async get(key) {
     try {
+      console.log(`Getting key: ${key}`);
       const value = await redis.get(key);
       return value ? JSON.parse(value) : null;
     } catch (error) {
@@ -20,6 +58,7 @@ const redisAdapter = {
   
   async set(key, value) {
     try {
+      console.log(`Setting key: ${key}`);
       await redis.set(key, JSON.stringify(value));
       return true;
     } catch (error) {
@@ -30,6 +69,7 @@ const redisAdapter = {
   
   async delete(key) {
     try {
+      console.log(`Deleting key: ${key}`);
       await redis.del(key);
       return true;
     } catch (error) {
@@ -41,19 +81,32 @@ const redisAdapter = {
   // Read database
   read: async () => {
     try {
+      console.log(`Reading from database key: ${DB_KEY}`);
       const data = await redis.get(DB_KEY);
-      return data ? JSON.parse(data) : { games: [] };
+      if (!data) {
+        console.log('No data found in Redis');
+        return { admins: {}, games: {}, sessions: {} };
+      }
+      
+      const parsedData = JSON.parse(data);
+      console.log(`Data retrieved successfully: ${Object.keys(parsedData).join(', ')}`);
+      return parsedData;
     } catch (error) {
       console.error('Error reading from Redis:', error);
-      return { games: [] };
+      return { admins: {}, games: {}, sessions: {} };
     }
   },
 
   // Write to database
   write: async (data) => {
     try {
-      await redis.set(DB_KEY, JSON.stringify(data));
-      return true;
+      if (!data) {
+        throw new Error('No data provided to write');
+      }
+      console.log(`Writing to database key: ${DB_KEY}, data keys: ${Object.keys(data).join(', ')}`);
+      const result = await redis.set(DB_KEY, JSON.stringify(data));
+      console.log('Data written successfully');
+      return result === 'OK';
     } catch (error) {
       console.error('Error writing to Redis:', error);
       return false;
@@ -63,8 +116,10 @@ const redisAdapter = {
   // Clear database
   clear: async () => {
     try {
-      await redis.del(DB_KEY);
-      return true;
+      console.log(`Clearing database key: ${DB_KEY}`);
+      const result = await redis.del(DB_KEY);
+      console.log('Database cleared successfully');
+      return result > 0;
     } catch (error) {
       console.error('Error clearing Redis:', error);
       return false;
@@ -73,10 +128,12 @@ const redisAdapter = {
 
   // Reset database to initial state
   reset: async () => {
-    const initialData = { games: [] };
+    const initialData = { admins: {}, games: {}, sessions: {} };
     try {
-      await redis.set(DB_KEY, JSON.stringify(initialData));
-      return true;
+      console.log(`Resetting database key: ${DB_KEY}`);
+      const result = await redis.set(DB_KEY, JSON.stringify(initialData));
+      console.log('Database reset successfully');
+      return result === 'OK';
     } catch (error) {
       console.error('Error resetting Redis:', error);
       return false;

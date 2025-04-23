@@ -25,6 +25,7 @@ import {
   submitAnswers,
   updateGamesFromAdmin
 } from './service';
+import redisAdapter from '../redisAdapter.js';
 
 const app = express();
 
@@ -58,7 +59,7 @@ const catchErrors = fn => async (req, res) => {
 ***************************************************************/
 
 const authed = fn => async (req, res) => {
-  const email = getEmailFromAuthorization(req.header('Authorization'));
+  const email = await getEmailFromAuthorization(req.header('Authorization'));
   await fn(req, res, email);
 };
 
@@ -161,6 +162,38 @@ app.get('/play/:playerid/results', catchErrors(async (req, res) => {
   const { playerid, } = req.params;
   return res.status(200).send(await getResults(playerid));
 }));
+
+/***************************************************************
+                      Health Check
+***************************************************************/
+
+app.get('/health', async (req, res) => {
+  try {
+    // Check Redis connection
+    const redisConnected = await redisAdapter.isConnected();
+    
+    if (redisConnected) {
+      return res.status(200).json({
+        status: 'ok',
+        redis: 'connected',
+        env: process.env.NODE_ENV || 'development',
+        uptime: process.uptime()
+      });
+    } else {
+      return res.status(500).json({
+        status: 'error',
+        redis: 'disconnected',
+        message: 'Redis connection failed'
+      });
+    }
+  } catch (error) {
+    console.error('Health check error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: error.message || 'Unknown error during health check'
+    });
+  }
+});
 
 /***************************************************************
                       Running Server

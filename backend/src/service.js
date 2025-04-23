@@ -14,6 +14,7 @@ const JWT_SECRET = "llamallamaduck";
 let admins = {};
 let games = {};
 let sessions = {};
+let dataInitialized = false;
 
 const sessionTimeouts = {};
 
@@ -26,6 +27,7 @@ const update = (admins, games, sessions) =>
           games,
           sessions,
         });
+        dataInitialized = true;
         resolve();
       } catch (err) {
         console.error("Writing to Redis failed:", err);
@@ -40,26 +42,54 @@ export const reset = async () => {
   admins = {};
   games = {};
   sessions = {};
+  dataInitialized = true;
 };
 
-// Initialize data from Redis
-(async () => {
+// Initialize data from Redis - ensure this completes before server handles requests
+const initializeData = async () => {
   try {
+    console.log("Loading data from Redis...");
     const data = await redisAdapter.read();
-    if (data) {
+    if (data && data.admins) {
       admins = data.admins || {};
       games = data.games || {};
       sessions = data.sessions || {};
+      console.log("Data loaded successfully:", { 
+        adminsCount: Object.keys(admins).length, 
+        gamesCount: Object.keys(games).length 
+      });
     } else {
-      console.log("WARNING: No database found, creating a new one");
-      save();
+      console.log("No existing data found, creating a new database");
+      await save();
     }
+    dataInitialized = true;
   } catch (error) {
     console.error("Error loading data from Redis:", error);
-    console.log("WARNING: No database found, creating a new one");
-    save();
+    console.log("WARNING: Creating a new database due to Redis error");
+    await save();
+    dataInitialized = true;
   }
-})();
+};
+
+// Start the initialization process immediately
+initializeData();
+
+// Helper function to ensure data is initialized before proceeding
+const ensureDataInitialized = async () => {
+  if (!dataInitialized) {
+    console.log("Waiting for data initialization...");
+    // Wait for initialization to complete
+    for (let i = 0; i < 10; i++) {
+      if (dataInitialized) break;
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    
+    if (!dataInitialized) {
+      console.error("Data initialization timed out");
+      throw new Error("Database initialization failed");
+    }
+  }
+};
 
 /***************************************************************
                       Helper Functions
@@ -103,7 +133,8 @@ const generateId = (currentList, max = 999999999) => {
                       Auth Functions
 ***************************************************************/
 
-export const getEmailFromAuthorization = (authorization) => {
+export const getEmailFromAuthorization = async (authorization) => {
+  await ensureDataInitialized();
   try {
     const token = authorization.replace("Bearer ", "");
     const { email } = jwt.verify(token, JWT_SECRET);
@@ -116,8 +147,9 @@ export const getEmailFromAuthorization = (authorization) => {
   }
 };
 
-export const login = (email, password) =>
-  userLock((resolve, reject) => {
+export const login = async (email, password) => {
+  await ensureDataInitialized();
+  return userLock((resolve, reject) => {
     if (email in admins) {
       if (admins[email].password === password) {
         admins[email].sessionActive = true;
@@ -126,15 +158,19 @@ export const login = (email, password) =>
     }
     reject(new InputError("Invalid username or password"));
   });
+};
 
-export const logout = (email) =>
-  userLock((resolve, reject) => {
+export const logout = async (email) => {
+  await ensureDataInitialized();
+  return userLock((resolve, reject) => {
     admins[email].sessionActive = false;
     resolve();
   });
+};
 
-export const register = (email, password, name) =>
-  userLock((resolve, reject) => {
+export const register = async (email, password, name) => {
+  await ensureDataInitialized();
+  return userLock((resolve, reject) => {
     if (email in admins) {
       return reject(new InputError("Email address already registered"));
     }
@@ -146,6 +182,7 @@ export const register = (email, password, name) =>
     const token = jwt.sign({ email }, JWT_SECRET, { algorithm: "HS256" });
     resolve(token);
   });
+};
 
 /***************************************************************
                       Game Functions

@@ -112,19 +112,6 @@ const redisAdapter = {
       return false;
     }
   },
-
-  // Clear database
-  clear: async () => {
-    try {
-      console.log(`Clearing database key: ${DB_KEY}`);
-      const result = await redis.del(DB_KEY);
-      console.log('Database cleared successfully');
-      return result > 0;
-    } catch (error) {
-      console.error('Error clearing Redis:', error);
-      return false;
-    }
-  },
 };
 
 module.exports = redisAdapter;

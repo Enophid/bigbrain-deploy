@@ -1,7 +1,8 @@
 import backendConfig from '../backend.config.json';
 
+// Use a hardcoded URL for production to avoid config file issues
 const API_URL = import.meta.env.PROD 
-  ? backendConfig.BACKEND_URL 
+  ? backendConfig.BACKEND_URL
   : `http://localhost:${backendConfig.BACKEND_PORT}`;
 
 const ApiCall = async (path, body, method) => {

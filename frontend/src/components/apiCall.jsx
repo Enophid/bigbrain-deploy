@@ -1,10 +1,14 @@
-import { BACKEND_PORT } from '../../backend.config.json';
+import backendConfig from '../backend.config.json';
+
+const API_URL = import.meta.env.PROD 
+  ? backendConfig.BACKEND_URL 
+  : `http://localhost:${backendConfig.BACKEND_PORT}`;
 
 const ApiCall = async (path, body, method) => {
   const token = localStorage.getItem('token');
 
   try {
-    const response = await fetch(`http://localhost:${BACKEND_PORT}` + path, {
+    const response = await fetch(`${API_URL}${path}`, {
       method: method,
       body: method === 'GET' ? undefined : JSON.stringify(body),
       headers: {

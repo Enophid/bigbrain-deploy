@@ -125,20 +125,6 @@ const redisAdapter = {
       return false;
     }
   },
-
-  // Reset database to initial state
-  reset: async () => {
-    const initialData = { admins: {}, games: {}, sessions: {} };
-    try {
-      console.log(`Resetting database key: ${DB_KEY}`);
-      const result = await redis.set(DB_KEY, JSON.stringify(initialData));
-      console.log('Database reset successfully');
-      return result === 'OK';
-    } catch (error) {
-      console.error('Error resetting Redis:', error);
-      return false;
-    }
-  }
 };
 
 module.exports = redisAdapter;

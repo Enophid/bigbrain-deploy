@@ -60,13 +60,27 @@ const initializeData = async () => {
       });
     } else {
       console.log("No existing data found, creating a new database");
+      // Initialize empty data structure
+      admins = {};
+      games = {};
+      sessions = {};
+      // Save the empty structure
       await save();
     }
     dataInitialized = true;
   } catch (error) {
     console.error("Error loading data from Redis:", error);
-    console.log("WARNING: Creating a new database due to Redis error");
-    await save();
+    console.warn("WARNING: Creating a new database due to Redis error");
+    // Initialize empty data structure
+    admins = {};
+    games = {};
+    sessions = {};
+    // Try to save, but don't fail if it doesn't work
+    try {
+      await save();
+    } catch (saveError) {
+      console.error("Error saving initial data:", saveError);
+    }
     dataInitialized = true;
   }
 };

@@ -1,16 +1,11 @@
 import { Redis } from "@upstash/redis";
 import dotenv from 'dotenv';
 dotenv.config();
-// Validate Redis URL
-if (!process.env.UPSTASH_REDIS_URL) {
-  console.error('ERROR: UPSTASH_REDIS_URL environment variable is not set!');
-  console.error('Please set this variable with your Redis connection string.');
-}
 
-// Validate Redis Token
-if (!process.env.UPSTASH_REDIS_TOKEN) {
-  console.error('ERROR: UPSTASH_REDIS_TOKEN environment variable is not set!');
-  console.error('Please set this variable with your Redis token.');
+// Validate Redis URL and token
+if (!process.env.UPSTASH_REDIS_URL || !process.env.UPSTASH_REDIS_TOKEN) {
+  console.error('ERROR: UPSTASH_REDIS_URL and UPSTASH_REDIS_TOKEN environment variables must be set!');
+  console.error('Make sure these variables are set in your .env file or Vercel dashboard.');
 }
 
 // Initialize Redis client with options
@@ -82,6 +77,7 @@ const redisAdapter = {
       return parsedData;
     } catch (error) {
       console.error('Error reading from Redis:', error);
+      // Return empty data structure in case of error
       return { admins: {}, games: {}, sessions: {} };
     }
   },
@@ -93,9 +89,9 @@ const redisAdapter = {
         throw new Error('No data provided to write');
       }
       console.log(`Writing to database key: ${DB_KEY}, data keys: ${Object.keys(data).join(', ')}`);
-      const result = await redis.set(DB_KEY, JSON.stringify(data));
+      await redis.set(DB_KEY, JSON.stringify(data));
       console.log('Data written successfully');
-      return result === 'OK';
+      return true;
     } catch (error) {
       console.error('Error writing to Redis:', error);
       return false;

@@ -6,8 +6,8 @@
   "scripts": {
     "test": "jest test/*",
     "lint": "eslint src/*.js",
-    "start": "nodemon -r esm src/server.js --ignore database.json",
-    "reset": "npx rimraf database.json"
+    "start": "nodemon -r dotenv/config -r esm src/server.js --ignore database.json",
+    "reset": "node -r dotenv/config -r esm -e \"require('./redisAdapter').reset().then(() => console.log('Database reset successfully'))\""
   },
   "author": "",
   "license": "ISC",

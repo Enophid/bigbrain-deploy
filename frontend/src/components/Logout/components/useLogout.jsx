@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../hooks/useAuth';
 import ApiCall from '../../apiCall';
 
 export default function useLogout() {
-  const navigate = useNavigate();
+  const { logout } = useAuth();
   const [open, setOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -18,22 +18,22 @@ export default function useLogout() {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
+      const token = localStorage.getItem('token');
       const data = await ApiCall(
         '/admin/auth/logout',
-        { token: localStorage.getItem('token') },
+        { token },
         'POST'
       );
       if (data.error) {
         throw new Error(data.error || 'Logout failed');
       } else {
-        localStorage.removeItem('token');
-        localStorage.removeItem('admin');
-        navigate('/login');
+        logout();
         setIsLoggingOut(false);
         setOpen(false);
       }
     } catch (error) {
       console.error('Logout failed:', error);
+      logout();
     }
   };
 

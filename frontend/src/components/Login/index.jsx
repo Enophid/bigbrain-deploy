@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Container, Paper, Alert, ThemeProvider } from '@mui/material';
 import bigBrainTheme from '../../theme/bigBrainTheme';
 import ApiCall from '../apiCall';
+import { useAuth } from '../../hooks/useAuth';
 
 // Import subcomponents
 import LoginHeader from './components/LoginHeader';
@@ -11,6 +12,7 @@ import RegisterLink from './components/RegisterLink';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -63,9 +65,8 @@ export default function Login() {
         throw new Error(data.error || 'Login failed');
       }
 
-      // Store token in localStorage
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('admin', formData.email);
+      // Use auth context to login
+      login(data.token, formData.email);
 
       // Redirect to dashboard
       navigate('/dashboard');

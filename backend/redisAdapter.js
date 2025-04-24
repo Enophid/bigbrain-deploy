@@ -3,57 +3,18 @@ import { Redis } from "@upstash/redis";
 import dotenv from 'dotenv';
 dotenv.config();
 
-// Create a dummy adapter for environments where Redis is not configured
-const createDummyAdapter = () => {
-  console.warn('WARNING: Using dummy Redis adapter. Data will not persist between function invocations.');
-  
-  // In-memory storage for development/testing
-  const memoryStore = {
-    bigbraindb: JSON.stringify({ admins: {}, games: {}, sessions: {} })
-  };
-  
-  return {
-    async isConnected() {
-      return true;
-    },
-    async get(key) {
-      console.log(`[DUMMY] Getting key: ${key}`);
-      const value = memoryStore[key];
-      return value ? JSON.parse(value) : null;
-    },
-    async set(key, value) {
-      console.log(`[DUMMY] Setting key: ${key}`);
-      memoryStore[key] = JSON.stringify(value);
-      return true;
-    },
-    async del(key) {
-      console.log(`[DUMMY] Deleting key: ${key}`);
-      delete memoryStore[key];
-      return true;
-    },
-    async ping() {
-      return 'PONG';
-    }
-  };
-};
-
-// Initialize Redis client or fallback to dummy adapter
-let redis;
-try {
-  if (!process.env.UPSTASH_REDIS_URL || !process.env.UPSTASH_REDIS_TOKEN) {
-    console.warn('WARNING: UPSTASH_REDIS_URL and UPSTASH_REDIS_TOKEN environment variables not set!');
-    console.warn('Using in-memory storage instead. Data will not persist between function invocations.');
-    redis = createDummyAdapter();
-  } else {
-    redis = new Redis({
-      url: process.env.UPSTASH_REDIS_URL,
-      token: process.env.UPSTASH_REDIS_TOKEN,
-    });
-  }
-} catch (error) {
-  console.error('Error initializing Redis client:', error);
-  redis = createDummyAdapter();
+// Validate Redis URL and token
+if (!process.env.UPSTASH_REDIS_URL || !process.env.UPSTASH_REDIS_TOKEN) {
+  console.error('ERROR: UPSTASH_REDIS_URL and UPSTASH_REDIS_TOKEN environment variables must be set!');
+  console.error('Make sure these variables are set in your .env file or Vercel dashboard.');
 }
+
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_URL,
+  token: process.env.UPSTASH_REDIS_TOKEN,
+})
+
 
 // Database key
 const DB_KEY = 'bigbraindb';

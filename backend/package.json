@@ -6,10 +6,8 @@
   "scripts": {
     "test": "jest test/*",
     "lint": "eslint src/*.js",
-    "start": "node -r dotenv/config src/server.js",
-    "dev": "nodemon -r dotenv/config src/server.js --ignore database.json",
-    "build": "echo 'Build completed'",
-    "reset": "node -r dotenv/config -e \"import('./redisAdapter.js').then(adapter => adapter.default.reset().then(() => console.log('Database reset successfully')))\""
+    "start": "nodemon -r esm src/server.js --ignore database.json",
+    "reset": "npx rimraf database.json"
   },
   "author": "",
   "license": "ISC",
@@ -22,7 +20,6 @@
     "envy": "^2.0.0",
     "esm": "^3.2.25",
     "express": "^4.17.1",
-    "express-rate-limit": "^7.5.0",
     "ioredis": "^5.6.1",
     "jsonwebtoken": "^8.5.1",
     "nodemon": "^2.0.6",
@@ -46,6 +43,5 @@
   },
   "engines": {
     "node": "18.x"
-  },
-  "type": "module"
+  }
 }

@@ -99,7 +99,18 @@ const redisAdapter = {
       return false;
     }
   },
+
+  reset: async () => {
+    try {
+      await redis.del(DB_KEY);
+      console.log('Database reset successfully');
+    } catch (error) {
+      console.error('Error resetting Redis:', error);
+      return false;
+    }
+  }
 };
+
 
 // Use ES modules export syntax
 export default redisAdapter;

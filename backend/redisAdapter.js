@@ -1,4 +1,4 @@
-const Redis = require('ioredis');
+import { Redis } from "@upstash/redis";
 
 // Validate Redis URL
 if (!process.env.UPSTASH_REDIS_URL) {
@@ -7,7 +7,10 @@ if (!process.env.UPSTASH_REDIS_URL) {
 }
 
 // Initialize Redis client with options
-const redis = new Redis(process.env.UPSTASH_REDIS_URL);
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_URL,
+  token: process.env.UPSTASH_REDIS_TOKEN,
+})
 
 // Connection events
 redis.on('connect', () => {

@@ -2,6 +2,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import express from 'express';
 import swaggerUi from 'swagger-ui-express';
+import rateLimit from 'express-rate-limit';
 
 import swaggerDocument from '../swagger.json';
 import { AccessError, InputError, } from './error';
@@ -29,10 +30,22 @@ import redisAdapter from '../redisAdapter.js';
 
 const app = express();
 
+// Rate limiting to prevent abuse
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  message: { error: 'Too many requests, please try again later' }
+});
+
+// Apply rate limiting to all routes
+app.use(limiter);
+
 // Updated CORS configuration
 app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  origin: ['https://z5481840-bigbrain-fe-deploy.vercel.app', 'http://localhost:3000'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept'],
   credentials: true,
   preflightContinue: false,
@@ -42,9 +55,15 @@ app.use(cors({
 // Handle OPTIONS requests explicitly with more detailed headers
 app.options('*', (req, res) => {
   // These headers are crucial for preflight requests
-  res.header('Access-Control-Allow-Origin', req.header('Origin') || '*');
+  const origin = req.header('Origin');
+  const allowedOrigins = ['https://z5481840-bigbrain-fe-deploy.vercel.app', 'http://localhost:3000'];
+  
+  if (allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  
   res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Access-Control-Max-Age', '86400'); // 24 hours
   // Immediately respond with 200 OK for preflight

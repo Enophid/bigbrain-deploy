@@ -407,7 +407,7 @@ function Dashboard() {
       // Get the current user's email from localStorage
       const userEmail = localStorage.getItem('admin');
       const token = localStorage.getItem('token');
-      if (!token) {
+      if (!token  || !userEmail) {
         throw new Error('User not authenticated. Please log in again.');
       }
 

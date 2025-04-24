@@ -13,7 +13,7 @@ import { Box } from '@mui/material';
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import { useEffect } from 'react';
-import { setAuthErrorHandler } from './components/apiCall';
+import { setAuthErrorHandler } from './utils/authHandler.js';
 import { useAuth } from './hooks/useAuth';
 
 // Wrapper component to set up auth error handling

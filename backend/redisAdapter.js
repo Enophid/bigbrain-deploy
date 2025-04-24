@@ -1,15 +1,14 @@
 import { Redis } from "@upstash/redis";
 
-const dotenv = require('dotenv');
-
+import dotenv from 'dotenv';
 dotenv.config();
+
 // Validate Redis URL and token
 if (!process.env.UPSTASH_REDIS_URL || !process.env.UPSTASH_REDIS_TOKEN) {
   console.error('ERROR: UPSTASH_REDIS_URL and UPSTASH_REDIS_TOKEN environment variables must be set!');
   console.error('Make sure these variables are set in your .env file or Vercel dashboard.');
 }
 
-// Initialize Redis client with options
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_URL,

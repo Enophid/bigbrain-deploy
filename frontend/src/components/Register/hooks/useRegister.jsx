@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ApiCall from '../../apiCall';
-import { useAuth } from '../../../hooks/useAuth';
 
 export default function useRegister() {
   const navigate = useNavigate();
-  const { login } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -80,8 +78,9 @@ export default function useRegister() {
         throw new Error(data.error || 'Registration failed');
       }
 
-      // Use auth context to login
-      login(data.token, formData.email);
+      // Store token in localStorage
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('admin', formData.email);
 
       // Redirect to dashboard
       navigate('/dashboard');

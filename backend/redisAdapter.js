@@ -1,7 +1,8 @@
 import { Redis } from "@upstash/redis";
-import dotenv from 'dotenv';
-dotenv.config();
 
+const dotenv = require('dotenv');
+
+dotenv.config();
 // Validate Redis URL and token
 if (!process.env.UPSTASH_REDIS_URL || !process.env.UPSTASH_REDIS_TOKEN) {
   console.error('ERROR: UPSTASH_REDIS_URL and UPSTASH_REDIS_TOKEN environment variables must be set!');
@@ -11,8 +12,8 @@ if (!process.env.UPSTASH_REDIS_URL || !process.env.UPSTASH_REDIS_TOKEN) {
 // Initialize Redis client with options
 
 const redis = new Redis({
-  url: 'https://amazing-dove-25282.upstash.io',
-  token: 'AWLCAAIjcDE1ZmRjODk0N2NlZDc0ZTJlYjU3ZWU5YTk0Mjg4ZDQyOXAxMA',
+  url: process.env.UPSTASH_REDIS_URL,
+  token: process.env.UPSTASH_REDIS_TOKEN,
 })
 
 

@@ -29,20 +29,10 @@ import redisAdapter from '../redisAdapter.js';
 
 const app = express();
 
-// CORS debugging middleware
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-  console.log(`Origin: ${req.headers.origin || 'No Origin'}`);
-  if (req.method === 'OPTIONS') {
-    console.log('Handling OPTIONS request');
-  }
-  next();
-});
-
 // Updated CORS configuration
 app.use(cors({
   origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept'],
   credentials: true,
   preflightContinue: false,
@@ -54,7 +44,7 @@ app.options('*', (req, res) => {
   // These headers are crucial for preflight requests
   res.header('Access-Control-Allow-Origin', req.header('Origin') || '*');
   res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Access-Control-Max-Age', '86400'); // 24 hours
   // Immediately respond with 200 OK for preflight

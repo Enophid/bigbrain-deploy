@@ -251,7 +251,7 @@ function Dashboard() {
 
     } catch (err) {
       // Show an alert to the user
-      alert(`Failed to delete game: ${err.message}`);
+      displayAlert(`Failed to delete game: ${err.message}`, 'error');
     }
   };
 
@@ -316,7 +316,7 @@ function Dashboard() {
       setSessionModalOpen(true);
 
     } catch (err) {
-      alert(`Failed to start game: ${err.message}`);
+      displayAlert(`Failed to start game: ${err.message}`, 'error');
     }
   };
 
@@ -406,8 +406,8 @@ function Dashboard() {
     try {
       // Get the current user's email from localStorage
       const userEmail = localStorage.getItem('admin');
-
-      if (!userEmail) {
+      const token = localStorage.getItem('token');
+      if (!token) {
         throw new Error('User not authenticated. Please log in again.');
       }
 

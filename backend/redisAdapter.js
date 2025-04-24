@@ -1,4 +1,4 @@
-const Redis = require('ioredis');
+import { Redis } from "@upstash/redis";
 
 // Validate Redis URL
 if (!process.env.UPSTASH_REDIS_URL) {
@@ -7,15 +7,7 @@ if (!process.env.UPSTASH_REDIS_URL) {
 }
 
 // Initialize Redis client with options
-const redis = new Redis(process.env.UPSTASH_REDIS_URL, {
-  connectTimeout: 10000,
-  maxRetriesPerRequest: 5,
-  retryStrategy: (times) => {
-    const delay = Math.min(times * 100, 3000);
-    console.log(`Redis connection retry attempt ${times}, waiting ${delay}ms`);
-    return delay;
-  }
-});
+const redis = new Redis(process.env.UPSTASH_REDIS_URL);
 
 // Connection events
 redis.on('connect', () => {
@@ -112,6 +104,19 @@ const redisAdapter = {
       return false;
     }
   },
+
+  // Reset database
+  reset: async () => {
+    try {
+      console.log(`Resetting database key: ${DB_KEY}`);
+      await redis.del(DB_KEY);
+      console.log('Database reset successfully');
+      return true;
+    } catch (error) {
+      console.error('Error resetting Redis database:', error);
+      return false;
+    }
+  }
 };
 
 module.exports = redisAdapter;

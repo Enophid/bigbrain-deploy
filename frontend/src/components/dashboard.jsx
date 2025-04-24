@@ -405,28 +405,11 @@ function Dashboard() {
   const handleUploadGame = async (gameData) => {
     try {
       // Get the current user's email from localStorage
-      const token = localStorage.getItem('token');
       const userEmail = localStorage.getItem('admin');
 
-      if (!token) {
-        displayAlert('Authentication token not found. Please log in again.', 'error');
-        navigate('/login');
-        return;
-      }
-
       if (!userEmail) {
-        displayAlert('User information not found. Please log in again.', 'error');
-        navigate('/login');
-        return;
+        throw new Error('User not authenticated. Please log in again.');
       }
-
-      // Get the latest games data first
-      const latestGamesData = await ApiCall('/admin/games', {}, 'GET');
-      if (latestGamesData.error) {
-        throw new Error(latestGamesData.error || 'Failed to fetch latest games data');
-      }
-      
-      const currentGames = latestGamesData.games || [];
 
       // Process and normalize the game data
       const normalizedQuestions = gameData.questions
@@ -463,7 +446,7 @@ function Dashboard() {
       };
 
       // Add the new game to the existing games
-      const updatedGames = [...currentGames, newGame];
+      const updatedGames = [...games, newGame];
 
       // Use the PUT endpoint to update all games
       const response = await ApiCall(

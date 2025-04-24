@@ -6,6 +6,12 @@ if (!process.env.UPSTASH_REDIS_URL) {
   console.error('Please set this variable with your Redis connection string.');
 }
 
+// Validate Redis Token
+if (!process.env.UPSTASH_REDIS_TOKEN) {
+  console.error('ERROR: UPSTASH_REDIS_TOKEN environment variable is not set!');
+  console.error('Please set this variable with your Redis token.');
+}
+
 // Initialize Redis client with options
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_URL,

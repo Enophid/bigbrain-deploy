@@ -9,10 +9,12 @@ if (!process.env.UPSTASH_REDIS_URL || !process.env.UPSTASH_REDIS_TOKEN) {
 }
 
 // Initialize Redis client with options
+
 const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_URL,
-  token: process.env.UPSTASH_REDIS_TOKEN,
-});
+  url: 'https://amazing-dove-25282.upstash.io',
+  token: 'AWLCAAIjcDE1ZmRjODk0N2NlZDc0ZTJlYjU3ZWU5YTk0Mjg4ZDQyOXAxMA',
+})
+
 
 // Database key
 const DB_KEY = 'bigbraindb';

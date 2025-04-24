@@ -1,5 +1,4 @@
 import backendConfig from '../backend.config.json';
-import { handleAuthError } from '../utils/authHandler';
 
 // Use a hardcoded URL for production to avoid config file issues
 const API_URL = import.meta.env.PROD 
@@ -23,9 +22,7 @@ const ApiCall = async (path, body, method) => {
       // If response status is 401 or 403, the token might be invalid
       if (response.status === 401 || response.status === 403) {
         console.warn('Authentication issue detected:', response.status);
-        
-        // Call the auth error handler if set
-        handleAuthError();
+        // You might want to redirect to login here or handle token refresh
       }
     }
 

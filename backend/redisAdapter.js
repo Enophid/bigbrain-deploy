@@ -9,7 +9,6 @@ if (!process.env.UPSTASH_REDIS_URL || !process.env.UPSTASH_REDIS_TOKEN) {
   console.error('Make sure these variables are set in your .env file or Vercel dashboard.');
 }
 
-
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_URL,
   token: process.env.UPSTASH_REDIS_TOKEN,

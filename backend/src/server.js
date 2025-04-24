@@ -29,18 +29,37 @@ import redisAdapter from '../redisAdapter.js';
 
 const app = express();
 
+// CORS debugging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  console.log(`Origin: ${req.headers.origin || 'No Origin'}`);
+  if (req.method === 'OPTIONS') {
+    console.log('Handling OPTIONS request');
+  }
+  next();
+});
+
 app.use(cors({
-  origin: '*',
+  origin: [
+    'https://z5481840-bigbrain-fe-deploy.vercel.app',
+    'https://bigbrain-deploy-3shkt35oy-tris-projects-db78a764.vercel.app',
+    '*'
+  ],
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
 }));
 
-// Handle OPTIONS requests explicitly
+// Handle OPTIONS requests explicitly with more detailed headers
 app.options('*', (req, res) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  // These headers are crucial for preflight requests
+  res.header('Access-Control-Allow-Origin', req.header('Origin') || '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.sendStatus(200);
+  res.header('Access-Control-Max-Age', '86400'); // 24 hours
+  // Immediately respond with 200 OK for preflight
+  res.status(200).end();
 });
 
 app.use(bodyParser.urlencoded({ extended: true, }));

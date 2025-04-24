@@ -39,15 +39,14 @@ app.use((req, res, next) => {
   next();
 });
 
+// Updated CORS configuration
 app.use(cors({
-  origin: [
-    'https://z5481840-bigbrain-fe-deploy.vercel.app',
-    'https://bigbrain-deploy-3shkt35oy-tris-projects-db78a764.vercel.app',
-    '*'
-  ],
-  credentials: true,
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept'],
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 }));
 
 // Handle OPTIONS requests explicitly with more detailed headers

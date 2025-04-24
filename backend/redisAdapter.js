@@ -16,19 +16,6 @@ if (!process.env.UPSTASH_REDIS_TOKEN) {
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_URL,
   token: process.env.UPSTASH_REDIS_TOKEN,
-})
-
-// Connection events
-redis.on('connect', () => {
-  console.log('Successfully connected to Redis');
-});
-
-redis.on('error', (err) => {
-  console.error('Redis connection error:', err);
-});
-
-redis.on('reconnecting', () => {
-  console.log('Reconnecting to Redis...');
 });
 
 // Database key
@@ -113,6 +100,20 @@ const redisAdapter = {
       return false;
     }
   },
+  
+  // Reset database
+  reset: async () => {
+    try {
+      console.log(`Resetting database key: ${DB_KEY}`);
+      await redis.del(DB_KEY);
+      console.log('Database reset successfully');
+      return true;
+    } catch (error) {
+      console.error('Error resetting Redis database:', error);
+      return false;
+    }
+  }
 };
 
-module.exports = redisAdapter;
+// Use ES modules export syntax
+export default redisAdapter;

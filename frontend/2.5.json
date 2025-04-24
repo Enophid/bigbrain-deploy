@@ -1,0 +1,73 @@
+{
+  "name": "Sample Quiz Game",
+  "thumbnail": "https://example.com/sample-thumbnail.jpg",
+  "questions": [
+    {
+      "text": "What is the capital of France?",
+      "type": "single",
+      "points": 10,
+      "answers": [
+        {
+          "text": "London",
+          "isCorrect": false
+        },
+        {
+          "text": "Paris",
+          "isCorrect": true
+        },
+        {
+          "text": "Berlin",
+          "isCorrect": false
+        },
+        {
+          "text": "Madrid",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswers": ["Paris"],
+      "duration": 30
+    },
+    {
+      "text": "Which of these are prime numbers?",
+      "type": "multiple",
+      "points": 20,
+      "answers": [
+        {
+          "text": "2",
+          "isCorrect": true
+        },
+        {
+          "text": "4",
+          "isCorrect": false
+        },
+        {
+          "text": "7",
+          "isCorrect": true
+        },
+        {
+          "text": "9",
+          "isCorrect": false
+        }
+      ],
+      "correctAnswers": ["2", "7"],
+      "duration": 45
+    },
+    {
+      "text": "Is the Earth flat?",
+      "type": "judgement",
+      "points": 5,
+      "answers": [
+        {
+          "text": "True",
+          "isCorrect": false
+        },
+        {
+          "text": "False",
+          "isCorrect": true
+        }
+      ],
+      "correctAnswers": ["False"],
+      "duration": 20
+    }
+  ]
+} 

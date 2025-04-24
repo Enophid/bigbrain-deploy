@@ -1,6 +1,5 @@
-import { Redis } from "@upstash/redis";
-const envy = require('envy');
-const env = envy();
+const Redis = require('ioredis');
+
 // Validate Redis URL
 if (!process.env.UPSTASH_REDIS_URL) {
   console.error('ERROR: UPSTASH_REDIS_URL environment variable is not set!');
@@ -105,19 +104,6 @@ const redisAdapter = {
       return false;
     }
   },
-
-  // Reset database
-  reset: async () => {
-    try {
-      console.log(`Resetting database key: ${DB_KEY}`);
-      await redis.del(DB_KEY);
-      console.log('Database reset successfully');
-      return true;
-    } catch (error) {
-      console.error('Error resetting Redis database:', error);
-      return false;
-    }
-  }
 };
 
 module.exports = redisAdapter;

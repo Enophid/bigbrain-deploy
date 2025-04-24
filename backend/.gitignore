@@ -40,4 +40,4 @@ ehthumbs.db
 .idea/
 .vscode/
 *.swp
-*.swo 
+.vercel

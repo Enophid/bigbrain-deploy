@@ -7,6 +7,7 @@
     "test": "jest test/*",
     "lint": "eslint src/*.js",
     "start": "nodemon -r dotenv/config -r esm src/server.js --ignore database.json",
+    "build": "echo 'Build completed'",
     "reset": "node -r dotenv/config -r esm -e \"require('./redisAdapter').reset().then(() => console.log('Database reset successfully'))\""
   },
   "author": "",

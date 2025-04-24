@@ -1,5 +1,6 @@
 import { Redis } from "@upstash/redis";
-
+const envy = require('envy');
+const env = envy();
 // Validate Redis URL
 if (!process.env.UPSTASH_REDIS_URL) {
   console.error('ERROR: UPSTASH_REDIS_URL environment variable is not set!');

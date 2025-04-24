@@ -6,9 +6,10 @@
   "scripts": {
     "test": "jest test/*",
     "lint": "eslint src/*.js",
-    "start": "nodemon -r dotenv/config -r esm src/server.js --ignore database.json",
+    "start": "node -r dotenv/config src/server.js",
+    "dev": "nodemon -r dotenv/config src/server.js --ignore database.json",
     "build": "echo 'Build completed'",
-    "reset": "node -r dotenv/config -r esm -e \"require('./redisAdapter').reset().then(() => console.log('Database reset successfully'))\""
+    "reset": "node -r dotenv/config -e \"import('./redisAdapter.js').then(adapter => adapter.default.reset().then(() => console.log('Database reset successfully')))\""
   },
   "author": "",
   "license": "ISC",

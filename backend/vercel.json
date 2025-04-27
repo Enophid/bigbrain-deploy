@@ -18,6 +18,7 @@
     }
   ],
   "env": {
-    "NODE_ENV": "production"
+    "UPSTASH_REDIS_URL": "@upstash_redis_url",
+    "UPSTASH_REDIS_TOKEN": "@upstash_redis_token"
   }
 }

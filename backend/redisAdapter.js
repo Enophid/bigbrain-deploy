@@ -11,8 +11,8 @@ if (!process.env.UPSTASH_REDIS_URL || !process.env.UPSTASH_REDIS_TOKEN) {
 
 
 const redis = new Redis({
-  url: 'https://amazing-dove-25282.upstash.io',
-  token: 'AWLCAAIjcDE1ZmRjODk0N2NlZDc0ZTJlYjU3ZWU5YTk0Mjg4ZDQyOXAxMA',
+  url: process.env.UPSTASH_REDIS_URL,
+  token: process.env.UPSTASH_REDIS_TOKEN
 })
 
 
@@ -74,7 +74,22 @@ const redisAdapter = {
         return { admins: {}, games: {}, sessions: {} };
       }
       
-      const parsedData = JSON.parse(data);
+      // Check if data is already an object
+      let parsedData;
+      if (typeof data === 'object' && data !== null) {
+        parsedData = data;
+        console.log('Data already parsed, using as is');
+      } else {
+        try {
+          parsedData = JSON.parse(data);
+        } catch (parseError) {
+          console.error('Error parsing Redis data:', parseError);
+          console.log('Raw data type:', typeof data);
+          console.log('Raw data preview:', typeof data === 'string' ? data.substring(0, 100) : data);
+          return { admins: {}, games: {}, sessions: {} };
+        }
+      }
+      
       console.log(`Data retrieved successfully: ${Object.keys(parsedData).join(', ')}`);
       return parsedData;
     } catch (error) {
